@@ -1,0 +1,11 @@
+# To build run:  flutter pub run flutter_launcher_icons:main -f flutter_launcher_icons.yaml
+
+# Adaptive only for Android
+flutter_icons:
+#  adaptive_icon_foreground_scale_factor: 0.66
+#  adaptive_icon_background: '#ffffff'
+#  adaptive_icon_foreground: "assets/launcher_icon/demo-icon.png"
+  android: true
+  ios: true
+  image_path: "assets/icons/logo.png"
+

@@ -1,0 +1,73 @@
+name: findgo_admin
+description: Find the latest specials and events.
+
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.12.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Env
+  #  flutter_dotenv: ^5.0.2
+
+  # LocalStorage
+#  flutter_secure_storage: ^4.2.0
+#    hive_flutter: ^1.1.0
+
+  # Multimedia
+  crop_your_image: ^0.6.0+1
+  image_compression: ^1.0.3
+  image_picker: ^0.8.4
+
+  # Networking
+  http: ^0.13.3
+#  internet_connection_checker: ^0.0.1+2
+
+  # Routing
+  vrouter: ^1.2.0+12
+
+  # Service Locator
+  get_it: ^7.2.0
+
+  # State Management
+  flutter_riverpod: ^0.14.0+3
+
+  # UI
+  pinput: ^1.2.0
+
+  # Util
+  cupertino_icons: ^1.0.2
+  dartz: ^0.10.0
+  jwt_decode: ^0.3.1
+  intl: ^0.17.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  # Lint
+  lint: ^1.7.2
+
+  # App Icon Generator:  flutter pub run flutter_launcher_icons:main -f flutter_launcher_icons.yaml
+  flutter_launcher_icons: ^0.9.1
+
+  # Splash Screen:  flutter pub run flutter_native_splash:create --path=flutter_native_splash.yaml
+  flutter_native_splash: ^1.2.3
+
+  # Change Package Name: flutter pub run change_app_package_name:main com.new.package.name
+#  change_app_package_name: ^1.0.0
+
+#dependency_overrides:
+#  async: ^2.8.1
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - .env
+    - assets/

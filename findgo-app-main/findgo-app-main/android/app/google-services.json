@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "776268514996",
+    "project_id": "findgo-ca6ba",
+    "storage_bucket": "findgo-ca6ba.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:776268514996:android:e204573875c6a7b7d7f9e1",
+        "android_client_info": {
+          "package_name": "app.specials.findgo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "776268514996-37hj0vhbpne4fj1resdac0ekmn1j6p4s.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD17MUfnUT4FrsGU_1f2sqD3MfWg6fVQAo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "776268514996-37hj0vhbpne4fj1resdac0ekmn1j6p4s.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
