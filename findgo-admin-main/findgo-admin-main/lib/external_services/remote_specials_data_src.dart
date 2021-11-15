@@ -8,6 +8,7 @@ import '../core/constants.dart';
 import '../core/exception.dart';
 import '../core/success.dart';
 import '../core/util.dart';
+import '../data_models/location.dart';
 import '../data_models/special.dart';
 import '../data_models/store.dart';
 import '../data_models/store_category.dart';
@@ -79,6 +80,50 @@ class RemoteSpecialsDataSource {
     }
   }
 
+  // LOCATIONS
+
+  Future<Location> createLocation(String jwt, Location location) async {
+    final uri = Uri.parse("$serverUrl/createLocation.php");
+    // print(uri.toString());
+    //print("jwt req: " + jwt);
+
+    try {
+      final createLocationMap = location.toJson();
+      // print(createLocationMap);
+
+      // Send post request
+      final response = await http
+          .post(
+            uri,
+            headers: {"Content-Type": "application/json", "jwt": jwt},
+            body: json.encode(createLocationMap),
+          )
+          .timeout(kTimeOutDuration);
+
+      // MOCK RESPONSE
+      await Future.delayed(const Duration(seconds: 1));
+      // final response = Response('{"locationUuid" : "20", "imageUrl : """}', 201);
+      // final response = Response('{"locationUuid" : "20", "imageUrl : """}', 500);
+      // print(json.decode(response.body).toString());
+
+      // Log status code
+      print('[CREATE LOCATION] Response Code: ${response.statusCode}');
+      // print(response.body);
+
+      if (response.statusCode == 201) {
+        final jsonResponse = json.decode(response.body);
+        location.id = int.parse(jsonResponse["id"] as String);
+        return location;
+      } else {
+        _handleError(response: response);
+      }
+
+      throw RemoteDataSourceException(response.body);
+    } catch (error) {
+      throw RemoteDataSourceException(error.toString());
+    }
+  }
+
   Future<Set<Store>> getAllStores(String jwt) async {
     final uri = Uri.parse("$serverUrl/getAllStores.php");
     print(uri.toString());
@@ -103,9 +148,52 @@ class RemoteSpecialsDataSource {
         //print(response.body.toString());
 
         final jsonList = json.decode(response.body) as List;
+        print("==========");
         final storeList = jsonList
             .map(
               (jsonStore) => Store.fromJson(jsonStore as Map<String, dynamic>),
+            )
+            .toSet();
+        print("==========");
+
+        return storeList;
+      } else {
+        _handleError(response: response);
+      }
+
+      throw RemoteDataSourceException(response.body);
+    } catch (error) {
+      throw RemoteDataSourceException(error.toString());
+    }
+  }
+
+  Future<Set<Location>> getAllLocations(String jwt) async {
+    final uri = Uri.parse("$serverUrl/getAllLocations.php");
+    print(uri.toString());
+    //print("jwt req: " + jwt);
+
+    try {
+      // Send get request
+      final response = await http.get(
+        uri,
+        headers: {"jwt": jwt},
+      ).timeout(kTimeOutDuration);
+
+      // MOCK RESPONSE
+      // await Future.delayed(const Duration(seconds: 1));
+      // final response = Response(jsonEncode(mockLocationList), 200,);
+      //print(json.decode(response.body).toString());
+
+      // Log status code
+      print('[GET ALL LOCATION] Response Code: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        //print(response.body.toString());
+
+        final jsonList = json.decode(response.body) as List;
+        final storeList = jsonList
+            .map(
+              (jsonLocation) => Location.fromJson(jsonLocation as Map<String, dynamic>),
             )
             .toSet();
 
@@ -161,6 +249,45 @@ class RemoteSpecialsDataSource {
     }
   }
 
+  Future<Location> updateLocation(String jwt, Location location) async {
+    final uri = Uri.parse("$serverUrl/updateLocation.php");
+    print(uri.toString());
+    //print("jwt req: " + jwt);
+
+    try {
+      final updatedLocationMap = location.toJson();
+      // print(updatedLocationMap);
+
+      // Send post request
+      final response = await http
+          .post(
+            uri,
+            headers: {"Content-Type": "application/json", "jwt": jwt},
+            body: json.encode(updatedLocationMap),
+          )
+          .timeout(kTimeOutDuration);
+
+      // MOCK RESPONSE
+      // await Future.delayed(const Duration(seconds: 2));
+      // final response = Response('{"imageUrl : """}', 200);
+      //print(json.decode(response.body).toString());
+
+      // Log status code
+      print('[UPDATE LOCATION] Response Code: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        final jsonResponse = json.decode(response.body);
+        return location;
+      } else {
+        _handleError(response: response);
+      }
+
+      throw RemoteDataSourceException(response.body);
+    } catch (error) {
+      throw RemoteDataSourceException(error.toString());
+    }
+  }
+
   Future<ServerSuccess> deleteStore(String jwt, Store store) async {
     final uri = Uri.parse("$serverUrl/deleteStore.php");
     print(uri.toString());
@@ -187,6 +314,44 @@ class RemoteSpecialsDataSource {
 
       // Log status code
       print('[DELETE STORE] Response Code: ${response.statusCode}');
+
+      if (response.statusCode == 204) {
+        return ServerSuccess();
+      } else {
+        _handleError(response: response);
+      }
+
+      throw RemoteDataSourceException(response.body);
+    } catch (error) {
+      throw RemoteDataSourceException(error.toString());
+    }
+  }
+
+  Future<ServerSuccess> deleteLocation(String jwt, Location location) async {
+    final uri = Uri.parse("$serverUrl/deleteLocation.php");
+    print(uri.toString());
+
+    try {
+      final deleteLocationMap = {
+        "id": location.id,
+      };
+
+      // Send post request
+      final response = await http
+          .post(
+            uri,
+            headers: {"Content-Type": "application/json", "jwt": jwt},
+            body: json.encode(deleteLocationMap),
+          )
+          .timeout(kTimeOutDuration);
+
+      // MOCK RESPONSE
+      // await Future.delayed(const Duration(seconds: 1));
+      // final response = Response("", 204,);
+      //print(json.decode(response.body).toString());
+
+      // Log status code
+      print('[DELETE LOCATION] Response Code: ${response.statusCode}');
 
       if (response.statusCode == 204) {
         return ServerSuccess();

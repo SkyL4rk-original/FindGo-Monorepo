@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import '../core/failure.dart';
 import '../data_models/store.dart';
 import '../data_models/store_category.dart';
+import '../data_models/location.dart';
 import '../data_models/store_stats.dart';
 import '../repositories/specials_repo.dart';
 import '../widgets/snackbar.dart';
@@ -26,6 +27,9 @@ final Comparator<Store> _nameComparator =
 // ignore: prefer_function_declarations_over_variables
 final Comparator<StoreCategory> _categoryNameComparator =
     (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase());
+// ignore: prefer_function_declarations_over_variables
+final Comparator<Location> _locationNameComparator =
+    (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase());
 
 class StoresViewModel extends ChangeNotifier {
   SpecialsRepository specialsRepository;
@@ -36,6 +40,11 @@ class StoresViewModel extends ChangeNotifier {
   List<Store> get storesList => _storesList;
   List<StoreCategory> _categoryList = [];
   List<StoreCategory> get categoryList => _categoryList;
+  List<Location> _locationList = [];
+  List<Location> get locationList => _locationList;
+  set locationList(List<Location> value) {
+    _locationList = value;
+  }
 
   // Build Context
   late BuildContext _context;
@@ -151,6 +160,19 @@ class StoresViewModel extends ChangeNotifier {
         (categoryList) {
       _categoryList = (categoryList as Set<StoreCategory>).toList();
       _categoryList.sort(_categoryNameComparator);
+      setState(StoresViewState.idle);
+    });
+  }
+
+  Future<void> getAllStoreLocations() async {
+    setState(StoresViewState.busy);
+
+    final failureOrLocationList =
+        await specialsRepository.getAllLocations();
+    failureOrLocationList.fold((failure) => _handleFailure(failure),
+        (locationList) {
+      _locationList = (locationList as Set<Location>).toList();
+      _locationList.sort(_locationNameComparator);
       setState(StoresViewState.idle);
     });
   }

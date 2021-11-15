@@ -32,6 +32,7 @@ $image = $data["image"];
 $name = $data["name"];
 $description = $data["description"];
 $categoryId = $data["categoryId"];
+$locationId = $data["locationId"];
 $phoneNumber = $data["phoneNumber"];
 $website = $data["website"];
 
@@ -81,6 +82,7 @@ $stmt = $db->prepare("
 			name=?,
 			description=?,
 			categoryID=?,
+			locationID=?,
 			phoneNumber=?,
 			website=?,
 			lat=?,
@@ -90,7 +92,7 @@ $stmt = $db->prepare("
 		LIMIT 1
 	");
 
-$stmt->bind_param("sssissddss", $imageUrl, $name, $description, $categoryId, $phoneNumber, $website, $lat, $lng, $streetAddress, $storeUuid);
+$stmt->bind_param("sssiissddss", $imageUrl, $name, $description, $categoryId, $locationId, $phoneNumber, $website, $lat, $lng, $streetAddress, $storeUuid);
 $stmt->execute();
 
 // Check update success

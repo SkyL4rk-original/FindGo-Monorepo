@@ -27,6 +27,7 @@
 	$data = json_decode(file_get_contents('php://input'), true);
 	$storeName = $data["name"];
 	$categoryId = $data["categoryId"];
+	$locationId = $data["locationId"];
 	$description = $data["description"];
 	$image = $data["image"];
 	$phoneNumber = $data["phoneNumber"];
@@ -48,8 +49,8 @@
 
 
 	$stmt = $db->prepare("
-		INSERT INTO store (storeUuid, name, categoryID, description, phoneNumber, website, imageUrl, lat, lng, streetAddress, status)
-		VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, 2)
+		INSERT INTO store (storeUuid, name, categoryID, locationID, description, phoneNumber, website, imageUrl, lat, lng, streetAddress, status)
+		VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 2)
 	");
 		//VALUES (UUID(), ?, ? ,? , ?, ?, ?)
 	if($stmt === false) {
@@ -58,7 +59,7 @@
 		return;
 	}
 
-	$stmt->bind_param("sissssdds", $storeName, $categoryId, $description, $phoneNumber, $website, $imageUrl, $lat, $lng, $streetAddress);
+	$stmt->bind_param("siissssdds", $storeName, $categoryId, $locationId, $description, $phoneNumber, $website, $imageUrl, $lat, $lng, $streetAddress);
 	$stmt->execute();
 	$stmt->close();
 

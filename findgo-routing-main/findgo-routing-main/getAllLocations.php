@@ -28,39 +28,22 @@
 	// Get all stores
 	$result = $db->query("
 		SELECT
-			storeUuid,
-			store.name,
-			store.description,
-			store.categoryID AS categoryId,
-			store.phoneNumber,
-			store.website,
-			store.status,
-			store.lat,
-			store.lng,
-			store.streetAddress,
-			c.name AS category,
-			location.name AS location,
-			location.id AS locationId,
-			imageUrl
-		FROM store
-		INNER JOIN category AS c
-		ON store.categoryID = c.ID
-		LEFT JOIN location
-		ON store.locationID = location.id
-		WHERE store.status>0
+			*
+		FROM location
+		WHERE status>0
 	");
 	if ($result->num_rows == 0) {
 		http_response_code(500);
-		echo '{"Message":"Database select store error: '.mysqli_error($db).'"}';
+		echo '{"Message":"Database select location error: '.mysqli_error($db).'"}';
 		return;
 	}
 
-	$storeList = Array();
+	$locationList = Array();
 	while( $row = $result->fetch_assoc() ) {
-		array_push($storeList, $row);
+		array_push($locationList, $row);
 	}
 
 	// Return json user object
 	http_response_code(200);
-	echo json_encode($storeList);
+	echo json_encode($locationList);
 ?>

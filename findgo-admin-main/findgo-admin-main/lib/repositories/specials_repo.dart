@@ -3,6 +3,7 @@ import 'package:findgo_admin/data_models/lat_lon.dart';
 
 import '../core/exception.dart';
 import '../core/failure.dart';
+import '../data_models/location.dart';
 import '../data_models/special.dart';
 import '../data_models/store.dart';
 import '../external_services/local_data_src.dart';
@@ -36,9 +37,19 @@ class SpecialsRepository {
         (jwt) => remoteSpecialsDataSource.createStore(jwt as String, store));
   }
 
+  Future<Either<Failure, dynamic>> createLocation(Location location) async {
+    return remoteCall(
+        (jwt) => remoteSpecialsDataSource.createLocation(jwt as String, location));
+  }
+
   Future<Either<Failure, dynamic>> getAllStores() async {
     return remoteCall(
         (jwt) => remoteSpecialsDataSource.getAllStores(jwt as String));
+  }
+
+  Future<Either<Failure, dynamic>> getAllLocations() async {
+    return remoteCall(
+        (jwt) => remoteSpecialsDataSource.getAllLocations(jwt as String));
   }
 
   Future<Either<Failure, dynamic>> updateStore(Store store) async {
@@ -46,9 +57,19 @@ class SpecialsRepository {
         (jwt) => remoteSpecialsDataSource.updateStore(jwt as String, store));
   }
 
+  Future<Either<Failure, dynamic>> updateLocation(Location location) async {
+    return remoteCall(
+        (jwt) => remoteSpecialsDataSource.updateLocation(jwt as String, location));
+  }
+
   Future<Either<Failure, dynamic>> deleteStore(Store store) async {
     return remoteCall(
         (jwt) => remoteSpecialsDataSource.deleteStore(jwt as String, store));
+  }
+
+  Future<Either<Failure, dynamic>> deleteLocation(Location location) async {
+    return remoteCall(
+        (jwt) => remoteSpecialsDataSource.deleteLocation(jwt as String, location));
   }
 
   Future<Either<Failure, dynamic>> toggleStoreActivate(Store store) async {
