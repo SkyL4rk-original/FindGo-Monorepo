@@ -9,6 +9,7 @@ import 'service_locator.dart';
 import 'view_models/auth_vm.dart';
 import 'view_models/specials_vm.dart';
 import 'view_models/stores_vm.dart';
+import 'view_models/locations_vm.dart';
 import 'view_models/users_vm.dart';
 import 'view_pages/error_pg.dart';
 import 'view_pages/home_pg.dart';
@@ -21,6 +22,8 @@ final specialsVMProvider =
     ChangeNotifierProvider<SpecialsViewModel>((ref) => sl<SpecialsViewModel>());
 final storesVMProvider =
     ChangeNotifierProvider<StoresViewModel>((ref) => sl<StoresViewModel>());
+final locationsVMProvider =
+    ChangeNotifierProvider<LocationsViewModel>((ref) => sl<LocationsViewModel>());
 final usersVMProvider =
     ChangeNotifierProvider<UsersViewModel>((ref) => sl<UsersViewModel>());
 

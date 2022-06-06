@@ -12,11 +12,14 @@ import 'package:vrouter/vrouter.dart';
 import '../core/constants.dart';
 import '../data_models/special.dart';
 import '../data_models/store.dart';
+import '../data_models/location.dart';
 import '../main.dart';
 import '../view_models/auth_vm.dart';
 import '../view_models/specials_vm.dart';
 import '../view_models/stores_vm.dart';
+import '../view_models/locations_vm.dart';
 import '../view_pages/store_pg.dart';
+import '../view_pages/location_pg.dart';
 import '../view_pages/store_stats_pg.dart';
 import '../widgets/image_cropper.dart';
 import '../widgets/loading.dart';
@@ -35,10 +38,13 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   late AuthViewModel _authViewModel;
   late StoresViewModel _storesViewModel;
+  late LocationsViewModel _locationsViewModel;
   late SpecialsViewModel _specialsViewModel;
 
   String _storeFilter = "";
+  String _locationFilter = "";
   Store? _selectedStore;
+  Location? _selectedLocation;
 
   Special? _tempSpecial;
   Special? _selectedSpecial;
@@ -57,6 +63,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     _authViewModel = context.read(authVMProvider);
     _storesViewModel = context.read(storesVMProvider);
+    _locationsViewModel = context.read(locationsVMProvider);
     _specialsViewModel = context.read(specialsVMProvider);
 
     WidgetsBinding.instance!.addPostFrameCallback((_) async {
@@ -64,7 +71,10 @@ class _HomePageState extends State<HomePage> {
       if (await _authViewModel.getCurrentUser()) {
         _specialsViewModel.getAllSpecials();
         _storesViewModel.getAllStoreCategories();
+        // _storesViewModel.getAllStoreLocations();
         await _storesViewModel.getAllStores();
+        await _locationsViewModel.getAllLocations();
+        // _storesViewModel.locationList = _locationsViewModel.locationsList;
 
         if (_authViewModel.currentUser.storeUuid != "") {
           _selectedStore = _storesViewModel.storesList.firstWhere(
@@ -282,6 +292,7 @@ class _HomePageState extends State<HomePage> {
                 final authVM = watch(authVMProvider);
                 final specialsVM = watch(specialsVMProvider);
                 final storesVM = watch(storesVMProvider);
+                final locationsVM = watch(locationsVMProvider);
 
                 authVM.context = context;
                 specialsVM.context = context;
@@ -298,6 +309,9 @@ class _HomePageState extends State<HomePage> {
                               // mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                if (_authViewModel.currentUser.storeUuid == "")
+                                  _locationSearchSection(),
+                                if (_showStores) const SizedBox(width: 20.0),
                                 if (_authViewModel.currentUser.storeUuid == "")
                                   _storeSearchSection(),
                                 if (_showActivity) const SizedBox(width: 20.0),
@@ -359,7 +373,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  bool _showStores = true;
+  bool _showStores = false;
   // STORES SECTION
   Widget _storeSearchSection() {
     if (!_showStores) {
@@ -433,13 +447,90 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  bool _showLocations = true;
+  // LOCATIONS SECTION
+  Widget _locationSearchSection() {
+    if (!_showLocations) {
+      return InkWell(
+        canRequestFocus: false,
+        onTap: () => setState(() => _showLocations = true),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            children: [
+              const Icon(Icons.keyboard_arrow_right_rounded),
+              const SizedBox(height: 16.0),
+              RotatedBox(
+                quarterTurns: 3,
+                child: Text(
+                  _selectedLocation != null ? _selectedLocation!.name : "Locations",
+                  // "Locations",
+                ),
+              ),
+              const SizedBox(
+                height: 16.0,
+              ),
+            ],
+          ),
+        ),
+      );
+    } else {
+      return SizedBox(
+        width: 300.0,
+        child: Column(
+          children: [
+            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+              InkWell(
+                canRequestFocus: false,
+                onTap: () => setState(() => _showLocations = false),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    children: [
+                      const Text("Locations"),
+                      const SizedBox(
+                        width: 12.0,
+                      ),
+                      const Icon(Icons.keyboard_arrow_down)
+                    ],
+                  ),
+                ),
+              ),
+              _addLocationButton(), // ?
+            ]),
+            const SizedBox(height: 8.0),
+            // const Divider(
+            //   thickness: 0.5,
+            //   color: kColorBackground,
+            // ),
+            TextField(
+              decoration: const InputDecoration(
+                hintText: 'Search Location',
+                icon: Icon(Icons.search),
+              ),
+              onChanged: (query) => setState(() => _locationFilter = query),
+            ),
+            const SizedBox(
+              height: 20.0,
+            ),
+            SizedBox(
+                height: MediaQuery.of(context).size.height - 210.0,
+                child: locationListView()),
+          ],
+        ),
+      );
+    }
+  }
+
   Widget storeListView() {
     return Consumer(builder: (context, watch, child) {
       final storeVM = watch(storesVMProvider);
       storeVM.context = context;
 
       final filteredStoresList = storeVM.storesList.where((store) =>
-          store.name.toLowerCase().contains(_storeFilter.toLowerCase()));
+          store.name.toLowerCase().contains(_storeFilter.toLowerCase())
+          && ((_selectedLocation == null || _selectedLocation!.id == 0 )? true : store.locationId == _selectedLocation!.id)
+        );
 
       return storeVM.state == StoresViewState.busy
           ? const Center(child: CircularProgressIndicator())
@@ -550,6 +641,88 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  Widget locationListView() {
+    return Consumer(builder: (context, watch, child) {
+      final locationVM = watch(locationsVMProvider);
+      locationVM.context = context;
+
+      List<Location> tmpList = locationVM.locationsList;
+      Location tmpLocation = Location(id: 0, name: "All Stores");
+      if(tmpList.contains(tmpLocation)) {
+        tmpList.remove(tmpLocation);
+      }
+      tmpList.insert(0, tmpLocation);
+      final filteredLocationsList = tmpList.where((location) =>
+          location.name.toLowerCase().contains(_locationFilter.toLowerCase()));
+
+      return locationVM.state == LocationsViewState.busy
+          ? const Center(child: CircularProgressIndicator())
+          : ListView.builder(
+              //scrollDirection: Axis.horizontal,
+              itemCount: filteredLocationsList.length,
+              itemBuilder: (context, index) {
+                final location = filteredLocationsList.elementAt(index);
+                return Card(
+                  shape: const ContinuousRectangleBorder(),
+                  margin: EdgeInsets.zero,
+                  color: _selectedLocation == null && location.id == 0 ? kColorSelected : _selectedLocation != null &&
+                          location.id == _selectedLocation!.id
+                      ? kColorSelected
+                      : kColorCard,
+                  child: InkWell(
+                    canRequestFocus: false,
+                    onTap: () async {
+                      if (!await _removeSpecialChanges()) return;
+
+                      _selectedSpecial = null;
+                      _tempSpecial = null;
+                      _selectedLocation = location;
+                      _showLocations = false;
+                      _showStores = true;
+                      setState(() {});
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(location.name),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              const SizedBox(width: 8.0),
+                              if(location.id != 0)
+                              InkWell(
+                                canRequestFocus: false,
+                                onTap: () async {
+                                  if (!await _removeSpecialChanges()) return;
+
+                                  await Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (ctx) => LocationPage(location: location),
+                                    ),
+                                  );
+                                },
+                                hoverColor: kColorAccent.withAlpha(60),
+                                child: const Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: Text(
+                                    "Edit",
+                                    style: kTextStyleSmallSecondary,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              });
+    });
+  }
+
   Widget _addStoreButton() {
     return SizedBox(
       height: 40.0,
@@ -574,6 +747,35 @@ class _HomePageState extends State<HomePage> {
           },
           icon: const Icon(Icons.add),
           label: const Text("Add Store"),
+        ),
+      )),
+    );
+  }
+
+  Widget _addLocationButton() {
+    return SizedBox(
+      height: 40.0,
+      width: 130.0,
+      child: Center(
+          child: ExcludeFocus(
+        child: TextButton.icon(
+          onPressed: () async {
+            final newLocationId = await Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (ctx) => const LocationPage(),
+              ),
+            ) as int?;
+
+            // if (newStoreUuid != null) {
+            //   _selectedStore = _storesViewModel.storesList
+            //       .firstWhere((store) => store.uuid == newStoreUuid);
+            //   _selectedSpecial = null;
+            //   _tempSpecial = null;
+            //   setState(() {});
+            // }
+          },
+          icon: const Icon(Icons.add),
+          label: const Text("Add Location"),
         ),
       )),
     );

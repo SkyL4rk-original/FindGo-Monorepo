@@ -13,6 +13,8 @@ class Store {
     this.image,
     required this.category,
     this.categoryId = 13,
+    required this.location,
+    this.locationId = 0,
     required this.name,
     required this.description,
     this.phoneNumber = "",
@@ -26,7 +28,9 @@ class Store {
   String imageUrl;
   Uint8List? image;
   String category;
+  String location;
   int categoryId;
+  int locationId;
   String name;
   String description;
   String phoneNumber;
@@ -40,7 +44,9 @@ class Store {
     String? imageUrl,
     Uint8List? image,
     String? category,
+    String? location,
     int? categoryId,
+    int? locationId,
     String? name,
     String? description,
     String? phoneNumber,
@@ -55,6 +61,8 @@ class Store {
         image: image ?? this.image,
         category: category ?? this.category,
         categoryId: categoryId ?? this.categoryId,
+        location: location ?? this.location,
+        locationId: locationId ?? this.locationId,
         name: name ?? this.name,
         description: description ?? this.description,
         phoneNumber: phoneNumber ?? this.phoneNumber,
@@ -86,6 +94,8 @@ class Store {
         imageUrl: json["imageUrl"] as String,
         category: json["category"] as String,
         categoryId: int.parse(json["categoryId"] as String),
+        location: json["location"] == null ? "" : json["location"] as String,
+        locationId: int.parse(json["locationId"] == null ? "0" :json["locationId"] as String),
         name: json["name"] as String,
         description: json["description"] as String,
         phoneNumber: json["phoneNumber"] as String,
@@ -100,9 +110,11 @@ class Store {
         "imageUrl": imageUrl,
         "image": image != null ? base64Encode(image!) : null,
         "category": category,
+        "location": location,
         "name": name,
         "description": description,
         "categoryId": categoryId,
+        "locationId": locationId,
         "phoneNumber": phoneNumber,
         "website": website,
         "streetAddress": streetAddress,
@@ -115,6 +127,7 @@ class Store {
     return other.uuid != uuid ||
         other.name != name ||
         other.category != category ||
+        other.location != location ||
         other.description != description ||
         other.website != website ||
         other.phoneNumber != phoneNumber ||

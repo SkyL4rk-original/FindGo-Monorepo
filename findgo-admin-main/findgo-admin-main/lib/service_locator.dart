@@ -12,6 +12,7 @@ import 'repositories/specials_repo.dart';
 import 'view_models/auth_vm.dart';
 import 'view_models/specials_vm.dart';
 import 'view_models/stores_vm.dart';
+import 'view_models/locations_vm.dart';
 import 'view_models/users_vm.dart';
 
 final sl = GetIt.instance;
@@ -27,6 +28,9 @@ Future<void> initInjector() async {
         specialsRepository: sl(),
       ));
   sl.registerLazySingleton(() => StoresViewModel(
+        specialsRepository: sl(),
+      ));
+  sl.registerLazySingleton(() => LocationsViewModel(
         specialsRepository: sl(),
       ));
   sl.registerLazySingleton(() => UsersViewModel(
@@ -54,7 +58,10 @@ Future<void> initInjector() async {
   // Services web
   // final apiUrl = dotenv.env["SERVER_API_URL"];
   //const apiUrl = "https://skylarktraining.co.za/findgo/php";
-	const apiUrl = "https://findgo.co.za/php";
+
+  const apiUrl = "https://findgo.co.za/php";
+  // const apiUrl = "http://findgo.local.com/";
+
   // if (apiUrl == null) throw Exception("Could not find SERVER_API_URL in .env");
   sl.registerSingleton<LocalDataSource>(LocalDataSource());
   sl.registerLazySingleton<NetworkInfo>(() => NetworkInfo());

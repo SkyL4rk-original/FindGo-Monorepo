@@ -9,6 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import '../core/constants.dart';
 import '../data_models/store.dart';
 import '../main.dart';
+import '../view_models/locations_vm.dart';
 import '../view_models/stores_vm.dart';
 import '../widgets/snackbar.dart';
 
@@ -22,12 +23,14 @@ class StorePage extends StatefulWidget {
 
 class _StorePageState extends State<StorePage> {
   late StoresViewModel _storesViewModel;
+  late LocationsViewModel _locationsViewModel;
   late Store _store;
   late Store _tempStore;
 
   final _picker = ImagePicker();
 
   int _selectedCategory = 13;
+  int _selectedLocation = 0;
 
   final _formKey = GlobalKey<FormState>();
   final _nameTextEditingController = TextEditingController();
@@ -63,11 +66,13 @@ class _StorePageState extends State<StorePage> {
   @override
   void initState() {
     _storesViewModel = context.read(storesVMProvider);
+    _locationsViewModel = context.read(locationsVMProvider);
 
     if (widget.store != null) {
       _store = widget.store!;
       _tempStore = widget.store!.copyWith();
       _selectedCategory = widget.store!.categoryId;
+      _selectedLocation = widget.store!.locationId;
       _nameTextEditingController.text = _tempStore.name;
       _descriptionTextEditingController.text = _tempStore.description;
       _phoneNumberTextEditingController.text = _tempStore.phoneNumber;
@@ -83,6 +88,7 @@ class _StorePageState extends State<StorePage> {
         uuid: "",
         imageUrl: "",
         category: "Other",
+        location: "", // ?
         name: "",
         description: "",
       );
@@ -139,7 +145,9 @@ class _StorePageState extends State<StorePage> {
     return Consumer(builder: (context, watch, child) {
       final authVM = watch(authVMProvider);
       final storeVM = watch(storesVMProvider);
+      final locationVM = watch(locationsVMProvider);
       storeVM.context = context;
+      locationVM.context = context;
 
       return SizedBox(
         width: 360.0,
@@ -219,6 +227,25 @@ class _StorePageState extends State<StorePage> {
                                     .name;
                                 _tempStore.categoryId = value as int;
                                 _selectedCategory = value;
+                              });
+                            }
+                          }),
+                      const SizedBox(height: 16.0),
+                      // Text("Store Image", style: _formHeadingTextStyle),
+                      // const SizedBox(height: 4.0),
+                      Text("Location", style: _formHeadingTextStyle),
+                      DropdownButtonFormField(
+                          value: _selectedLocation,
+                          items: _storeLocationList(),
+                          onChanged: (value) {
+                            if (value != null) {
+                              setState(() {
+                                _tempStore.location = locationVM.locationsList
+                                    .firstWhere((location) =>
+                                        location.id == value as int)
+                                    .name;
+                                _tempStore.locationId = value as int;
+                                _selectedLocation = value;
                               });
                             }
                           }),
@@ -738,6 +765,11 @@ class _StorePageState extends State<StorePage> {
                 color: SnackBarColor.error);
             return;
           }
+          if (_tempStore.locationId == 0) {
+            InfoSnackBar.show(context, "Please choose a location",
+                color: SnackBarColor.error);
+            return;
+          }
 
           if (_formKey.currentState != null &&
               _formKey.currentState!.validate()) {
@@ -746,6 +778,8 @@ class _StorePageState extends State<StorePage> {
               imageUrl: _tempStore.imageUrl,
               category: _tempStore.category,
               categoryId: _tempStore.categoryId,
+              location: _tempStore.location,
+              locationId: _tempStore.locationId,
               image: _tempStore.image,
               name: _tempStore.name,
               description: _tempStore.description,
@@ -874,6 +908,28 @@ class _StorePageState extends State<StorePage> {
         DropdownMenuItem(
           value: category.id,
           child: Text(category.name),
+        ),
+      );
+    }
+
+    return items;
+  }
+
+  List<DropdownMenuItem<int>>? _storeLocationList() {
+    final List<DropdownMenuItem<int>> items = [];
+
+    // items.add(
+    //   DropdownMenuItem(
+    //       value: 0,
+    //       child: Text("Select a Location"),
+    //     ),
+    // );
+
+    for (final location in _locationsViewModel.locationsList) {
+      items.add(
+        DropdownMenuItem(
+          value: location.id,
+          child: Text(location.name),
         ),
       );
     }
