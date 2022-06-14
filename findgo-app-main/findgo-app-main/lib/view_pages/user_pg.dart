@@ -1,11 +1,10 @@
+import 'package:findgo/core/constants.dart';
+import 'package:findgo/main.dart';
+import 'package:findgo/view_models/auth_vm.dart';
+import 'package:findgo/widgets/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vrouter/vrouter.dart';
-
-import '../core/constants.dart';
-import '../main.dart';
-import '../view_models/auth_vm.dart';
-import '../widgets/loading.dart';
 
 class UserPage extends StatefulWidget {
   const UserPage({Key? key}) : super(key: key);
@@ -17,82 +16,89 @@ class UserPage extends StatefulWidget {
 class _UserPageState extends State<UserPage> {
   @override
   Widget build(BuildContext context) {
-    return Consumer(builder: (context, watch, child) {
-      // Watch Providers
-      final themeVM = watch(themeVMProvider);
-      final authVM = watch(authVMProvider);
-      authVM.context = context;
+    return Consumer(
+      builder: (context, ref, child) {
+        // Watch Providers
+        final themeVM = ref.watch(themeVMProvider);
+        final authVM = ref.watch(authVMProvider);
+        authVM.context = context;
 
-      return Scaffold(
-        // backgroundColor: kColorBackground,
-        appBar: AppBar(
-          leading: IconButton(
-            onPressed: () {
-              if (Navigator.canPop(context)) {
-                Navigator.of(context).pop();
-              } else {
-                context.vRouter.to("/", isReplacement: true);
-              }
-            },
-            icon: Icon(
-              Icons.arrow_back_ios,
-              color:
-                  themeVM.mode == ThemeMode.dark ? Colors.white : Colors.black,
+        return Scaffold(
+          // backgroundColor: kColorBackground,
+          appBar: AppBar(
+            leading: IconButton(
+              onPressed: () {
+                if (Navigator.canPop(context)) {
+                  Navigator.of(context).pop();
+                } else {
+                  context.vRouter.to("/", isReplacement: true);
+                }
+              },
+              icon: Icon(
+                Icons.arrow_back_ios,
+                color: themeVM.mode == ThemeMode.dark
+                    ? Colors.white
+                    : Colors.black,
+              ),
             ),
           ),
-        ),
-        body: authVM.state == AuthViewState.fetchingUser
-            ? const Center(child: CircularProgressIndicator())
-            : Center(
-                child: SizedBox(
-                  width: 300,
-                  child: ListView(
-                    // crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      const SizedBox(
+          body: authVM.state == AuthViewState.fetchingUser
+              ? const Center(child: CircularProgressIndicator())
+              : Center(
+                  child: SizedBox(
+                    width: 300,
+                    child: ListView(
+                      // crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        const SizedBox(
                           width: double.infinity,
                           child: Text(
                             'Update my Profile',
                             style: kTextStyleHeading,
                             textAlign: TextAlign.center,
-                          )),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      UserInfoUpdateCard(
-                        title: const Text('Update Name'),
-                        subtitle: Text(
-                            "${authVM.currentUser.firstName} ${authVM.currentUser.lastName}",
-                            style: const TextStyle(color: kColorAccent)),
-                        formController: UserNameUpdateForm(),
-                      ),
-                      UserInfoUpdateCard(
-                        title: const Text('Update Email'),
-                        subtitle: Text(authVM.currentUser.email,
-                            style: const TextStyle(color: kColorAccent)),
-                        formController: const EmailUpdateForm(),
-                      ),
-                      UserInfoUpdateCard(
-                        title: const Text('Update Password'),
-                        formController: PasswordUpdateForm(),
-                      ),
-                      const SizedBox(height: 30.0),
-                      UserInfoUpdateCard(
-                        title: const Text(
-                          'Delete Account',
-                          style: TextStyle(color: kColorInactive),
+                          ),
                         ),
-                        formController: DeleteAccountForm(),
-                      ),
-                    ],
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        UserInfoUpdateCard(
+                          title: const Text('Update Name'),
+                          subtitle: Text(
+                            "${authVM.currentUser.firstName} ${authVM.currentUser.lastName}",
+                            style: const TextStyle(color: kColorAccent),
+                          ),
+                          formController: UserNameUpdateForm(),
+                        ),
+                        UserInfoUpdateCard(
+                          title: const Text('Update Email'),
+                          subtitle: Text(
+                            authVM.currentUser.email,
+                            style: const TextStyle(color: kColorAccent),
+                          ),
+                          formController: const EmailUpdateForm(),
+                        ),
+                        UserInfoUpdateCard(
+                          title: const Text('Update Password'),
+                          formController: PasswordUpdateForm(),
+                        ),
+                        const SizedBox(height: 30.0),
+                        UserInfoUpdateCard(
+                          title: const Text(
+                            'Delete Account',
+                            style: TextStyle(color: kColorInactive),
+                          ),
+                          formController: DeleteAccountForm(),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-      );
-    });
+        );
+      },
+    );
   }
 }
 
@@ -100,9 +106,12 @@ class UserInfoUpdateCard extends StatefulWidget {
   final Widget formController;
   final Text? title;
   final Text? subtitle;
-  const UserInfoUpdateCard(
-      {Key? key, required this.formController, this.title, this.subtitle})
-      : super(key: key);
+  const UserInfoUpdateCard({
+    Key? key,
+    required this.formController,
+    this.title,
+    this.subtitle,
+  }) : super(key: key);
 
   @override
   _UserInfoUpdateCardState createState() => _UserInfoUpdateCardState();
@@ -113,33 +122,35 @@ class _UserInfoUpdateCardState extends State<UserInfoUpdateCard> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer(builder: (context, watch, child) {
-      final themeVM = watch(themeVMProvider);
-      return Card(
-        color:
-            themeVM.mode == ThemeMode.dark ? kColorCardDark : kColorCardLight,
-        child: Column(
-          children: <Widget>[
-            ListTile(
-              title: widget.title,
-              subtitle: widget.subtitle,
-              onTap: () {
-                setState(() {
-                  _formVisible = !_formVisible;
-                });
-              },
-            ),
-            Visibility(
-              visible: _formVisible,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 8.0, bottom: 24),
-                child: widget.formController,
+    return Consumer(
+      builder: (context, ref, child) {
+        final themeVM = ref.watch(themeVMProvider);
+        return Card(
+          color:
+              themeVM.mode == ThemeMode.dark ? kColorCardDark : kColorCardLight,
+          child: Column(
+            children: <Widget>[
+              ListTile(
+                title: widget.title,
+                subtitle: widget.subtitle,
+                onTap: () {
+                  setState(() {
+                    _formVisible = !_formVisible;
+                  });
+                },
               ),
-            ),
-          ],
-        ),
-      );
-    });
+              Visibility(
+                visible: _formVisible,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 8.0, bottom: 24),
+                  child: widget.formController,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }
 
@@ -162,15 +173,16 @@ class _EmailUpdateFormState extends State<EmailUpdateForm> {
   Widget build(BuildContext context) {
     return Form(
       key: _formKey,
-      child: Consumer(builder: (context, watch, child) {
-        final authVM = watch(authVMProvider);
-        authVM.context = context;
+      child: Consumer(
+        builder: (context, ref, child) {
+          final authVM = ref.watch(authVMProvider);
+          authVM.context = context;
 
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 30.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
+          return Container(
+            padding: const EdgeInsets.symmetric(horizontal: 30.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
 //                Padding(
 //                  padding: const EdgeInsets.only(bottom: 50.0),
 //                  child: Text(
@@ -179,67 +191,69 @@ class _EmailUpdateFormState extends State<EmailUpdateForm> {
 //                  ),
 //                ),
 
-              TextFormField(
-                validator: (email) {
-                  if (authVM.isEmail(email)) {
-                    return "please enter a valid email";
-                  }
-                  return email == null || email.isEmpty
-                      ? kFieldNotEnteredMessage
-                      : null;
-                },
-                autofocus: true,
-                decoration: const InputDecoration(hintText: 'new email'),
-                controller: _newEmailController,
-              ),
-              TextFormField(
-                validator: (password) {
-                  if (password != null || password!.isEmpty) {
-                    return kFieldNotEnteredMessage;
-                  }
-                  return null;
-                },
-                decoration: InputDecoration(
-                  hintText: 'confirm password',
-                  suffixIcon: GestureDetector(
-                    onTap: () async =>
-                        setState(() => _hidePassword = !_hidePassword),
-                    child: Icon(
-                      _hidePassword
-                          ? Icons.visibility_outlined
-                          : Icons.visibility_off_outlined,
+                TextFormField(
+                  validator: (email) {
+                    if (authVM.isEmail(email)) {
+                      return "please enter a valid email";
+                    }
+                    return email == null || email.isEmpty
+                        ? kFieldNotEnteredMessage
+                        : null;
+                  },
+                  autofocus: true,
+                  decoration: const InputDecoration(hintText: 'new email'),
+                  controller: _newEmailController,
+                ),
+                TextFormField(
+                  validator: (password) {
+                    if (password != null || password!.isEmpty) {
+                      return kFieldNotEnteredMessage;
+                    }
+                    return null;
+                  },
+                  decoration: InputDecoration(
+                    hintText: 'confirm password',
+                    suffixIcon: GestureDetector(
+                      onTap: () async =>
+                          setState(() => _hidePassword = !_hidePassword),
+                      child: Icon(
+                        _hidePassword
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
+                      ),
                     ),
                   ),
+                  obscureText: _hidePassword,
+                  controller: _passwordController,
                 ),
-                obscureText: _hidePassword,
-                controller: _passwordController,
-              ),
-              const SizedBox(
-                height: 15.0,
-              ),
-              Builder(
-                builder: (context) => authVM.state == AuthViewState.busy
-                    ? LoadWidget()
-                    : ElevatedButton(
-                        onPressed: () async {
-                          if (_formKey.currentState!.validate()) {
-                            await authVM.updateEmail(
-                              _newEmailController.text.trim(),
-                              _passwordController.text.trim(),
-                            );
+                const SizedBox(
+                  height: 15.0,
+                ),
+                Builder(
+                  builder: (context) => authVM.state == AuthViewState.busy
+                      ? LoadWidget()
+                      : ElevatedButton(
+                          onPressed: () async {
+                            if (_formKey.currentState!.validate()) {
+                              await authVM.updateEmail(
+                                _newEmailController.text.trim(),
+                                _passwordController.text.trim(),
+                              );
 
-                            _newEmailController.text.trim();
-                            _passwordController.clear();
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(primary: kColorAccent),
-                        child: const Text('UPDATE'),
-                      ),
-              ),
-            ],
-          ),
-        );
-      }),
+                              _newEmailController.text.trim();
+                              _passwordController.clear();
+                            }
+                          },
+                          style:
+                              ElevatedButton.styleFrom(primary: kColorAccent),
+                          child: const Text('UPDATE'),
+                        ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -267,61 +281,64 @@ class _DeleteAccountFormState extends State<DeleteAccountForm> {
   Widget build(BuildContext context) {
     return Form(
       key: _formKey,
-      child: Consumer(builder: (context, watch, child) {
-        final authVM = watch(authVMProvider);
-        authVM.context = context;
+      child: Consumer(
+        builder: (context, ref, child) {
+          final authVM = ref.watch(authVMProvider);
+          authVM.context = context;
 
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 30.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              TextFormField(
-                validator: (password) {
-                  if (password == null || password.isEmpty) {
-                    return kFieldNotEnteredMessage;
-                  }
-                  return null;
-                },
-                autofocus: true,
-                decoration: InputDecoration(
-                  hintText: 'confirm password',
-                  suffixIcon: GestureDetector(
-                    onTap: () async =>
-                        setState(() => _hidePassword = !_hidePassword),
-                    child: Icon(
-                      _hidePassword
-                          ? Icons.visibility_outlined
-                          : Icons.visibility_off_outlined,
+          return Container(
+            padding: const EdgeInsets.symmetric(horizontal: 30.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                TextFormField(
+                  validator: (password) {
+                    if (password == null || password.isEmpty) {
+                      return kFieldNotEnteredMessage;
+                    }
+                    return null;
+                  },
+                  autofocus: true,
+                  decoration: InputDecoration(
+                    hintText: 'confirm password',
+                    suffixIcon: GestureDetector(
+                      onTap: () async =>
+                          setState(() => _hidePassword = !_hidePassword),
+                      child: Icon(
+                        _hidePassword
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
+                      ),
                     ),
                   ),
+                  obscureText: _hidePassword,
+                  controller: _passwordController,
                 ),
-                obscureText: _hidePassword,
-                controller: _passwordController,
-              ),
-              const SizedBox(
-                height: 15.0,
-              ),
-              Builder(
-                builder: (context) => authVM.state == AuthViewState.busy
-                    ? LoadWidget()
-                    : ElevatedButton(
-                        onPressed: () async {
-                          if (_formKey.currentState!.validate()) {
-                            await authVM.deleteUser(
-                              _passwordController.text.trim(),
-                            );
-                            _passwordController.clear();
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(primary: kColorAccent),
-                        child: const Text('Delete'),
-                      ),
-              ),
-            ],
-          ),
-        );
-      }),
+                const SizedBox(
+                  height: 15.0,
+                ),
+                Builder(
+                  builder: (context) => authVM.state == AuthViewState.busy
+                      ? LoadWidget()
+                      : ElevatedButton(
+                          onPressed: () async {
+                            if (_formKey.currentState!.validate()) {
+                              await authVM.deleteUser(
+                                _passwordController.text.trim(),
+                              );
+                              _passwordController.clear();
+                            }
+                          },
+                          style:
+                              ElevatedButton.styleFrom(primary: kColorAccent),
+                          child: const Text('Delete'),
+                        ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -349,90 +366,93 @@ class _UserNameUpdateFormFormState extends State<UserNameUpdateForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer(builder: (context, watch, child) {
-      final authVM = watch(authVMProvider);
-      return Form(
-        key: _formKey,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 30.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              TextFormField(
-                validator: (username) {
-                  if (username == null || username.isEmpty) {
-                    _firstNameController.text = authVM.currentUser.firstName;
+    return Consumer(
+      builder: (context, ref, child) {
+        final authVM = ref.watch(authVMProvider);
+        return Form(
+          key: _formKey,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 30.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                TextFormField(
+                  validator: (username) {
+                    if (username == null || username.isEmpty) {
+                      _firstNameController.text = authVM.currentUser.firstName;
+                      return null;
+                    }
                     return null;
-                  }
-                  return null;
-                },
-                autofocus: true,
-                decoration:
-                    InputDecoration(hintText: authVM.currentUser.firstName),
-                controller: _firstNameController,
-              ),
-              TextFormField(
-                validator: (username) {
-                  if (username == null || username.isEmpty) {
-                    _lastNameController.text = authVM.currentUser.lastName;
+                  },
+                  autofocus: true,
+                  decoration:
+                      InputDecoration(hintText: authVM.currentUser.firstName),
+                  controller: _firstNameController,
+                ),
+                TextFormField(
+                  validator: (username) {
+                    if (username == null || username.isEmpty) {
+                      _lastNameController.text = authVM.currentUser.lastName;
+                      return null;
+                    }
                     return null;
-                  }
-                  return null;
-                },
-                decoration:
-                    InputDecoration(hintText: authVM.currentUser.lastName),
-                controller: _lastNameController,
-              ),
-              TextFormField(
-                validator: (password) {
-                  if (password == null || password.isEmpty) {
-                    return kFieldNotEnteredMessage;
-                  }
-                  return null;
-                },
-                decoration: InputDecoration(
-                  hintText: 'confirm password',
-                  suffixIcon: GestureDetector(
-                    onTap: () async =>
-                        setState(() => _hidePassword = !_hidePassword),
-                    child: Icon(
-                      _hidePassword
-                          ? Icons.visibility_outlined
-                          : Icons.visibility_off_outlined,
+                  },
+                  decoration:
+                      InputDecoration(hintText: authVM.currentUser.lastName),
+                  controller: _lastNameController,
+                ),
+                TextFormField(
+                  validator: (password) {
+                    if (password == null || password.isEmpty) {
+                      return kFieldNotEnteredMessage;
+                    }
+                    return null;
+                  },
+                  decoration: InputDecoration(
+                    hintText: 'confirm password',
+                    suffixIcon: GestureDetector(
+                      onTap: () async =>
+                          setState(() => _hidePassword = !_hidePassword),
+                      child: Icon(
+                        _hidePassword
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
+                      ),
                     ),
                   ),
+                  obscureText: _hidePassword,
+                  controller: _passwordController,
                 ),
-                obscureText: _hidePassword,
-                controller: _passwordController,
-              ),
-              const SizedBox(
-                height: 15.0,
-              ),
-              Builder(
-                builder: (context) => authVM.state == AuthViewState.busy
-                    ? LoadWidget()
-                    : ElevatedButton(
-                        onPressed: () async {
-                          if (_formKey.currentState!.validate()) {
-                            await authVM.updateUsername(
-                              firstName: _firstNameController.text.trim(),
-                              lastName: _lastNameController.text.trim(),
-                              password: _passwordController.text.trim(),
-                            );
-                          }
-                          _firstNameController.clear();
-                          _lastNameController.clear();
-                          _passwordController.clear();
-                        },
-                        style: ElevatedButton.styleFrom(primary: kColorAccent),
-                        child: const Text('UPDATE'),
-                      ),
-              ),
-            ],
+                const SizedBox(
+                  height: 15.0,
+                ),
+                Builder(
+                  builder: (context) => authVM.state == AuthViewState.busy
+                      ? LoadWidget()
+                      : ElevatedButton(
+                          onPressed: () async {
+                            if (_formKey.currentState!.validate()) {
+                              await authVM.updateUsername(
+                                firstName: _firstNameController.text.trim(),
+                                lastName: _lastNameController.text.trim(),
+                                password: _passwordController.text.trim(),
+                              );
+                            }
+                            _firstNameController.clear();
+                            _lastNameController.clear();
+                            _passwordController.clear();
+                          },
+                          style:
+                              ElevatedButton.styleFrom(primary: kColorAccent),
+                          child: const Text('UPDATE'),
+                        ),
+                ),
+              ],
+            ),
           ),
-        ),
-      );
-    });
+        );
+      },
+    );
   }
 
   @override
@@ -466,8 +486,8 @@ class _PasswordUpdateFormState extends State<PasswordUpdateForm> {
     return Form(
       key: _formKey,
       child: Consumer(
-        builder: (context, watch, child) {
-          final authVM = watch(authVMProvider);
+        builder: (context, ref, child) {
+          final authVM = ref.watch(authVMProvider);
           authVM.context = context;
 
           return Container(
@@ -514,8 +534,9 @@ class _PasswordUpdateFormState extends State<PasswordUpdateForm> {
                     if (confirmPassword == null || confirmPassword.isEmpty) {
                       return kFieldNotEnteredMessage;
                     } else if (!authVM.checkPasswordsMatch(
-                        confirmPassword.trim(),
-                        _newPasswordController.text.trim())) {
+                      confirmPassword.trim(),
+                      _newPasswordController.text.trim(),
+                    )) {
                       return kPasswordMissMatch;
                     }
                     return null;
@@ -524,8 +545,10 @@ class _PasswordUpdateFormState extends State<PasswordUpdateForm> {
                   decoration: InputDecoration(
                     hintText: 'retype new password',
                     suffixIcon: GestureDetector(
-                      onTap: () async => setState(() =>
-                          _hideConfirmNewPassword = !_hideConfirmNewPassword),
+                      onTap: () async => setState(
+                        () =>
+                            _hideConfirmNewPassword = !_hideConfirmNewPassword,
+                      ),
                       child: Icon(
                         _hideConfirmNewPassword
                             ? Icons.visibility_outlined
@@ -600,4 +623,3 @@ class _PasswordUpdateFormState extends State<PasswordUpdateForm> {
     super.dispose();
   }
 }
-

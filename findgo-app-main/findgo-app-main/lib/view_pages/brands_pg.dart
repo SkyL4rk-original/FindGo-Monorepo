@@ -1,29 +1,29 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:findgo/core/constants.dart';
+import 'package:findgo/data_models/store.dart';
+import 'package:findgo/internal_services/routes.dart';
+import 'package:findgo/main.dart';
+import 'package:findgo/view_models/stores_vm.dart';
+import 'package:findgo/view_models/theme_vm.dart';
+import 'package:findgo/view_pages/store_pg.dart';
+import 'package:findgo/widgets/auth_scaffold.dart';
+import 'package:findgo/widgets/bottom_nav.dart';
+import 'package:findgo/widgets/buttons.dart';
+import 'package:findgo/widgets/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import '../core/constants.dart';
-import '../data_models/store.dart';
-import '../internal_services/routes.dart';
-import '../main.dart';
-import '../view_models/stores_vm.dart';
-import '../view_models/theme_vm.dart';
-import '../view_pages/store_pg.dart';
-import '../widgets/auth_scaffold.dart';
-import '../widgets/bottom_nav.dart';
-import '../widgets/buttons.dart';
-import '../widgets/loading.dart';
 
 // ignore: prefer_function_declarations_over_variables
 final Comparator<Store> _nameComparator =
     (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase());
 
-class BrandsPage extends StatefulWidget {
+class BrandsPage extends ConsumerStatefulWidget {
   @override
   _BrandsPageState createState() => _BrandsPageState();
 }
 
-class _BrandsPageState extends State<BrandsPage> with WidgetsBindingObserver {
+class _BrandsPageState extends ConsumerState<BrandsPage>
+    with WidgetsBindingObserver {
   late StoresViewModel _storesViewModel;
   late ThemeViewModel _themeViewModel;
 
@@ -31,17 +31,17 @@ class _BrandsPageState extends State<BrandsPage> with WidgetsBindingObserver {
 
   @override
   void initState() {
-    final _specialsViewModel = context.read(specialsVMProvider);
-    _storesViewModel = context.read(storesVMProvider);
-    _themeViewModel = context.read(themeVMProvider);
+    final _specialsViewModel = ref.read(specialsVMProvider);
+    _storesViewModel = ref.read(storesVMProvider);
+    _themeViewModel = ref.read(themeVMProvider);
 
     // Do after build
-    WidgetsBinding.instance!.addPostFrameCallback((_) async {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       _specialsViewModel.context = context;
       _storesViewModel.context = context;
     });
 
-    WidgetsBinding.instance!.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
     super.initState();
   }
 
@@ -67,81 +67,83 @@ class _BrandsPageState extends State<BrandsPage> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return AuthScaffold(
-      body: Consumer(builder: (context, watch, child) {
-        final networkVM = watch(networkVMProvider);
-        watch(specialsVMProvider);
-        final storesVM = watch(storesVMProvider);
-        final themeVM = watch(themeVMProvider);
+      body: Consumer(
+        builder: (context, ref, child) {
+          ref.watch(networkVMProvider);
+          ref.watch(specialsVMProvider);
+          final storesVM = ref.watch(storesVMProvider);
+          final themeVM = ref.watch(themeVMProvider);
 
-        return RefreshIndicator(
-          onRefresh: () async {
-            await Future.wait([
-              storesVM.getAllFollowedStores(),
-              storesVM.getAllStores(),
-            ]);
-          },
-          child: CustomScrollView(
-            controller: _scrollController,
-            slivers: [
-              SliverAppBar(
-                backgroundColor: themeVM.mode == ThemeMode.dark
-                    ? kColorCardDark
-                    : kColorCardLight,
-                elevation: 0.0,
-                snap: true,
-                // forceElevated: true,
-                floating: true,
-                // pinned: true,
-                title: Row(
-                  children: [
-                    SizedBox(
-                      height: 24.0,
-                      width: 24.0,
-                      child: Image.asset("assets/icons/logo.png"),
-                    ),
-                    const SizedBox(
-                      width: 8.0,
-                    ),
-                    Text(
-                      "Brands",
-                      style: TextStyle(
+          return RefreshIndicator(
+            onRefresh: () async {
+              await Future.wait([
+                storesVM.getAllFollowedStores(),
+                storesVM.getAllStores(),
+              ]);
+            },
+            child: CustomScrollView(
+              controller: _scrollController,
+              slivers: [
+                SliverAppBar(
+                  backgroundColor: themeVM.mode == ThemeMode.dark
+                      ? kColorCardDark
+                      : kColorCardLight,
+                  elevation: 0.0,
+                  snap: true,
+                  // forceElevated: true,
+                  floating: true,
+                  // pinned: true,
+                  title: Row(
+                    children: [
+                      SizedBox(
+                        height: 24.0,
+                        width: 24.0,
+                        child: Image.asset("assets/icons/logo.png"),
+                      ),
+                      const SizedBox(
+                        width: 8.0,
+                      ),
+                      Text(
+                        "Brands",
+                        style: TextStyle(
+                          color: themeVM.mode == ThemeMode.dark
+                              ? Colors.white
+                              : Colors.black,
+                        ),
+                      ),
+                    ],
+                  ),
+                  actions: <Widget>[
+                    IconButton(
+                      icon: Icon(
+                        Icons.menu_outlined,
                         color: themeVM.mode == ThemeMode.dark
                             ? Colors.white
                             : Colors.black,
                       ),
-                    ),
+                      onPressed: () => Scaffold.of(context).openEndDrawer(),
+                    )
                   ],
+                  expandedHeight: 2 * kToolbarHeight + 14,
+                  // flexibleSpace: _inputSection(),
+                  flexibleSpace: _inputSection(),
                 ),
-                actions: <Widget>[
-                  IconButton(
-                    icon: Icon(
-                      Icons.menu_outlined,
-                      color: themeVM.mode == ThemeMode.dark
-                          ? Colors.white
-                          : Colors.black,
-                    ),
-                    onPressed: () => Scaffold.of(context).openEndDrawer(),
-                  )
-                ],
-                expandedHeight: 2 * kToolbarHeight + 14,
-                // flexibleSpace: _inputSection(),
-                flexibleSpace: _inputSection(),
-              ),
-              const SliverToBoxAdapter(child: SizedBox(height: 4.0)),
-              if (storesVM.state == StoresViewState.busy)
-                const SliverCircularLoading()
-              else
-                _storeListView(),
-              const SliverToBoxAdapter(
-                child: SizedBox(
-                  height: kToolbarHeight + 8,
-                  child: Center(),
+                const SliverToBoxAdapter(child: SizedBox(height: 4.0)),
+                if (storesVM.state == StoresViewState.busy)
+                  const SliverCircularLoading()
+                else
+                  _storeListView(),
+                const SliverToBoxAdapter(
+                  child: SizedBox(
+                    height: kToolbarHeight + 8,
+                    child: Center(),
+                  ),
                 ),
-              ),
-            ],
-          ),
-        );
-      }),
+              ],
+            ),
+          );
+        },
+      ),
       bottomNavigationBar: const BottomNavBar(currentIndex: 3),
     );
   }
@@ -166,24 +168,26 @@ class _BrandsPageState extends State<BrandsPage> with WidgetsBindingObserver {
                 Expanded(
                   child: Card(
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                        side: const BorderSide(color: Colors.grey)),
+                      borderRadius: BorderRadius.circular(8.0),
+                      side: const BorderSide(color: Colors.grey),
+                    ),
                     elevation: 0,
                     color: Colors.grey.withAlpha(40),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
                       child: TextField(
-                          decoration: const InputDecoration(
-                            hintText: 'Search',
-                            icon: Icon(
-                              Icons.search,
-                            ),
-                            border: InputBorder.none,
+                        decoration: const InputDecoration(
+                          hintText: 'Search',
+                          icon: Icon(
+                            Icons.search,
                           ),
-                          onSubmitted: (query) {
-                            _filterString = query.toLowerCase();
-                            setState(() {});
-                          }),
+                          border: InputBorder.none,
+                        ),
+                        onSubmitted: (query) {
+                          _filterString = query.toLowerCase();
+                          setState(() {});
+                        },
+                      ),
                     ),
                   ),
                 ),
@@ -213,8 +217,10 @@ class _BrandsPageState extends State<BrandsPage> with WidgetsBindingObserver {
     List<Store> filteredStoreList = _storesViewModel.storesList.toList();
     if (_showOnlyFollowed) {
       filteredStoreList = _storesViewModel.storesList
-          .where((store) => _storesViewModel.followedStoresUuidList
-              .any((storeUuid) => storeUuid == store.uuid))
+          .where(
+            (store) => _storesViewModel.followedStoresUuidList
+                .any((storeUuid) => storeUuid == store.uuid),
+          )
           .toList();
     }
 
@@ -262,9 +268,10 @@ class _BrandsPageState extends State<BrandsPage> with WidgetsBindingObserver {
                     //   fit: BoxFit.fitWidth,
                     // ),
                     CircleAvatar(
-                        backgroundImage:
-                            CachedNetworkImageProvider(store.imageUrl),
-                        radius: 80),
+                      backgroundImage:
+                          CachedNetworkImageProvider(store.imageUrl),
+                      radius: 80,
+                    ),
                     const SizedBox(height: 12.0),
                     Text(
                       store.name,
@@ -275,7 +282,9 @@ class _BrandsPageState extends State<BrandsPage> with WidgetsBindingObserver {
                     Text(
                       store.category,
                       style: const TextStyle(
-                          fontSize: 12, fontStyle: FontStyle.italic),
+                        fontSize: 12,
+                        fontStyle: FontStyle.italic,
+                      ),
                       overflow: TextOverflow.ellipsis,
                     ),
                     // if (store.category != "") const SizedBox(height: 4.0),
@@ -295,7 +304,9 @@ class _BrandsPageState extends State<BrandsPage> with WidgetsBindingObserver {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 ToggleStoreFollowButton(
-                    storesVM: _storesViewModel, store: store),
+                  storesVM: _storesViewModel,
+                  store: store,
+                ),
                 // const SizedBox(width: 16.0), TODO ADD BACK FOR NOTIFY
                 // ToggleStoreNotifyButton(
                 //     storesVM: _storesViewModel,

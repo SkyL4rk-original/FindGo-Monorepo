@@ -1,5 +1,5 @@
+import 'package:findgo/core/constants.dart';
 import 'package:flutter/material.dart';
-import '../core/constants.dart';
 
 class OfflineWidget extends StatelessWidget {
   const OfflineWidget({
@@ -9,13 +9,13 @@ class OfflineWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Positioned(
-        bottom: 60.0,
-        child: Container(
-            height: 40.0,
-            width: 110.0,
-            color: kColorError,
-            child: const Center(child: Text("Offline"))
-        ),
+      bottom: 60.0,
+      child: Container(
+        height: 40.0,
+        width: 110.0,
+        color: kColorError,
+        child: const Center(child: Text("Offline")),
+      ),
     );
   }
 }
@@ -29,13 +29,12 @@ class DescriptionWidget extends StatefulWidget {
 }
 
 class _DescriptionWidgetState extends State<DescriptionWidget> {
-
   bool _hasTextOverflow({
     required String text,
     required TextStyle style,
     double minWidth = 0,
     double maxWidth = double.infinity,
-    int maxLines = 2
+    int maxLines = 2,
   }) {
     final TextPainter textPainter = TextPainter(
       text: TextSpan(text: text, style: style),
@@ -49,7 +48,10 @@ class _DescriptionWidgetState extends State<DescriptionWidget> {
 
   @override
   void initState() {
-    _isTextOverflow = _hasTextOverflow(text: widget.text, style: const TextStyle(fontSize: 12.0));
+    _isTextOverflow = _hasTextOverflow(
+      text: widget.text,
+      style: const TextStyle(fontSize: 12.0),
+    );
     super.initState();
   }
 
@@ -64,20 +66,23 @@ class _DescriptionWidgetState extends State<DescriptionWidget> {
             maxLines: 3,
             style: const TextStyle(fontSize: 12.0),
           ),
-          if (_isTextOverflow) const Text(
-            "...",
-            style: TextStyle(fontSize: 12.0),
-          ),
-          if (_isTextOverflow) const SizedBox(height: 12.0),
-          if (_isTextOverflow)  const Align(
-            alignment: Alignment.bottomLeft,
-            child: Text(
-              "Show More",
-              style: TextStyle(color: kColorAccent, fontSize: 12.0),
+          if (_isTextOverflow)
+            const Text(
+              "...",
+              style: TextStyle(fontSize: 12.0),
             ),
-          )
+          if (_isTextOverflow) const SizedBox(height: 12.0),
+          if (_isTextOverflow)
+            const Align(
+              alignment: Alignment.bottomLeft,
+              child: Text(
+                "Show More",
+                style: TextStyle(color: kColorAccent, fontSize: 12.0),
+              ),
+            )
         ],
       ),
     );
   }
 }
+

@@ -2,28 +2,27 @@ import 'dart:async';
 
 import 'package:findgo/core/constants.dart';
 import 'package:findgo/data_models/special.dart';
+import 'package:findgo/main.dart';
+import 'package:findgo/view_models/filter_vm.dart';
+import 'package:findgo/view_models/specials_vm.dart';
+import 'package:findgo/view_models/stores_vm.dart';
+import 'package:findgo/widgets/auth_scaffold.dart';
+import 'package:findgo/widgets/bottom_nav.dart';
+import 'package:findgo/widgets/filter_section.dart';
+import 'package:findgo/widgets/loading.dart';
+import 'package:findgo/widgets/special_card.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../main.dart';
-import '../view_models/filter_vm.dart';
-import '../view_models/specials_vm.dart';
-import '../view_models/stores_vm.dart';
-import '../widgets/auth_scaffold.dart';
-import '../widgets/bottom_nav.dart';
-import '../widgets/filter_section.dart';
-import '../widgets/loading.dart';
-import '../widgets/special_card.dart';
-
-class HomePage extends StatefulWidget {
+class HomePage extends ConsumerStatefulWidget {
   const HomePage({Key? key}) : super(key: key);
 
   @override
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
+class _HomePageState extends ConsumerState<HomePage>
+    with WidgetsBindingObserver {
   late SpecialsViewModel _specialsViewModel;
   late StoresViewModel _storesViewModel;
   late FilterViewModel _filterViewModel;
@@ -38,13 +37,13 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   @override
   void initState() {
-    _specialsViewModel = context.read(specialsVMProvider);
-    _storesViewModel = context.read(storesVMProvider);
-    _filterViewModel = context.read(filterVMProvider);
+    _specialsViewModel = ref.read(specialsVMProvider);
+    _storesViewModel = ref.read(storesVMProvider);
+    _filterViewModel = ref.read(filterVMProvider);
 
     // Do after build
-    WidgetsBinding.instance!.addPostFrameCallback((_) async {
-      final locationVM = context.read(locationVMProvider);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final locationVM = ref.read(locationVMProvider);
       locationVM.context = context;
 
       // Wait for specials to populate
@@ -64,7 +63,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       setState(() {});
     });
 
-    WidgetsBinding.instance!.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
     super.initState();
   }
 
@@ -83,13 +82,13 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return AuthScaffold(
       body: Consumer(
-        builder: (context, watch, child) {
-          final networkVM = watch(networkVMProvider);
-          final specialsVM = watch(specialsVMProvider);
-          final storesVM = watch(storesVMProvider);
-          final themeVM = watch(themeVMProvider);
-          final filterVM = watch(filterVMProvider);
-          final locationVM = watch(locationVMProvider);
+        builder: (context, ref, child) {
+          final networkVM = ref.watch(networkVMProvider);
+          final specialsVM = ref.watch(specialsVMProvider);
+          final storesVM = ref.watch(storesVMProvider);
+          final themeVM = ref.watch(themeVMProvider);
+          final filterVM = ref.watch(filterVMProvider);
+          final locationVM = ref.watch(locationVMProvider);
 
           // print("rebuild");
 

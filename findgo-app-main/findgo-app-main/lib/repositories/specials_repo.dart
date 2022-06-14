@@ -1,14 +1,13 @@
 import 'package:dartz/dartz.dart';
+import 'package:findgo/core/exception.dart';
+import 'package:findgo/core/failure.dart';
 import 'package:findgo/data_models/lat_lon.dart';
-
-import '../core/exception.dart';
-import '../core/failure.dart';
-import '../data_models/special.dart';
-import '../data_models/store.dart';
-import '../external_services/local_data_src.dart';
-import '../external_services/network_info.dart';
-import '../external_services/remote_specials_data_src.dart';
-import '../repositories/auth_repo.dart';
+import 'package:findgo/data_models/special.dart';
+import 'package:findgo/data_models/store.dart';
+import 'package:findgo/external_services/local_data_src.dart';
+import 'package:findgo/external_services/network_info.dart';
+import 'package:findgo/external_services/remote_specials_data_src.dart';
+import 'package:findgo/repositories/auth_repo.dart';
 
 class SpecialsRepository {
   final LocalDataSource localDataSource;
@@ -335,4 +334,3 @@ class SpecialsRepository {
     }
   }
 }
-

@@ -1,15 +1,14 @@
 import 'dart:developer';
 
 import 'package:dartz/dartz.dart';
+import 'package:findgo/core/exception.dart';
+import 'package:findgo/core/failure.dart';
+import 'package:findgo/core/success.dart';
+import 'package:findgo/data_models/user.dart';
+import 'package:findgo/external_services/local_data_src.dart';
+import 'package:findgo/external_services/network_info.dart';
+import 'package:findgo/external_services/remote_auth_src.dart';
 import 'package:jwt_decode/jwt_decode.dart';
-
-import '../core/exception.dart';
-import '../core/failure.dart';
-import '../core/success.dart';
-import '../data_models/user.dart';
-import '../external_services/local_data_src.dart';
-import '../external_services/network_info.dart';
-import '../external_services/remote_auth_src.dart';
 
 const logoutSuccessMessage = '[FINISHED LOGOUT USER] success';
 
@@ -17,7 +16,6 @@ class AuthRepository {
   final LocalDataSource localDataSource;
   final NetworkInfo networkInfo;
   final RemoteAuthSource remoteAuthSource;
-
 
   AuthRepository({
     required this.localDataSource,
@@ -38,7 +36,9 @@ class AuthRepository {
     final jwt = await localDataSource.jwt;
 
     // Check if expired
-    if (!Jwt.isExpired(jwt)) { return jwt; }
+    if (!Jwt.isExpired(jwt)) {
+      return jwt;
+    }
 
     _updatingToken = true;
     final refreshToken = await localDataSource.refreshToken;
@@ -93,11 +93,12 @@ class AuthRepository {
     }
   }
 
-
   Future<Either<Failure, String>> getTerms() async {
     try {
       // Check if online
-      if (!await networkInfo.isConnected) { return left(OfflineFailure()); }
+      if (!await networkInfo.isConnected) {
+        return left(OfflineFailure());
+      }
       // Run function
       final html = await remoteAuthSource.getTerms();
 
@@ -108,16 +109,19 @@ class AuthRepository {
     }
   }
 
-
   // AUTH FUNCTIONS TO REMOTE SERVER WITHOUT JWT -> LOGIN & REGISTER
   Future<Either<Failure, User>> login(User user) async {
     try {
       // Check if online
-      if (!await networkInfo.isConnected) { return left(OfflineFailure()); }
+      if (!await networkInfo.isConnected) {
+        return left(OfflineFailure());
+      }
       // Run function
       final success = await remoteAuthSource.login(user);
       // Success -> object == <User>
-      if (success.object == null) return left(ExternalServiceFailure("No user returned with login"));
+      if (success.object == null) {
+        return left(ExternalServiceFailure("No user returned with login"));
+      }
 
       // Store jwt & user
       await localDataSource.storeJwt(success.jwt);
@@ -134,10 +138,14 @@ class AuthRepository {
   Future<Either<Failure, User>> register(User user) async {
     try {
       // Check if online
-      if (!await networkInfo.isConnected) { return left(OfflineFailure()); }
+      if (!await networkInfo.isConnected) {
+        return left(OfflineFailure());
+      }
 
       final success = await remoteAuthSource.register(user);
-      if (success.object == null) return left(ExternalServiceFailure("No user returned with login"));
+      if (success.object == null) {
+        return left(ExternalServiceFailure("No user returned with login"));
+      }
 
       // Store jwt & user
       await localDataSource.storeJwt(success.jwt);
@@ -151,31 +159,34 @@ class AuthRepository {
     }
   }
 
-
   // AUTH FUNCTIONS TO REMOTE SERVER WITH JWT
   Future<Either<Failure, User>> getCurrentUser(String fbToken) async {
     try {
       // Check if online
-      if (!await networkInfo.isConnected) { return left(OfflineFailure()); }
+      if (!await networkInfo.isConnected) {
+        return left(OfflineFailure());
+      }
 
       // Get jwt
       final jwt = await getJwt();
       final user = await remoteAuthSource.getCurrentUser(jwt, fbToken);
 
       return right(user);
-
     } on Exception catch (e) {
-      if (e is AuthorizationException || e.toString() == 'No token stored') {return left(AuthFailure());}
+      if (e is AuthorizationException || e.toString() == 'No token stored') {
+        return left(AuthFailure());
+      }
       log('auth repo: getCurrentUser: ${e.toString()}');
       return left(ExternalServiceFailure(e.toString()));
     }
   }
 
-
   Future<Either<Failure, User>> updateEmail(User user) async {
     try {
       // Check if online
-      if (!await networkInfo.isConnected) { return left(OfflineFailure()); }
+      if (!await networkInfo.isConnected) {
+        return left(OfflineFailure());
+      }
       // Get jwt
       final jwt = await getJwt();
       print(jwt);
@@ -188,16 +199,21 @@ class AuthRepository {
     }
   }
 
-  Future<Either<Failure, User>> updatePassword(User user, String newPassword) async {
+  Future<Either<Failure, User>> updatePassword(
+    User user,
+    String newPassword,
+  ) async {
     try {
       // Check if online
-      if (!await networkInfo.isConnected) { return left(OfflineFailure()); }
+      if (!await networkInfo.isConnected) {
+        return left(OfflineFailure());
+      }
       // Get jwt
       final jwt = await getJwt();
 
-      final updatedUser = await remoteAuthSource.updatePassword(jwt, user, newPassword);
+      final updatedUser =
+          await remoteAuthSource.updatePassword(jwt, user, newPassword);
       return right(updatedUser);
-
     } on Exception catch (e) {
       log('auth repo: updatePassword: ${e.toString()}');
       return left(ExternalServiceFailure(e.toString()));
@@ -207,13 +223,14 @@ class AuthRepository {
   Future<Either<Failure, User>> updateUsername(User user) async {
     try {
       // Check if online
-      if (!await networkInfo.isConnected) { return left(OfflineFailure()); }
+      if (!await networkInfo.isConnected) {
+        return left(OfflineFailure());
+      }
       // Get jwt
       final jwt = await getJwt();
 
       final updatedUser = await remoteAuthSource.updateUsername(jwt, user);
       return right(updatedUser);
-
     } on Exception catch (e) {
       log('auth repo: updateUsername: ${e.toString()}');
       return left(ExternalServiceFailure(e.toString()));
@@ -223,25 +240,30 @@ class AuthRepository {
   Future<Either<Failure, Success>> passwordResetRequest(String email) async {
     try {
       // Check if online
-      if (!await networkInfo.isConnected) { return left(OfflineFailure()); }
+      if (!await networkInfo.isConnected) {
+        return left(OfflineFailure());
+      }
 
       await remoteAuthSource.passwordResetRequest(email);
       return right(ServerSuccess());
-
     } on RemoteDataSourceException catch (e) {
       log('auth repo: passwordResetRequest: remote error ${e.message}');
       return left(ServerFailure(e.message));
     }
   }
 
-  Future<Either<Failure, Success>> passwordReset(String password, String passwordResetCode) async {
+  Future<Either<Failure, Success>> passwordReset(
+    String password,
+    String passwordResetCode,
+  ) async {
     try {
       // Check if online
-      if (!await networkInfo.isConnected) { return left(OfflineFailure()); }
+      if (!await networkInfo.isConnected) {
+        return left(OfflineFailure());
+      }
 
       await remoteAuthSource.passwordReset(password, passwordResetCode);
       return right(ServerSuccess());
-
     } on RemoteDataSourceException catch (e) {
       log('Auth repo: passwordReset: remote error ${e.message}');
       return left(ServerFailure(e.message));
@@ -251,18 +273,17 @@ class AuthRepository {
   Future<Either<Failure, Success>> deleteAccount(User user) async {
     try {
       // Check if online
-      if (!await networkInfo.isConnected) { return left(OfflineFailure()); }
+      if (!await networkInfo.isConnected) {
+        return left(OfflineFailure());
+      }
       // Get jwt
       final jwt = await getJwt();
 
       final success = await remoteAuthSource.deleteAccount(jwt, user);
       return right(success);
-
     } on Exception catch (e) {
       log('auth repo: deleteAccount: ${e.toString()}');
       return left(ExternalServiceFailure(e.toString()));
     }
   }
-
 }
-

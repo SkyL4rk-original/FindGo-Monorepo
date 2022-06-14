@@ -1,34 +1,36 @@
+import 'package:findgo/core/constants.dart';
+import 'package:findgo/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../core/constants.dart';
-import '../main.dart';
 
 class SliverCircularLoading extends StatelessWidget {
   const SliverCircularLoading({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Consumer(builder: (context, watch, child) {
-      final themeVM = watch(themeVMProvider);
+    return Consumer(
+      builder: (context, ref, child) {
+        final themeVM = ref.watch(themeVMProvider);
 
-      return SliverFillRemaining(
-        child: Center(
-          // alignment: Alignment.bottomCenter,
-          child: CircleAvatar(
-            backgroundColor: themeVM.mode == ThemeMode.dark
-                ? kColorBackgroundDark
-                : kColorBackgroundLight,
-            radius: 40,
-            child: const Padding(
-              padding: EdgeInsets.all(20.0),
-              child: CircularProgressIndicator(
-                strokeWidth: 3,
+        return SliverFillRemaining(
+          child: Center(
+            // alignment: Alignment.bottomCenter,
+            child: CircleAvatar(
+              backgroundColor: themeVM.mode == ThemeMode.dark
+                  ? kColorBackgroundDark
+                  : kColorBackgroundLight,
+              radius: 40,
+              child: const Padding(
+                padding: EdgeInsets.all(20.0),
+                child: CircularProgressIndicator(
+                  strokeWidth: 3,
+                ),
               ),
             ),
           ),
-        ),
-      );
-    });
+        );
+      },
+    );
   }
 }
 
@@ -63,4 +65,3 @@ class _LoadWidget extends State<LoadWidget> {
 //     );
 //   }
 }
-

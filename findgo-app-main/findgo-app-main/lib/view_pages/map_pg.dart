@@ -1,17 +1,15 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:ui' as ui;
-import 'dart:ui';
 import 'dart:io' show Platform;
+import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collection/collection.dart';
 import 'package:findgo/core/constants.dart';
-import 'package:findgo/data_models/lat_lon.dart' as ll;
 import 'package:findgo/data_models/store.dart';
 import 'package:findgo/internal_services/routes.dart';
+import 'package:findgo/main.dart';
 import 'package:findgo/view_models/location_vm.dart';
-import 'package:findgo/view_models/specials_vm.dart';
 import 'package:findgo/view_models/stores_vm.dart';
 import 'package:findgo/view_pages/store_pg.dart';
 import 'package:findgo/widgets/auth_scaffold.dart';
@@ -19,25 +17,22 @@ import 'package:findgo/widgets/bottom_nav.dart';
 import 'package:findgo/widgets/loading.dart';
 import 'package:findgo/widgets/snackbar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_cluster_manager/google_maps_cluster_manager.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:marker_icon/marker_icon.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 import 'package:vrouter/vrouter.dart';
 
-import '../main.dart';
-
-class MapPage extends StatefulWidget {
+class MapPage extends ConsumerStatefulWidget {
   @override
   _MapPageState createState() => _MapPageState();
 }
 
-class _MapPageState extends State<MapPage> {
+class _MapPageState extends ConsumerState<MapPage> {
   late final LocationViewModel _locationVM;
   late final StoresViewModel _storeVM;
-  late final SpecialsViewModel _specialsVM;
+  // late final SpecialsViewModel _specialsVM;
   late CameraPosition _cameraLocation;
   bool _initComplete = false;
 
@@ -238,8 +233,9 @@ class _MapPageState extends State<MapPage> {
     //     uuid: "1",
     //     latLng: ll.LatLng(lat: -29.7371408, lng: 31.07363889999999)));
     _stores = _storeVM.storesList.where((store) => store.latLng.isNotNil);
-    if (storeUuid != null)
+    if (storeUuid != null) {
       _stores = _stores.where((store) => store.uuid == storeUuid);
+    }
 
     // print("Stores $_stores");
     for (final store in _stores) {
@@ -331,9 +327,10 @@ class _MapPageState extends State<MapPage> {
       painter.text = TextSpan(
         text: text,
         style: TextStyle(
-            fontSize: size / 3,
-            color: Colors.white,
-            fontWeight: FontWeight.normal),
+          fontSize: size / 3,
+          color: Colors.white,
+          fontWeight: FontWeight.normal,
+        ),
       );
       painter.layout();
       painter.paint(
@@ -350,12 +347,12 @@ class _MapPageState extends State<MapPage> {
 
   @override
   void initState() {
-    _storeVM = context.read(storesVMProvider);
-    _specialsVM = context.read(specialsVMProvider);
-    _locationVM = context.read(locationVMProvider);
+    _storeVM = ref.read(storesVMProvider);
+    // _specialsVM = ref.read(specialsVMProvider);
+    _locationVM = ref.read(locationVMProvider);
 
     // Do after build
-    WidgetsBinding.instance!.addPostFrameCallback((_) async {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       _locationVM.context = context;
       // if (_locationVM.latLng.isNil &&
       //  if (!await _locationVM.fetchCurrentPosition()) return;
@@ -414,10 +411,12 @@ class _MapPageState extends State<MapPage> {
     return SafeArea(
       child: AuthScaffold(
         body: Consumer(
-          builder: (context, watch, child) {
-            final networkVM = watch(networkVMProvider);
-            final themeVM = watch(themeVMProvider);
-            final locationVM = watch(locationVMProvider);
+          builder: (context, ref, child) {
+            // final networkVM = ref.watch(networkVMProvider);
+            // final themeVM = ref.watch(themeVMProvider);
+            ref.watch(networkVMProvider);
+            ref.watch(themeVMProvider);
+            final locationVM = ref.watch(locationVMProvider);
 
             if (locationVM.busy || !_initComplete) return LoadWidget();
             if (locationVM.noPermission) {
@@ -528,7 +527,9 @@ class _StoreInfoCard extends StatelessWidget {
                           Text(
                             _selectedStore.category,
                             style: const TextStyle(
-                                fontSize: 12, fontStyle: FontStyle.italic),
+                              fontSize: 12,
+                              fontStyle: FontStyle.italic,
+                            ),
                             overflow: TextOverflow.ellipsis,
                           ),
                         // SizedBox(width: 16.0,),
@@ -618,8 +619,8 @@ class _StoreInfoCard extends StatelessWidget {
                                 "http://maps.apple.com/maps?saddr=$originLat,$originLng&daddr=$destLat,$destLng";
                           }
 
-                          await canLaunch(_url)
-                              ? await launch(_url)
+                          await canLaunchUrlString(_url)
+                              ? await launchUrlString(_url)
                               : InfoSnackBar.show(
                                   context,
                                   "Error showing directions!",

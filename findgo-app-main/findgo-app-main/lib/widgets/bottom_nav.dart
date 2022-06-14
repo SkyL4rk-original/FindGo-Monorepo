@@ -1,9 +1,8 @@
+import 'package:findgo/core/constants.dart';
+import 'package:findgo/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vrouter/vrouter.dart';
-
-import '../core/constants.dart';
-import '../main.dart';
 
 class BottomNavBar extends StatelessWidget {
   final int currentIndex;
@@ -12,11 +11,12 @@ class BottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer(builder: (context, watch, child) {
-      final specialVM = watch(specialsVMProvider);
-      final themeVM = watch(themeVMProvider);
+    return Consumer(
+      builder: (context, ref, child) {
+        final specialVM = ref.watch(specialsVMProvider);
+        final themeVM = ref.watch(themeVMProvider);
 
-      return BottomNavigationBar(
+        return BottomNavigationBar(
           backgroundColor:
               themeVM.mode == ThemeMode.dark ? kColorCardDark : kColorCardLight,
           selectedItemColor: kColorAccent,
@@ -68,7 +68,9 @@ class BottomNavBar extends StatelessWidget {
               icon: Icon(Icons.map_outlined),
               label: "Map",
             ),
-          ]);
-    });
+          ],
+        );
+      },
+    );
   }
 }

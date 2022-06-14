@@ -1,17 +1,16 @@
 import 'package:findgo/core/constants.dart';
+import 'package:findgo/data_models/store.dart';
+import 'package:findgo/main.dart';
+import 'package:findgo/view_models/specials_vm.dart';
+import 'package:findgo/view_models/stores_vm.dart';
+import 'package:findgo/view_models/theme_vm.dart';
+import 'package:findgo/widgets/buttons.dart';
+import 'package:findgo/widgets/special_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vrouter/vrouter.dart';
 
-import '../data_models/store.dart';
-import '../main.dart';
-import '../view_models/specials_vm.dart';
-import '../view_models/stores_vm.dart';
-import '../view_models/theme_vm.dart';
-import '../widgets/buttons.dart';
-import '../widgets/special_card.dart';
-
-class StorePage extends StatefulWidget {
+class StorePage extends ConsumerStatefulWidget {
   final Store store;
 
   const StorePage({Key? key, required this.store}) : super(key: key);
@@ -20,7 +19,7 @@ class StorePage extends StatefulWidget {
   _StorePageState createState() => _StorePageState();
 }
 
-class _StorePageState extends State<StorePage> {
+class _StorePageState extends ConsumerState<StorePage> {
   late SpecialsViewModel _specialsViewModel;
   late StoresViewModel _storesViewModel;
   late ThemeViewModel _themeViewModel;
@@ -29,14 +28,14 @@ class _StorePageState extends State<StorePage> {
 
   @override
   void initState() {
-    _specialsViewModel = context.read(specialsVMProvider);
-    _storesViewModel = context.read(storesVMProvider);
-    _themeViewModel = context.read(themeVMProvider);
+    _specialsViewModel = ref.read(specialsVMProvider);
+    _storesViewModel = ref.read(storesVMProvider);
+    _themeViewModel = ref.read(themeVMProvider);
 
     _store = widget.store;
 
     // Do after build
-    WidgetsBinding.instance!.addPostFrameCallback((_) async {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (_specialsViewModel.specialsList.isEmpty) {
         _specialsViewModel.getAllSpecials();
       }
@@ -88,8 +87,8 @@ class _StorePageState extends State<StorePage> {
           ],
         ),
         body: Consumer(
-          builder: (context, watch, child) {
-            final specialsVM = watch(specialsVMProvider);
+          builder: (context, ref, child) {
+            final specialsVM = ref.watch(specialsVMProvider);
             specialsVM.context = context;
 
             return _specialsListView();
@@ -114,4 +113,3 @@ class _StorePageState extends State<StorePage> {
     );
   }
 }
-

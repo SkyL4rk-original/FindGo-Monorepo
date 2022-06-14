@@ -1,23 +1,22 @@
+import 'package:findgo/external_services/local_data_src.dart';
 import 'package:findgo/external_services/location_svs.dart';
+import 'package:findgo/external_services/network_info.dart';
+import 'package:findgo/external_services/remote_auth_src.dart';
+import 'package:findgo/external_services/remote_specials_data_src.dart';
+import 'package:findgo/repositories/auth_repo.dart';
+import 'package:findgo/repositories/specials_repo.dart';
+import 'package:findgo/view_models/auth_vm.dart';
+import 'package:findgo/view_models/filter_vm.dart';
 import 'package:findgo/view_models/location_vm.dart';
+import 'package:findgo/view_models/network_vm.dart';
+import 'package:findgo/view_models/specials_vm.dart';
+import 'package:findgo/view_models/stores_vm.dart';
+import 'package:findgo/view_models/theme_vm.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http/http.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
-
-import '../external_services/remote_specials_data_src.dart';
-import '../repositories/specials_repo.dart';
-import '../view_models/filter_vm.dart';
-import '../view_models/network_vm.dart';
-import '../view_models/specials_vm.dart';
-import '../view_models/stores_vm.dart';
-import '../view_models/theme_vm.dart';
-import 'external_services/local_data_src.dart';
-import 'external_services/network_info.dart';
-import 'external_services/remote_auth_src.dart';
-import 'repositories/auth_repo.dart';
-import 'view_models/auth_vm.dart';
 
 final sl = GetIt.instance;
 

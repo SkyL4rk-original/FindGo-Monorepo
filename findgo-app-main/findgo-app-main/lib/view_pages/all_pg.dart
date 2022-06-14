@@ -1,22 +1,19 @@
 import 'package:findgo/core/constants.dart';
 import 'package:findgo/data_models/special.dart';
+import 'package:findgo/main.dart';
+import 'package:findgo/view_models/filter_vm.dart';
 import 'package:findgo/view_models/location_vm.dart';
+import 'package:findgo/view_models/specials_vm.dart';
+import 'package:findgo/view_models/stores_vm.dart';
+import 'package:findgo/widgets/auth_scaffold.dart';
+import 'package:findgo/widgets/bottom_nav.dart';
+import 'package:findgo/widgets/filter_section.dart';
+import 'package:findgo/widgets/loading.dart';
+import 'package:findgo/widgets/special_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../main.dart';
-import '../view_models/filter_vm.dart';
-import '../view_models/network_vm.dart';
-import '../view_models/specials_vm.dart';
-import '../view_models/stores_vm.dart';
-import '../widgets/auth_scaffold.dart';
-import '../widgets/bottom_nav.dart';
-import '../widgets/filter_section.dart';
-import '../widgets/loading.dart';
-import '../widgets/special_card.dart';
-import '../widgets/util_widgets.dart';
-
-class AllPage extends StatefulWidget {
+class AllPage extends ConsumerStatefulWidget {
   const AllPage({
     Key? key,
   }) : super(key: key);
@@ -25,7 +22,7 @@ class AllPage extends StatefulWidget {
   _AllPageState createState() => _AllPageState();
 }
 
-class _AllPageState extends State<AllPage> with WidgetsBindingObserver {
+class _AllPageState extends ConsumerState<AllPage> with WidgetsBindingObserver {
   late final SpecialsViewModel _specialsViewModel;
   late final StoresViewModel _storesViewModel;
   late final FilterViewModel _filterViewModel;
@@ -42,13 +39,13 @@ class _AllPageState extends State<AllPage> with WidgetsBindingObserver {
 
   @override
   void initState() {
-    _filterViewModel = context.read(filterVMProvider);
-    _specialsViewModel = context.read(specialsVMProvider);
-    _storesViewModel = context.read(storesVMProvider);
-    _locationViewModel = context.read(locationVMProvider);
+    _filterViewModel = ref.read(filterVMProvider);
+    _specialsViewModel = ref.read(specialsVMProvider);
+    _storesViewModel = ref.read(storesVMProvider);
+    _locationViewModel = ref.read(locationVMProvider);
 
     // Do after build
-    WidgetsBinding.instance!.addPostFrameCallback((_) async {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       _specialsViewModel.context = context;
       _storesViewModel.context = context;
 
@@ -70,7 +67,7 @@ class _AllPageState extends State<AllPage> with WidgetsBindingObserver {
       setState(() {});
     });
 
-    WidgetsBinding.instance!.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
     super.initState();
   }
 
@@ -89,11 +86,11 @@ class _AllPageState extends State<AllPage> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return AuthScaffold(
       body: Consumer(
-        builder: (context, watch, child) {
-          final specialsVM = watch(specialsVMProvider);
-          final storesVM = watch(storesVMProvider);
-          final themeVM = watch(themeVMProvider);
-          final filterVM = watch(filterVMProvider);
+        builder: (context, ref, child) {
+          final specialsVM = ref.watch(specialsVMProvider);
+          final storesVM = ref.watch(storesVMProvider);
+          final themeVM = ref.watch(themeVMProvider);
+          final filterVM = ref.watch(filterVMProvider);
 
           return RefreshIndicator(
             onRefresh: () async {

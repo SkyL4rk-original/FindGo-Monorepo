@@ -1,13 +1,11 @@
+import 'package:findgo/core/constants.dart';
+import 'package:findgo/data_models/special.dart';
+import 'package:findgo/main.dart';
+import 'package:findgo/view_models/theme_vm.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../core/constants.dart';
-import '../data_models/special.dart';
-import '../main.dart';
-import '../view_models/filter_vm.dart';
-import '../view_models/theme_vm.dart';
-
-class FilterSection extends StatefulWidget {
+class FilterSection extends ConsumerStatefulWidget {
   final Function(String) onSearchSubmitted;
   final Function(DateTimeRange?) onCalendarFilter;
   final Function(SpecialType?) onTypeFilter;
@@ -25,7 +23,7 @@ class FilterSection extends StatefulWidget {
   _FilterSectionState createState() => _FilterSectionState();
 }
 
-class _FilterSectionState extends State<FilterSection> {
+class _FilterSectionState extends ConsumerState<FilterSection> {
   late ThemeViewModel _themeViewModel;
 
   DateTimeRange? _dateRange;
@@ -34,15 +32,15 @@ class _FilterSectionState extends State<FilterSection> {
 
   @override
   void initState() {
-    final _filterViewModel = context.read(filterVMProvider);
-    _themeViewModel = context.read(themeVMProvider);
+    final _filterViewModel = ref.read(filterVMProvider);
+    _themeViewModel = ref.read(themeVMProvider);
 
     // Do after build
-    WidgetsBinding.instance!.addPostFrameCallback((_) async {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (widget.onLocationFilter != null) {
         _locationRange = await _filterViewModel.locationRange;
         if (_locationRange != null) {
-          final _locationVM = context.read(locationVMProvider);
+          final _locationVM = ref.read(locationVMProvider);
           await _locationVM.fetchCurrentPosition();
           widget.onLocationFilter!(_showLocationRangeSelector);
         }
@@ -55,12 +53,12 @@ class _FilterSectionState extends State<FilterSection> {
   Widget build(BuildContext context) {
     return FlexibleSpaceBar(
       background: Consumer(
-        builder: (context, watch, child) {
-          watch(themeVMProvider);
-          watch(specialsVMProvider);
-          watch(storesVMProvider);
-          final filterVM = watch(filterVMProvider);
-          final locationVM = watch(locationVMProvider);
+        builder: (context, ref, child) {
+          ref.watch(themeVMProvider);
+          ref.watch(specialsVMProvider);
+          ref.watch(storesVMProvider);
+          final filterVM = ref.watch(filterVMProvider);
+          final locationVM = ref.watch(locationVMProvider);
 
           return Column(
             children: [
@@ -255,7 +253,8 @@ class _FilterSectionState extends State<FilterSection> {
                               );
                               setState(() {});
                             },
-                            style: _showLocationRangeSelector || _locationRange != null
+                            style: _showLocationRangeSelector ||
+                                    _locationRange != null
                                 ? kButtonSpecialType
                                 : kButtonSpecialTypeDeactivated,
 //                                 ? kButtonSpecialTypeDeactivated
@@ -269,7 +268,9 @@ class _FilterSectionState extends State<FilterSection> {
                             ),
                           ),
                           Text(
-                            _locationRange == null ? "Location" : "${_locationRange!.toInt()} km",
+                            _locationRange == null
+                                ? "Location"
+                                : "${_locationRange!.toInt()} km",
                             style: const TextStyle(fontSize: 8.0),
                           )
                         ],
@@ -284,15 +285,21 @@ class _FilterSectionState extends State<FilterSection> {
                     alignment: Alignment.center,
                     children: [
                       Positioned(
-                          left: 16,
-                          bottom: 0,
-                          child: Text("${_minLocationRange.toInt()} km", style: const TextStyle(fontSize: 10.0),),),
+                        left: 16,
+                        bottom: 0,
+                        child: Text(
+                          "${_minLocationRange.toInt()} km",
+                          style: const TextStyle(fontSize: 10.0),
+                        ),
+                      ),
                       SliderTheme(
                         data: SliderTheme.of(context).copyWith(
-                          thumbShape:
-                              const RoundSliderThumbShape(enabledThumbRadius: 12.0),
-                          overlayShape:
-                              const RoundSliderOverlayShape(overlayRadius: 28.0),
+                          thumbShape: const RoundSliderThumbShape(
+                            enabledThumbRadius: 12.0,
+                          ),
+                          overlayShape: const RoundSliderOverlayShape(
+                            overlayRadius: 28.0,
+                          ),
                           tickMarkShape: const RoundSliderTickMarkShape(),
                           valueIndicatorShape:
                               const PaddleSliderValueIndicatorShape(),
@@ -305,7 +312,8 @@ class _FilterSectionState extends State<FilterSection> {
                           value: _locationRange!,
                           min: _minLocationRange,
                           max: _maxLocationRange,
-                          divisions: (_maxLocationRange - _minLocationRange) ~/ 5,
+                          divisions:
+                              (_maxLocationRange - _minLocationRange) ~/ 5,
                           onChanged: (value) => setState(() {
                             _locationRange = value;
                             filterVM.setLocationRange(_locationRange);
@@ -322,7 +330,11 @@ class _FilterSectionState extends State<FilterSection> {
                       Positioned(
                         right: 16,
                         bottom: 0,
-                        child: Text("${_maxLocationRange.toInt()} km", style: const TextStyle(fontSize: 10.0),),),
+                        child: Text(
+                          "${_maxLocationRange.toInt()} km",
+                          style: const TextStyle(fontSize: 10.0),
+                        ),
+                      ),
                     ],
                   ),
                 ),

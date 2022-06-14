@@ -1,17 +1,16 @@
 import 'dart:async';
 import 'dart:developer';
 
+import 'package:findgo/core/constants.dart';
+import 'package:findgo/core/failure.dart';
+import 'package:findgo/data_models/special.dart';
+import 'package:findgo/internal_services/routes.dart';
+import 'package:findgo/repositories/specials_repo.dart';
+import 'package:findgo/view_models/network_vm.dart';
+import 'package:findgo/view_pages/special_pg.dart';
+import 'package:findgo/widgets/snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:uni_links/uni_links.dart';
-
-import '../core/constants.dart';
-import '../core/failure.dart';
-import '../data_models/special.dart';
-import '../internal_services/routes.dart';
-import '../repositories/specials_repo.dart';
-import '../view_models/network_vm.dart';
-import '../view_pages/special_pg.dart';
-import '../widgets/snackbar.dart';
 
 enum SpecialViewState { idle, busy, error, uploading }
 
@@ -19,8 +18,10 @@ class SpecialsViewModel extends ChangeNotifier {
   final NetworkViewModel networkViewModel;
   final SpecialsRepository specialsRepository;
 
-  SpecialsViewModel(
-      {required this.networkViewModel, required this.specialsRepository});
+  SpecialsViewModel({
+    required this.networkViewModel,
+    required this.specialsRepository,
+  });
 
   // Iterable<Special> filteredSpecialList = [];
   List<Special> _specialsList = [];
@@ -47,8 +48,11 @@ class SpecialsViewModel extends ChangeNotifier {
     log("Specials VM: $failure");
     if (failure is OfflineFailure &&
         networkViewModel.state == NetworkViewState.online) {
-      InfoSnackBar.show(_context, kMessageOfflineError,
-          color: SnackBarColor.error);
+      InfoSnackBar.show(
+        _context,
+        kMessageOfflineError,
+        color: SnackBarColor.error,
+      );
       networkViewModel.setState(NetworkViewState.offline);
       networkViewModel.streamNetworkStatus();
     } else if (networkViewModel.state != NetworkViewState.offline) {
@@ -113,8 +117,9 @@ class SpecialsViewModel extends ChangeNotifier {
 
   bool hasActiveSpecialsFromFollowed(Set<String> followedStoresUuid) {
     for (final storeUuid in followedStoresUuid) {
-      if (_specialsList.any((special) => special.storeUuid == storeUuid))
+      if (_specialsList.any((special) => special.storeUuid == storeUuid)) {
         return true;
+      }
     }
     return false;
   }
@@ -146,24 +151,32 @@ class SpecialsViewModel extends ChangeNotifier {
     // removeExpiredSavedSpecials(); // TODO TEST REMOVE EXPIRED SPECIALS
   }
 
-  Future<void> saveSpecial(
-      {required String specialUuid, required bool save}) async {
+  Future<void> saveSpecial({
+    required String specialUuid,
+    required bool save,
+  }) async {
     if (save) {
       final failureOrSuccess =
           await specialsRepository.addSavedSpecial(specialUuid);
-      failureOrSuccess.fold((failure) => _handleFailure(failure),
-          (_) => _savedSpecialsUuidSet.add(specialUuid));
+      failureOrSuccess.fold(
+        (failure) => _handleFailure(failure),
+        (_) => _savedSpecialsUuidSet.add(specialUuid),
+      );
     } else {
       final failureOrSuccess =
           await specialsRepository.removeSavedSpecial(specialUuid);
-      failureOrSuccess.fold((failure) => _handleFailure(failure),
-          (_) => _savedSpecialsUuidSet.remove(specialUuid));
+      failureOrSuccess.fold(
+        (failure) => _handleFailure(failure),
+        (_) => _savedSpecialsUuidSet.remove(specialUuid),
+      );
     }
     await Future.delayed(const Duration(milliseconds: 300), () => null);
   }
 
   Future<void> addSpecialStatIncrement(
-      String specialUuid, SpecialStat specialStat) async {
+    String specialUuid,
+    SpecialStat specialStat,
+  ) async {
     specialsRepository.addSpecialStatIncrement(specialUuid, specialStat);
   }
 
@@ -212,9 +225,11 @@ class SpecialsViewModel extends ChangeNotifier {
       // print(link);
       final special = await getSpecialByUuid(queries["uid"]![0]);
       if (special == null) {
-        InfoSnackBar.show(_context,
-            "Error Finding Special: The special may have expired or been removed.",
-            color: SnackBarColor.error);
+        InfoSnackBar.show(
+          _context,
+          "Error Finding Special: The special may have expired or been removed.",
+          color: SnackBarColor.error,
+        );
       } else {
 //         print(special);
 //         print(_context);
