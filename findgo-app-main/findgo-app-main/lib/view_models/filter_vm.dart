@@ -92,9 +92,10 @@ class FilterViewModel extends ChangeNotifier {
       // Filter by distance
       final storesInDistance = storesViewModel.storesList.where(
         (store) =>
-           store.uuid == storesViewModel.findgoUuid || (store.latLng.isNotNil &&
-            locationViewModel.getDistanceBetweenInKm(store.latLng) <
-                _locationRange!),
+            store.uuid == storesViewModel.findgoUuid ||
+            (store.latLng.isNotNil &&
+                locationViewModel.getDistanceBetweenInKm(store.latLng) <
+                    _locationRange!),
       );
       filteredSpecialList = filteredSpecialList
           .where(
@@ -110,6 +111,7 @@ class FilterViewModel extends ChangeNotifier {
           (special) =>
               special.name.toLowerCase().contains(filterString) ||
               special.storeName.toLowerCase().contains(filterString) ||
+              special.description.toLowerCase().contains(filterString) ||
               special.storeCategory.toLowerCase().contains(filterString),
         )
         .toList();
