@@ -47,18 +47,15 @@ class LocationViewModel extends ChangeNotifier {
       //_setLocationState(LocationViewState.noPermission);
       _setLocationState(LocationViewState.idle);
       if (_showErrorMessage) {
+        // ignore: use_build_context_synchronously
         InfoSnackBar.show(context, errorMessage, color: SnackBarColor.error);
         _showErrorMessage = false;
       }
       return false;
     }
 
-    final lastLocation = await locationService.getLastKnownLocation();
-    if (lastLocation == null) {
-      _latLng = await locationService.getCurrentLatLng();
-    } else {
-      _latLng = LatLng(lat: lastLocation.lat, lng: lastLocation.lng);
-    }
+    _latLng = await locationService.getCurrentLatLng();
+
     await Future.delayed(const Duration(milliseconds: 100));
     _setLocationState(LocationViewState.idle);
 
@@ -69,7 +66,8 @@ class LocationViewModel extends ChangeNotifier {
 
   Future<void> backgroundLocationCheck() async {
     final loc = await locationService.getCurrentLatLng();
-    if (_latLng.isNotNil && getDistanceBetweenInKm(LatLng(lat: loc.lat, lng: loc.lng)) >= 1) {
+    if (_latLng.isNotNil &&
+        getDistanceBetweenInKm(LatLng(lat: loc.lat, lng: loc.lng)) >= 1) {
       _setLocationState(LocationViewState.busy);
       _latLng = LatLng(lat: loc.lat, lng: loc.lng);
       await Future.delayed(const Duration(milliseconds: 100));
