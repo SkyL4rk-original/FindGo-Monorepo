@@ -2,13 +2,21 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 enum SpecialStatus { active, inactive, repeated }
-enum SpecialType { brand, discount, event, featured }
-enum SpecialStat { impression, click, websiteClick, phoneClick, shareClick, savedClick }
 
-const constSetType = <SpecialType>{ SpecialType.brand };
+enum SpecialType { brand, discount, event, featured }
+
+enum SpecialStat {
+  impression,
+  click,
+  websiteClick,
+  phoneClick,
+  shareClick,
+  savedClick
+}
+
+const constSetType = <SpecialType>{SpecialType.brand};
 
 class Special {
-
   Special({
     required this.uuid,
     required this.storeUuid,
@@ -28,6 +36,7 @@ class Special {
     this.video,
     this.typeSet = constSetType,
     this.status = SpecialStatus.inactive,
+    required this.activatedAt,
   });
 
   String uuid;
@@ -48,6 +57,7 @@ class Special {
   Uint8List? video;
   Set<SpecialType> typeSet;
   SpecialStatus status;
+  DateTime activatedAt;
 
   @override
   String toString() {
@@ -73,6 +83,7 @@ class Special {
     Uint8List? video,
     Set<SpecialType>? typeSet,
     SpecialStatus? status,
+    DateTime? activatedAt,
   }) =>
       Special(
         uuid: uuid ?? this.uuid,
@@ -93,6 +104,7 @@ class Special {
         video: video ?? this.video,
         typeSet: typeSet ?? this.typeSet,
         status: status ?? this.status,
+        activatedAt: activatedAt ?? this.activatedAt,
       );
 
   static Set<SpecialType> _parseType(String typeStringList) {
@@ -106,7 +118,9 @@ class Special {
         specialType = SpecialType.event;
       } else if (type == "2") {
         specialType = SpecialType.discount;
-      } else if (type == "3") specialType = SpecialType.featured;
+      } else if (type == "3") {
+        specialType = SpecialType.featured;
+      }
 
       specialTypeSet.add(specialType);
     }
@@ -118,7 +132,9 @@ class Special {
     // if (status == "1") specialStatus = SpecialStatus.active;
     if (status == "2") {
       specialStatus = SpecialStatus.active;
-    } else if (status == "3") specialStatus = SpecialStatus.repeated;
+    } else if (status == "3") {
+      specialStatus = SpecialStatus.repeated;
+    }
     return specialStatus;
   }
 
@@ -127,46 +143,57 @@ class Special {
 
     for (final type in typeSet) {
       int specialType = 0; // SpecialType.brand
-      if (type == SpecialType.event) { specialType = 1;
-      } else if (type == SpecialType.discount) { specialType = 2;
-      } else if (type == SpecialType.featured) { specialType = 3; }
+      if (type == SpecialType.event) {
+        specialType = 1;
+      } else if (type == SpecialType.discount) {
+        specialType = 2;
+      } else if (type == SpecialType.featured) {
+        specialType = 3;
+      }
 
       typesAsString = "$specialType,$typesAsString";
     }
 
-    return typesAsString.substring(0 ,typesAsString.length - 1);
+    return typesAsString.substring(0, typesAsString.length - 1);
   }
 
   static int _statusToInt(SpecialStatus status) {
     int specialStatus = 0; // Delete
-    if (status == SpecialStatus.inactive) { specialStatus = 1; }
-    else if (status == SpecialStatus.active) { specialStatus = 2; }
-    else if (status == SpecialStatus.repeated) { specialStatus = 3; }
+    if (status == SpecialStatus.inactive) {
+      specialStatus = 1;
+    } else if (status == SpecialStatus.active) {
+      specialStatus = 2;
+    } else if (status == SpecialStatus.repeated) {
+      specialStatus = 3;
+    }
     return specialStatus;
   }
 
   String get typeToString => typeSet.toString().substring(12);
   String get statusToString => status.toString().substring(14);
 
-
   factory Special.fromJson(Map<String, dynamic> json) => Special(
-    uuid: json["specialUuid"] as String,
-    storeUuid: json["storeUuid"] as String,
-    storeImageUrl: json["storeImageUrl"] as String,
-    storeCategory: json["storeCategory"] as String,
-    storeName: json["storeName"] as String,
-    storePhoneNumber: json["storePhoneNumber"] as String,
-    storeWebsite: json["storeWebsite"] as String,
-    name: json["name"] as String,
-    price: int.parse(json["price"] as String),
-    description: json["description"] as String,
-    validFrom: DateTime.parse("${json["validFrom"] as String}Z").toLocal(),
-    validUntil: json["validUntil"] != null ? DateTime.tryParse("${json["validUntil"] as String}Z")!.toLocal() : null,
-    imageUrl: json["imageUrl"] as String,
-    videoUrl: (json["videoUrl"] as String?) ?? "",
-    typeSet: _parseType(json["type"] as String),
-    status: _parseStatus(json["status"] as String),
-  );
+        uuid: json["specialUuid"] as String,
+        storeUuid: json["storeUuid"] as String,
+        storeImageUrl: json["storeImageUrl"] as String,
+        storeCategory: json["storeCategory"] as String,
+        storeName: json["storeName"] as String,
+        storePhoneNumber: json["storePhoneNumber"] as String,
+        storeWebsite: json["storeWebsite"] as String,
+        name: json["name"] as String,
+        price: int.parse(json["price"] as String),
+        description: json["description"] as String,
+        validFrom: DateTime.parse("${json["validFrom"] as String}Z").toLocal(),
+        validUntil: json["validUntil"] != null
+            ? DateTime.tryParse("${json["validUntil"] as String}Z")!.toLocal()
+            : null,
+        imageUrl: json["imageUrl"] as String,
+        videoUrl: (json["videoUrl"] as String?) ?? "",
+        typeSet: _parseType(json["type"] as String),
+        status: _parseStatus(json["status"] as String),
+        activatedAt:
+            DateTime.parse("${json["activatedAt"] as String}Z").toLocal(),
+      );
 
   // {
   // "specialUuid": "55b7a193-c69f-11eb-b937-001dd8b7399f",
@@ -183,25 +210,27 @@ class Special {
   // }
 
   Map<String, dynamic> toJson() => {
-    "specialUuid": uuid,
-    "storeUuid": storeUuid,
-    "storeImageUrl": storeImageUrl,
-    "storeCategory": storeCategory,
-    "storeName": storeName,
-    "storePhoneNumber": storePhoneNumber,
-    "storeWebsite": storeWebsite,
-    "name": name,
-    "price": price,
-    "validFrom": validFrom.toUtc().toIso8601String(),
-    "validUntil": validUntil != null ? validUntil!.toUtc().toIso8601String(): null,
-    "description": description,
-    "imageUrl": imageUrl,
-    "image": image != null ? base64Encode(image!) : null,
-    "videoUrl": videoUrl,
-    "video": video != null ? base64Encode(video!) : null,
-    "type": _typeToStringList(typeSet),
-    "status": _statusToInt(status),
-  };
+        "specialUuid": uuid,
+        "storeUuid": storeUuid,
+        "storeImageUrl": storeImageUrl,
+        "storeCategory": storeCategory,
+        "storeName": storeName,
+        "storePhoneNumber": storePhoneNumber,
+        "storeWebsite": storeWebsite,
+        "name": name,
+        "price": price,
+        "validFrom": validFrom.toUtc().toIso8601String(),
+        "validUntil":
+            validUntil != null ? validUntil!.toUtc().toIso8601String() : null,
+        "description": description,
+        "imageUrl": imageUrl,
+        "image": image != null ? base64Encode(image!) : null,
+        "videoUrl": videoUrl,
+        "video": video != null ? base64Encode(video!) : null,
+        "type": _typeToStringList(typeSet),
+        "status": _statusToInt(status),
+        "activatedAt": activatedAt.toUtc().toIso8601String(),
+      };
 
   /// COMPARE ///
   bool isUpdated(Special other) {
@@ -221,12 +250,10 @@ class Special {
 
   @override
   bool operator ==(dynamic other) {
-    return (other is Special) &&
-        other.uuid == uuid;
+    return (other is Special) && other.uuid == uuid;
   }
 
   @override
-  int get hashCode =>
-      uuid.hashCode;
-
+  int get hashCode => uuid.hashCode;
 }
+

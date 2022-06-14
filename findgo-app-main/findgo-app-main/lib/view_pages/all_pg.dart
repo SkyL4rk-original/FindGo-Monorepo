@@ -203,8 +203,39 @@ class _AllPageState extends ConsumerState<AllPage> with WidgetsBindingObserver {
   List<Special> _shuffledList = [];
   Widget _specialsSliverListView() {
     // Randomize Filtered List
-    _specialsList.shuffle();
-    _shuffledList = _specialsList;
+    // Get filtered specials
+    final featuredSpecials = _specialsList
+        .where((special) => special.typeSet.contains(SpecialType.featured))
+        .toList();
+
+    final newSpecials = _specialsList
+        .where(
+          (special) => special.activatedAt
+              .isAfter(DateTime.now().subtract(const Duration(days: 1))),
+        )
+        .toList();
+
+    final commingSoonSpecials = _specialsList
+        .where((special) => special.validFrom.isAfter(DateTime.now()))
+        .toList();
+
+    final shuffledSpecials = _specialsList
+        .where(
+          (special) =>
+              !special.validFrom.isAfter(DateTime.now()) &&
+              !special.activatedAt
+                  .isAfter(DateTime.now().subtract(const Duration(days: 1))) &&
+              !special.typeSet.contains(SpecialType.featured),
+        )
+        .toList()
+      ..shuffle();
+
+    _shuffledList = [
+      ...featuredSpecials,
+      ...newSpecials,
+      ...shuffledSpecials,
+      ...commingSoonSpecials,
+    ];
 
 //     print(
 //         "storesList empty ${_storesViewModel.storesList.isEmpty} : filteredSpecialList empty ${filteredList.isEmpty}");
