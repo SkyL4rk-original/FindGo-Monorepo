@@ -1,15 +1,14 @@
 import 'dart:developer';
 
+import 'package:findgo_admin/core/failure.dart';
 import 'package:findgo_admin/data_models/lat_lon.dart';
+import 'package:findgo_admin/data_models/location.dart';
+import 'package:findgo_admin/data_models/store.dart';
+import 'package:findgo_admin/data_models/store_category.dart';
+import 'package:findgo_admin/data_models/store_stats.dart';
+import 'package:findgo_admin/repositories/specials_repo.dart';
+import 'package:findgo_admin/widgets/snackbar.dart';
 import 'package:flutter/material.dart';
-
-import '../core/failure.dart';
-import '../data_models/store.dart';
-import '../data_models/store_category.dart';
-import '../data_models/location.dart';
-import '../data_models/store_stats.dart';
-import '../repositories/specials_repo.dart';
-import '../widgets/snackbar.dart';
 
 enum StoresViewState {
   idle,
@@ -143,8 +142,10 @@ class StoresViewModel extends ChangeNotifier {
       _storesList[(_storesList
           .indexWhere((tempStore) => tempStore.uuid == store.uuid))] = store;
       updateSuccess = true;
-      InfoSnackBar.show(_context,
-          "Store ${store.status == StoreStatus.active ? "Activated" : "De-activated"}");
+      InfoSnackBar.show(
+        _context,
+        "Store ${store.status == StoreStatus.active ? "Activated" : "De-activated"}",
+      );
     });
 
     setState(StoresViewState.idle);
@@ -167,8 +168,7 @@ class StoresViewModel extends ChangeNotifier {
   Future<void> getAllStoreLocations() async {
     setState(StoresViewState.busy);
 
-    final failureOrLocationList =
-        await specialsRepository.getAllLocations();
+    final failureOrLocationList = await specialsRepository.getAllLocations();
     failureOrLocationList.fold((failure) => _handleFailure(failure),
         (locationList) {
       _locationList = (locationList as Set<Location>).toList();
@@ -180,14 +180,15 @@ class StoresViewModel extends ChangeNotifier {
   Future<StoreStats> getRemoteStoreStats(Store store) async {
     setState(StoresViewState.busy);
     StoreStats storeStats = StoreStats(
-        storeUuid: store.uuid,
-        followers: -1,
-        impressions: -1,
-        clicks: -1,
-        phoneClicks: -1,
-        savedClicks: -1,
-        sharedClicks: -1,
-        websiteClicks: -1);
+      storeUuid: store.uuid,
+      followers: -1,
+      impressions: -1,
+      clicks: -1,
+      phoneClicks: -1,
+      savedClicks: -1,
+      sharedClicks: -1,
+      websiteClicks: -1,
+    );
 
     final failureOrStoreStats = await specialsRepository.getStoreStats(store);
     failureOrStoreStats.fold(

@@ -1,17 +1,16 @@
 import 'dart:convert';
 
+import 'package:findgo_admin/core/constants.dart';
+import 'package:findgo_admin/core/exception.dart';
+import 'package:findgo_admin/core/success.dart';
+import 'package:findgo_admin/core/util.dart';
 import 'package:findgo_admin/data_models/lat_lon.dart';
+import 'package:findgo_admin/data_models/location.dart';
+import 'package:findgo_admin/data_models/special.dart';
+import 'package:findgo_admin/data_models/store.dart';
+import 'package:findgo_admin/data_models/store_category.dart';
 import 'package:findgo_admin/data_models/store_stats.dart';
 import 'package:http/http.dart';
-
-import '../core/constants.dart';
-import '../core/exception.dart';
-import '../core/success.dart';
-import '../core/util.dart';
-import '../data_models/location.dart';
-import '../data_models/special.dart';
-import '../data_models/store.dart';
-import '../data_models/store_category.dart';
 
 class RemoteSpecialsDataSource {
   final Client http;
@@ -23,7 +22,7 @@ class RemoteSpecialsDataSource {
     if (response.body.isEmpty) {
       throw RemoteDataSourceException("Unexpected Remote Server Error");
     }
-    final jsonResp = json.decode(response.body);
+    final jsonResp = json.decode(response.body) as Map<String, dynamic>;
     final message = jsonResp["Message"] as String;
     if (response.statusCode == 401) {
       throw AuthorizationException(message);
@@ -66,7 +65,7 @@ class RemoteSpecialsDataSource {
       // print(response.body);
 
       if (response.statusCode == 201) {
-        final jsonResponse = json.decode(response.body);
+        final jsonResponse = json.decode(response.body) as Map<String, dynamic>;
         store.uuid = jsonResponse["storeUuid"] as String;
         store.imageUrl = jsonResponse["imageUrl"] as String;
         return store;
@@ -111,7 +110,7 @@ class RemoteSpecialsDataSource {
       // print(response.body);
 
       if (response.statusCode == 201) {
-        final jsonResponse = json.decode(response.body);
+        final jsonResponse = json.decode(response.body) as Map<String, dynamic>;
         location.id = int.parse(jsonResponse["id"] as String);
         return location;
       } else {
@@ -193,7 +192,8 @@ class RemoteSpecialsDataSource {
         final jsonList = json.decode(response.body) as List;
         final storeList = jsonList
             .map(
-              (jsonLocation) => Location.fromJson(jsonLocation as Map<String, dynamic>),
+              (jsonLocation) =>
+                  Location.fromJson(jsonLocation as Map<String, dynamic>),
             )
             .toSet();
 
@@ -235,7 +235,7 @@ class RemoteSpecialsDataSource {
       print('[UPDATE STORE] Response Code: ${response.statusCode}');
 
       if (response.statusCode == 200) {
-        final jsonResponse = json.decode(response.body);
+        final jsonResponse = json.decode(response.body) as Map<String, dynamic>;
         store.image = null;
         store.imageUrl = jsonResponse["imageUrl"] as String;
         return store;
@@ -276,7 +276,6 @@ class RemoteSpecialsDataSource {
       print('[UPDATE LOCATION] Response Code: ${response.statusCode}');
 
       if (response.statusCode == 200) {
-        final jsonResponse = json.decode(response.body);
         return location;
       } else {
         _handleError(response: response);
@@ -518,7 +517,7 @@ class RemoteSpecialsDataSource {
 
       if (response.statusCode == 201) {
         //print(response.body.toString());
-        final jsonResponse = json.decode(response.body);
+        final jsonResponse = json.decode(response.body) as Map<String, dynamic>;
         special.uuid = jsonResponse["specialUuid"] as String;
         special.imageUrl = jsonResponse["imageUrl"] as String;
         return special;
@@ -600,7 +599,7 @@ class RemoteSpecialsDataSource {
       // Log status code
       print('[UPDATE SPECIAL] Response Code: ${response.statusCode}');
       if (response.statusCode == 200) {
-        final jsonResponse = json.decode(response.body);
+        final jsonResponse = json.decode(response.body) as Map<String, dynamic>;
         special.imageUrl = jsonResponse["imageUrl"] as String;
         return special;
       } else {
@@ -797,7 +796,7 @@ class RemoteSpecialsDataSource {
       print('[GMAP Query] Response Code: ${response.statusCode}');
 
       if (response.statusCode == 200) {
-        final js = jsonDecode(response.body);
+        final js = jsonDecode(response.body) as Map<String, dynamic>;
         final jsPlaceList = js["predictions"] as List;
         return jsPlaceList
             .map(
@@ -826,7 +825,7 @@ class RemoteSpecialsDataSource {
       print('[GMAP PLACE] Response Code: ${response.statusCode}');
 
       if (response.statusCode == 200) {
-        final js = jsonDecode(response.body);
+        final js = jsonDecode(response.body) as Map<String, dynamic>;
         final jsPlace = js["result"] as Map<String, dynamic>;
         return SelectedPlace.fromJson(jsPlace);
       } else {

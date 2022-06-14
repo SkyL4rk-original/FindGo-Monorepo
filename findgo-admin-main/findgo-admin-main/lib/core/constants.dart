@@ -1,5 +1,5 @@
+import 'package:findgo_admin/data_models/user.dart';
 import 'package:flutter/material.dart';
-import '../data_models/user.dart';
 
 const kVersion = "v 0.1.3"; // 15:30 22 Oct 2021
 
@@ -133,9 +133,10 @@ const kTimeOutError = "TimeoutException";
 
 /// Support Email
 final Uri kSupportEmailLaunchUri = Uri(
-    scheme: 'mailto',
-    path: 'support@fingo.co.za',
-    query: 'subject=FindGo Support');
+  scheme: 'mailto',
+  path: 'support@fingo.co.za',
+  query: 'subject=FindGo Support',
+);
 
 final kUnauthorizedUser = User(uuid: "-1");
 

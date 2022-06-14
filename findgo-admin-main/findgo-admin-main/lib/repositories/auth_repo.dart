@@ -1,15 +1,14 @@
 import 'dart:developer';
 
 import 'package:dartz/dartz.dart';
+import 'package:findgo_admin/core/exception.dart';
+import 'package:findgo_admin/core/failure.dart';
+import 'package:findgo_admin/core/success.dart';
+import 'package:findgo_admin/data_models/user.dart';
+import 'package:findgo_admin/external_services/local_data_src.dart';
+import 'package:findgo_admin/external_services/network_info.dart';
+import 'package:findgo_admin/external_services/remote_auth_src.dart';
 import 'package:jwt_decode/jwt_decode.dart';
-
-import '../core/exception.dart';
-import '../core/failure.dart';
-import '../core/success.dart';
-import '../data_models/user.dart';
-import '../external_services/local_data_src.dart';
-import '../external_services/network_info.dart';
-import '../external_services/remote_auth_src.dart';
 
 const logoutSuccessMessage = '[FINISHED LOGOUT USER] success';
 
@@ -104,8 +103,9 @@ class AuthRepository {
       // Run function
       final success = await remoteAuthSource.login(email, password);
       // Success -> object == <User>
-      if (success.object == null)
+      if (success.object == null) {
         return left(ExternalServiceFailure("No user returned with login"));
+      }
 
       // Store jwt & user
       await localDataSource.storeJwt(success.jwt);
@@ -127,8 +127,9 @@ class AuthRepository {
       }
 
       final success = await remoteAuthSource.register(user);
-      if (success.object == null)
+      if (success.object == null) {
         return left(ExternalServiceFailure("No user returned with login"));
+      }
 
       // Store jwt & user
       await localDataSource.storeJwt(success.jwt);
@@ -183,7 +184,9 @@ class AuthRepository {
   }
 
   Future<Either<Failure, User>> updatePassword(
-      User user, String newPassword) async {
+    User user,
+    String newPassword,
+  ) async {
     try {
       // Check if online
       if (!await networkInfo.isConnected) {
@@ -234,7 +237,9 @@ class AuthRepository {
   }
 
   Future<Either<Failure, Success>> passwordReset(
-      String password, String passwordResetCode) async {
+    String password,
+    String passwordResetCode,
+  ) async {
     try {
       // Check if online
       if (!await networkInfo.isConnected) {

@@ -1,4 +1,4 @@
-import '../core/util.dart';
+import 'package:findgo_admin/core/util.dart';
 
 class User {
   User({

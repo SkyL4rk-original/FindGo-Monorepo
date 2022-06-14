@@ -1,16 +1,13 @@
 import 'dart:async';
 
+import 'package:findgo_admin/core/constants.dart';
+import 'package:findgo_admin/data_models/location.dart';
+import 'package:findgo_admin/main.dart';
+import 'package:findgo_admin/view_models/locations_vm.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../core/constants.dart';
-import '../data_models/location.dart';
-import '../main.dart';
-import '../view_models/locations_vm.dart';
-import '../widgets/snackbar.dart';
-
-class LocationPage extends StatefulWidget {
+class LocationPage extends ConsumerStatefulWidget {
   final Location? location;
   const LocationPage({Key? key, this.location}) : super(key: key);
 
@@ -18,7 +15,7 @@ class LocationPage extends StatefulWidget {
   _LocationPageState createState() => _LocationPageState();
 }
 
-class _LocationPageState extends State<LocationPage> {
+class _LocationPageState extends ConsumerState<LocationPage> {
   late LocationsViewModel _locationsViewModel;
   late Location _location;
   late Location _tempLocation;
@@ -37,7 +34,7 @@ class _LocationPageState extends State<LocationPage> {
 
   @override
   void initState() {
-    _locationsViewModel = context.read(locationsVMProvider);
+    _locationsViewModel = ref.read(locationsVMProvider);
 
     if (widget.location != null) {
       _location = widget.location!;
@@ -61,8 +58,9 @@ class _LocationPageState extends State<LocationPage> {
         appBar: AppBar(
           // leading: IconButton(onPressed: () => context.vRouter.to("/", isReplacement: true), icon: const Icon(Icons.arrow_back_ios)),
           leading: IconButton(
-              onPressed: () => Navigator.of(context).pop(_tempLocation.id),
-              icon: const Icon(Icons.arrow_back_ios)),
+            onPressed: () => Navigator.of(context).pop(_tempLocation.id),
+            icon: const Icon(Icons.arrow_back_ios),
+          ),
         ),
         body: Padding(
           padding: const EdgeInsets.all(20.0),
@@ -74,121 +72,127 @@ class _LocationPageState extends State<LocationPage> {
 
   ButtonStyle _locationsStatusToggleButtonStyle(Color color) {
     return ElevatedButton.styleFrom(
-        primary: color,
-        // side: BorderSide(color: color),
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)));
+      primary: color,
+      // side: BorderSide(color: color),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+    );
   }
 
-  ButtonStyle _locationStatusInactiveTextButtonStyle(Color color) { // ?
+  ButtonStyle _locationStatusInactiveTextButtonStyle(Color color) {
+    // ?
     return ElevatedButton.styleFrom(
-        primary: color,
-        // side: BorderSide(color: color),
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)));
+      primary: color,
+      // side: BorderSide(color: color),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+    );
   }
 
   final _formHeadingTextStyle =
       const TextStyle(fontSize: 12.0, color: kColorSecondaryText);
 
   Widget _updateLocationSection() {
-    return Consumer(builder: (context, watch, child) {
-      final authVM = watch(authVMProvider);
-      final locationVM = watch(locationsVMProvider);
-      locationVM.context = context;
+    return Consumer(
+      builder: (context, ref, _) {
+        final authVM = ref.watch(authVMProvider);
+        final locationVM = ref.watch(locationsVMProvider);
+        locationVM.context = context;
 
-      return SizedBox(
-        width: 360.0,
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  "Location Profile",
-                  style: TextStyle(fontSize: 18.0),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(
-                  width: 40.0,
-                )
-              ],
-            ),
-            const SizedBox(height: 16.0),
-            Card(
-              color: kColorSelected,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // if (_location.id != 0)
-                      //   InkWell(
-                      //     highlightColor: Colors.transparent,
-                      //     splashColor: Colors.transparent,
-                      //     hoverColor: Colors.transparent,
-                      //     onTap: () async {
-                      //       InfoSnackBar.show(
-                      //           context, "Location id added to clipboard");
-                      //       await Clipboard.setData(
-                      //           ClipboardData(text: _location.id as String));
-                      //     },
-                      //     child:
-                      //         Text(_location.uuid, style: _formHeadingTextStyle),
-                      //   ),
-                      if (_location.id != 0) const SizedBox(height: 16.0),
-                      InkWell(
-                        highlightColor: Colors.transparent,
-                        splashColor: Colors.transparent,
-                        hoverColor: Colors.transparent,
-                        onTap: () => _nameFocusNode.requestFocus(),
-                        child: Text("Location  Name", style: _formHeadingTextStyle),
-                      ),
-                      TextFormField(
-                        validator: (description) {
-                          if (description == null || description.isEmpty) {
-                            return "please enter your location name";
-                          }
-                          return null;
-                        },
-                        onChanged: (name) =>
-                            setState(() => _tempLocation.name = name),
-                        // style: const TextStyle(height: 1.0),
-                        focusNode: _nameFocusNode,
-                        controller: _nameTextEditingController,
-                      ),
-                      const SizedBox(height: 16.0),
-                      SizedBox(
-                        height: 30.0,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            if (_location.isUpdated(_tempLocation))
-                              Expanded(
-                                child: Align(
-                                  alignment: Alignment.centerRight,
-                                  child: _actionButton(),
-                                ),
-                              ),
-                          ],
+        return SizedBox(
+          width: 360.0,
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    "Location Profile",
+                    style: TextStyle(fontSize: 18.0),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(
+                    width: 40.0,
+                  )
+                ],
+              ),
+              const SizedBox(height: 16.0),
+              Card(
+                color: kColorSelected,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // if (_location.id != 0)
+                        //   InkWell(
+                        //     highlightColor: Colors.transparent,
+                        //     splashColor: Colors.transparent,
+                        //     hoverColor: Colors.transparent,
+                        //     onTap: () async {
+                        //       InfoSnackBar.show(
+                        //           context, "Location id added to clipboard");
+                        //       await Clipboard.setData(
+                        //           ClipboardData(text: _location.id as String));
+                        //     },
+                        //     child:
+                        //         Text(_location.uuid, style: _formHeadingTextStyle),
+                        //   ),
+                        if (_location.id != 0) const SizedBox(height: 16.0),
+                        InkWell(
+                          highlightColor: Colors.transparent,
+                          splashColor: Colors.transparent,
+                          hoverColor: Colors.transparent,
+                          onTap: () => _nameFocusNode.requestFocus(),
+                          child: Text(
+                            "Location  Name",
+                            style: _formHeadingTextStyle,
+                          ),
                         ),
-                      ),
-                    ],
+                        TextFormField(
+                          validator: (description) {
+                            if (description == null || description.isEmpty) {
+                              return "please enter your location name";
+                            }
+                            return null;
+                          },
+                          onChanged: (name) =>
+                              setState(() => _tempLocation.name = name),
+                          // style: const TextStyle(height: 1.0),
+                          focusNode: _nameFocusNode,
+                          controller: _nameTextEditingController,
+                        ),
+                        const SizedBox(height: 16.0),
+                        SizedBox(
+                          height: 30.0,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              if (_location.isUpdated(_tempLocation))
+                                Expanded(
+                                  child: Align(
+                                    alignment: Alignment.centerRight,
+                                    child: _actionButton(),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-            if (authVM.currentUser.isSuperUser)
-              Align(
-                alignment: Alignment.centerRight,
-                child: _deleteLocationButton(),
-              ),
-          ],
-        ),
-      );
-    });
+              if (authVM.currentUser.isSuperUser)
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: _deleteLocationButton(),
+                ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   Widget _actionButton() {
@@ -204,7 +208,8 @@ class _LocationPageState extends State<LocationPage> {
               name: _tempLocation.name,
             );
 
-            final newLocationId = await _locationsViewModel.createLocation(newLocation);
+            final newLocationId =
+                await _locationsViewModel.createLocation(newLocation);
             if (newLocationId != 0) {
               _location = newLocation.copyWith(id: newLocationId);
               _tempLocation = _location.copyWith();
@@ -273,6 +278,7 @@ class _LocationPageState extends State<LocationPage> {
         onPressed: () async {
           _locationsViewModel.deleteLocation(_location);
           await Future.delayed(const Duration(milliseconds: 300), () {});
+          if (!mounted) return;
           Navigator.of(context).pop();
         },
         icon: const Icon(

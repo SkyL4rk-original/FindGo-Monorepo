@@ -1,15 +1,14 @@
 import 'package:dartz/dartz.dart';
+import 'package:findgo_admin/core/exception.dart';
+import 'package:findgo_admin/core/failure.dart';
 import 'package:findgo_admin/data_models/lat_lon.dart';
-
-import '../core/exception.dart';
-import '../core/failure.dart';
-import '../data_models/location.dart';
-import '../data_models/special.dart';
-import '../data_models/store.dart';
-import '../external_services/local_data_src.dart';
-import '../external_services/network_info.dart';
-import '../external_services/remote_specials_data_src.dart';
-import '../repositories/auth_repo.dart';
+import 'package:findgo_admin/data_models/location.dart';
+import 'package:findgo_admin/data_models/special.dart';
+import 'package:findgo_admin/data_models/store.dart';
+import 'package:findgo_admin/external_services/local_data_src.dart';
+import 'package:findgo_admin/external_services/network_info.dart';
+import 'package:findgo_admin/external_services/remote_specials_data_src.dart';
+import 'package:findgo_admin/repositories/auth_repo.dart';
 
 class SpecialsRepository {
   final LocalDataSource localDataSource;
@@ -34,47 +33,56 @@ class SpecialsRepository {
 
   Future<Either<Failure, dynamic>> createStore(Store store) async {
     return remoteCall(
-        (jwt) => remoteSpecialsDataSource.createStore(jwt as String, store));
+      (jwt) => remoteSpecialsDataSource.createStore(jwt, store),
+    );
   }
 
   Future<Either<Failure, dynamic>> createLocation(Location location) async {
     return remoteCall(
-        (jwt) => remoteSpecialsDataSource.createLocation(jwt as String, location));
+      (jwt) => remoteSpecialsDataSource.createLocation(jwt, location),
+    );
   }
 
   Future<Either<Failure, dynamic>> getAllStores() async {
     return remoteCall(
-        (jwt) => remoteSpecialsDataSource.getAllStores(jwt as String));
+      (jwt) => remoteSpecialsDataSource.getAllStores(jwt),
+    );
   }
 
   Future<Either<Failure, dynamic>> getAllLocations() async {
     return remoteCall(
-        (jwt) => remoteSpecialsDataSource.getAllLocations(jwt as String));
+      (jwt) => remoteSpecialsDataSource.getAllLocations(jwt),
+    );
   }
 
   Future<Either<Failure, dynamic>> updateStore(Store store) async {
     return remoteCall(
-        (jwt) => remoteSpecialsDataSource.updateStore(jwt as String, store));
+      (jwt) => remoteSpecialsDataSource.updateStore(jwt, store),
+    );
   }
 
   Future<Either<Failure, dynamic>> updateLocation(Location location) async {
     return remoteCall(
-        (jwt) => remoteSpecialsDataSource.updateLocation(jwt as String, location));
+      (jwt) => remoteSpecialsDataSource.updateLocation(jwt, location),
+    );
   }
 
   Future<Either<Failure, dynamic>> deleteStore(Store store) async {
     return remoteCall(
-        (jwt) => remoteSpecialsDataSource.deleteStore(jwt as String, store));
+      (jwt) => remoteSpecialsDataSource.deleteStore(jwt, store),
+    );
   }
 
   Future<Either<Failure, dynamic>> deleteLocation(Location location) async {
     return remoteCall(
-        (jwt) => remoteSpecialsDataSource.deleteLocation(jwt as String, location));
+      (jwt) => remoteSpecialsDataSource.deleteLocation(jwt, location),
+    );
   }
 
   Future<Either<Failure, dynamic>> toggleStoreActivate(Store store) async {
-    return remoteCall((jwt) =>
-        remoteSpecialsDataSource.toggleStoreActivate(jwt as String, store));
+    return remoteCall(
+      (jwt) => remoteSpecialsDataSource.toggleStoreActivate(jwt, store),
+    );
   }
 
   Future<Either<Failure, dynamic>> getAllStoreCategories() async {
@@ -83,51 +91,67 @@ class SpecialsRepository {
 
   Future<Either<Failure, dynamic>> getStoreStats(Store store) async {
     return remoteCall(
-        (jwt) => remoteSpecialsDataSource.getStoreStats(jwt as String, store));
+      (jwt) => remoteSpecialsDataSource.getStoreStats(jwt, store),
+    );
   }
 
   // SPECIALS
 
   Future<Either<Failure, dynamic>> createSpecial(Special special) async {
-    return remoteCall((jwt) =>
-        remoteSpecialsDataSource.createSpecial(jwt as String, special));
+    return remoteCall(
+      (jwt) => remoteSpecialsDataSource.createSpecial(jwt, special),
+    );
   }
 
   Future<Either<Failure, dynamic>> getAllSpecials() async {
     return remoteCall(
-        (jwt) => remoteSpecialsDataSource.getAllSpecials(jwt as String));
+      (jwt) => remoteSpecialsDataSource.getAllSpecials(jwt),
+    );
   }
 
   Future<Either<Failure, dynamic>> updateSpecial(Special special) async {
-    return remoteCall((jwt) =>
-        remoteSpecialsDataSource.updateSpecial(jwt as String, special));
+    return remoteCall(
+      (jwt) => remoteSpecialsDataSource.updateSpecial(jwt, special),
+    );
   }
 
   Future<Either<Failure, dynamic>> toggleSpecialActivate(
-      Special special) async {
-    return remoteCall((jwt) =>
-        remoteSpecialsDataSource.toggleSpecialActivate(jwt as String, special));
+    Special special,
+  ) async {
+    return remoteCall(
+      (jwt) => remoteSpecialsDataSource.toggleSpecialActivate(jwt, special),
+    );
   }
 
   Future<Either<Failure, dynamic>> deleteSpecial(Special special) async {
-    return remoteCall((jwt) =>
-        remoteSpecialsDataSource.deleteSpecial(jwt as String, special));
+    return remoteCall(
+      (jwt) => remoteSpecialsDataSource.deleteSpecial(jwt, special),
+    );
   }
 
   Future<Either<Failure, dynamic>> updateStoreLatLon(
-      Store store, LatLng latLon) async {
-    return remoteCall((jwt) => remoteSpecialsDataSource.updateStoreLatLon(
-        jwt as String, store, latLon));
+    Store store,
+    LatLng latLon,
+  ) async {
+    return remoteCall(
+      (jwt) => remoteSpecialsDataSource.updateStoreLatLon(
+        jwt,
+        store,
+        latLon,
+      ),
+    );
   }
 
   Future<Either<Failure, dynamic>> searchPlaceByQuery(String query) async {
     return remoteCall(
-        (jwt) => remoteSpecialsDataSource.searchPlaceByQuery(jwt, query));
+      (jwt) => remoteSpecialsDataSource.searchPlaceByQuery(jwt, query),
+    );
   }
 
   Future<Either<Failure, dynamic>> fetchSelectedPlace(String placeId) async {
     return remoteCall(
-        (jwt) => remoteSpecialsDataSource.fetchSelectedPlace(jwt, placeId));
+      (jwt) => remoteSpecialsDataSource.fetchSelectedPlace(jwt, placeId),
+    );
   }
 
   Future<Either<Failure, dynamic>> remoteCall(Function(String) function) async {

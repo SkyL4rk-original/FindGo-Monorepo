@@ -1,10 +1,9 @@
+import 'package:findgo_admin/core/failure.dart';
+import 'package:findgo_admin/data_models/special.dart';
 import 'package:findgo_admin/data_models/store_stats.dart';
+import 'package:findgo_admin/repositories/specials_repo.dart';
+import 'package:findgo_admin/widgets/snackbar.dart';
 import 'package:flutter/material.dart';
-
-import '../core/failure.dart';
-import '../data_models/special.dart';
-import '../repositories/specials_repo.dart';
-import '../widgets/snackbar.dart';
 
 enum SpecialViewState {
   idle,
@@ -106,7 +105,8 @@ class SpecialsViewModel extends ChangeNotifier {
         (_) {
       special.image = null;
       _specialsList[(_specialsList.indexWhere(
-          (tempSpecial) => tempSpecial.uuid == special.uuid))] = special;
+        (tempSpecial) => tempSpecial.uuid == special.uuid,
+      ))] = special;
       _sortSpecials();
       updateSuccess = true;
       InfoSnackBar.show(_context, "Special Updated");
@@ -116,8 +116,10 @@ class SpecialsViewModel extends ChangeNotifier {
     return updateSuccess;
   }
 
-  Future<bool> toggleSpecialActivate(Special special,
-      {bool showSnackBar = true}) async {
+  Future<bool> toggleSpecialActivate(
+    Special special, {
+    bool showSnackBar = true,
+  }) async {
     setState(SpecialViewState.updatingStatus);
     bool updateSuccess = false;
 
@@ -126,12 +128,16 @@ class SpecialsViewModel extends ChangeNotifier {
     failureOrSuccess.fold(
         (failure) => _handleFailure(failure, "toggleSpecialActivate"), (_) {
       _specialsList[(_specialsList.indexWhere(
-          (tempSpecial) => tempSpecial.uuid == special.uuid))] = special;
+        (tempSpecial) => tempSpecial.uuid == special.uuid,
+      ))] = special;
       _sortSpecials();
       updateSuccess = true;
-      if (showSnackBar)
-        InfoSnackBar.show(_context,
-            "Special ${special.status == SpecialStatus.active ? "Activated" : "De-activated"}");
+      if (showSnackBar) {
+        InfoSnackBar.show(
+          _context,
+          "Special ${special.status == SpecialStatus.active ? "Activated" : "De-activated"}",
+        );
+      }
       setState(SpecialViewState.idle);
     });
 
@@ -206,4 +212,3 @@ class SpecialsViewModel extends ChangeNotifier {
     // _specialsList.sort((a, b) => a.name.compareTo(b.name));
   }
 }
-

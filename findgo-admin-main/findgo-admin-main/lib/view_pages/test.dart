@@ -1,9 +1,8 @@
 import 'dart:typed_data';
 
+import 'package:findgo_admin/widgets/image_cropper.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-
-import '../widgets/image_cropper.dart';
 
 class Test extends StatefulWidget {
   const Test({Key? key}) : super(key: key);
@@ -85,49 +84,59 @@ class _TestState extends State<Test> {
             // ),
             const SizedBox(height: 20.0),
             TextButton.icon(
-                onPressed: () async {
-                  final pickedFile =
-                      await _picker.pickImage(source: ImageSource.gallery);
-                  if (pickedFile != null) {
-                    // print(pickedFile.path);
-                    final file = await pickedFile.readAsBytes();
+              onPressed: () async {
+                final pickedFile =
+                    await _picker.pickImage(source: ImageSource.gallery);
+                if (pickedFile != null) {
+                  // print(pickedFile.path);
+                  final file = await pickedFile.readAsBytes();
 
-                    showDialog(
-                        context: context,
-                        builder: (ctx) => AlertDialog(
-                              content: SizedBox(
-                                height: 250.0,
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const Text("Preparing... may take a while",
-                                        style: TextStyle(fontSize: 12)),
-                                    const SizedBox(height: 16.0),
-                                    const CircularProgressIndicator(),
-                                  ],
-                                ),
-                              ),
-                            ));
+                  showDialog(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      content: SizedBox(
+                        height: 250.0,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text(
+                              "Preparing... may take a while",
+                              style: TextStyle(fontSize: 12),
+                            ),
+                            const SizedBox(height: 16.0),
+                            const CircularProgressIndicator(),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
 
-                    await Future.delayed(const Duration(seconds: 1));
-                    _image = await showDialog(
-                        context: context,
-                        builder: (ctx) => ImageCropper(image: file));
-                    Navigator.of(context).pop();
-                    setState(() {});
-                  } else {
-                    print('No image selected.');
-                  }
-                },
-                icon: const Icon(
-                  Icons.image_outlined,
-                  color: Colors.white,
-                ),
-                label: _image == null
-                    ? const Text("Add Image (max 3MB)",
-                        style: TextStyle(color: Colors.white))
-                    : const Text("Update Image (max 3MB)",
-                        style: TextStyle(color: Colors.white))),
+                  await Future.delayed(const Duration(seconds: 1));
+                  _image = await showDialog(
+                    context: context,
+                    builder: (ctx) => ImageCropper(image: file),
+                  );
+                  if (!mounted) return;
+                  Navigator.of(context).pop();
+                  setState(() {});
+                } else {
+                  print('No image selected.');
+                }
+              },
+              icon: const Icon(
+                Icons.image_outlined,
+                color: Colors.white,
+              ),
+              label: _image == null
+                  ? const Text(
+                      "Add Image (max 3MB)",
+                      style: TextStyle(color: Colors.white),
+                    )
+                  : const Text(
+                      "Update Image (max 3MB)",
+                      style: TextStyle(color: Colors.white),
+                    ),
+            ),
             // if (!_cropped) TextButton(
             //     onPressed: () async {
             //      _controller.crop();

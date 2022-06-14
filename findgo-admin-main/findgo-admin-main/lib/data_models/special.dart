@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:collection/collection.dart';
-import '../core/util.dart';
+import 'package:findgo_admin/core/util.dart';
 
 // deleted                          == 0
 // inactive & time until over       == 1
@@ -11,12 +11,12 @@ import '../core/util.dart';
 // repeated                         == 3
 
 enum SpecialStatus { pending, active, inactive, repeated }
+
 enum SpecialType { special, discount, event, featured }
 
-const constSetType = <SpecialType>{ SpecialType.special };
+const constSetType = <SpecialType>{SpecialType.special};
 
 class Special {
-
   Special({
     required this.uuid,
     required this.storeUuid,
@@ -146,7 +146,9 @@ class Special {
         specialType = SpecialType.event;
       } else if (type == "2") {
         specialType = SpecialType.discount;
-      } else if (type == "3") { specialType = SpecialType.featured; }
+      } else if (type == "3") {
+        specialType = SpecialType.featured;
+      }
 
       specialTypeSet.add(specialType);
     }
@@ -158,9 +160,11 @@ class Special {
     // if (status == "1") specialStatus = SpecialStatus.inactive; // 0 == deleted
     if (status == "8") {
       specialStatus = SpecialStatus.pending;
-    } else if (status == "2"  || status == "9") {
+    } else if (status == "2" || status == "9") {
       specialStatus = SpecialStatus.active;
-    } else if (status == "3") specialStatus = SpecialStatus.repeated;
+    } else if (status == "3") {
+      specialStatus = SpecialStatus.repeated;
+    }
     return specialStatus;
   }
 
@@ -173,12 +177,14 @@ class Special {
         specialType = 1;
       } else if (type == SpecialType.discount) {
         specialType = 2;
-      } else if (type == SpecialType.featured) specialType = 3;
+      } else if (type == SpecialType.featured) {
+        specialType = 3;
+      }
 
       typesAsString = "$specialType,$typesAsString";
     }
 
-    return typesAsString.substring(0 ,typesAsString.length - 1);
+    return typesAsString.substring(0, typesAsString.length - 1);
   }
 
   static int _statusToInt(SpecialStatus status) {
@@ -191,7 +197,8 @@ class Special {
         return 3;
       case SpecialStatus.pending:
         return 8;
-      default: return 0; // deleted
+      default:
+        return 0; // deleted
     }
   }
 
@@ -211,33 +218,47 @@ class Special {
     }
   }
 
-
   factory Special.fromJson(Map<String, dynamic> json) => Special(
-    uuid: json["specialUuid"] as String,
-    storeUuid: json["storeUuid"] as String,
-    storeImageUrl: json["storeImageUrl"] as String,
-    storeCategory: json["storeCategory"] as String,
-    storePhoneNumber: json["storePhoneNumber"] as String,
-    storeWebsite: json["storeWebsite"] as String,
-    storeName: json["storeName"] as String,
-    name: json["name"] as String,
-    price: int.tryParse(json["price"] as String) ?? 0,
-    description: json["description"] as String,
-    validFrom: DateTime.parse("${json["validFrom"] as String}Z").toLocal(),
-    validUntil: DateTime.parse("${json["validUntil"] as String}Z").toLocal(),
-    activatedAt: json["activatedAt"] != null && json["activatedAt"] != "0000-00-00 00:00:00"
-        ? DateTime.tryParse("${json["activatedAt"] as String}Z")!.toLocal() : null,
-    imageUrl: json["imageUrl"] as String,
-    videoUrl: (json["videoUrl"] as String?) ?? "",
-    typeSet: _parseType(json["type"] as String),
-    status: _parseStatus(json["status"] as String),
-    impressions: json["impressions"] != null ? int.tryParse(json["impressions"] as String) ?? 0 : 0,
-    clicks: json["clicks"] != null ? int.tryParse(json["clicks"] as String) ?? 0 : 0,
-    websiteClicks: json["websiteClicks"] != null ? int.tryParse(json["websiteClicks"] as String) ?? 0 : 0,
-    phoneClicks: json["phoneClicks"] != null ? int.tryParse(json["phoneClicks"] as String) ?? 0 : 0,
-    savedClicks: json["savedClicks"] != null ? int.tryParse(json["savedClicks"] as String) ?? 0 : 0,
-    shareClicks: json["shareClicks"] != null ? int.tryParse(json["shareClicks"] as String) ?? 0 : 0,
-  );
+        uuid: json["specialUuid"] as String,
+        storeUuid: json["storeUuid"] as String,
+        storeImageUrl: json["storeImageUrl"] as String,
+        storeCategory: json["storeCategory"] as String,
+        storePhoneNumber: json["storePhoneNumber"] as String,
+        storeWebsite: json["storeWebsite"] as String,
+        storeName: json["storeName"] as String,
+        name: json["name"] as String,
+        price: int.tryParse(json["price"] as String) ?? 0,
+        description: json["description"] as String,
+        validFrom: DateTime.parse("${json["validFrom"] as String}Z").toLocal(),
+        validUntil:
+            DateTime.parse("${json["validUntil"] as String}Z").toLocal(),
+        activatedAt: json["activatedAt"] != null &&
+                json["activatedAt"] != "0000-00-00 00:00:00"
+            ? DateTime.tryParse("${json["activatedAt"] as String}Z")!.toLocal()
+            : null,
+        imageUrl: json["imageUrl"] as String,
+        videoUrl: (json["videoUrl"] as String?) ?? "",
+        typeSet: _parseType(json["type"] as String),
+        status: _parseStatus(json["status"] as String),
+        impressions: json["impressions"] != null
+            ? int.tryParse(json["impressions"] as String) ?? 0
+            : 0,
+        clicks: json["clicks"] != null
+            ? int.tryParse(json["clicks"] as String) ?? 0
+            : 0,
+        websiteClicks: json["websiteClicks"] != null
+            ? int.tryParse(json["websiteClicks"] as String) ?? 0
+            : 0,
+        phoneClicks: json["phoneClicks"] != null
+            ? int.tryParse(json["phoneClicks"] as String) ?? 0
+            : 0,
+        savedClicks: json["savedClicks"] != null
+            ? int.tryParse(json["savedClicks"] as String) ?? 0
+            : 0,
+        shareClicks: json["shareClicks"] != null
+            ? int.tryParse(json["shareClicks"] as String) ?? 0
+            : 0,
+      );
 
   // impressions: int.tryParse(json["impressions"] as String) ?? 0,
   // clicks: int.tryParse(json["clicks"] as String) ?? 0,
@@ -245,8 +266,6 @@ class Special {
   // phoneClicks: int.tryParse(json["phoneClicks"] as String) ?? 0,
   // savedClicks: int.tryParse(json["savedClicks"] as String) ?? 0,
   // shareClicks: int.tryParse(json["shareClicks"] as String) ?? 0,
-
-
 
   // {
   // "specialUuid": "55b7a193-c69f-11eb-b937-001dd8b7399f",
@@ -263,58 +282,57 @@ class Special {
   // }
 
   Map<String, dynamic> toJson() => {
-    "specialUuid": uuid,
-    "storeUuid": storeUuid,
-    "storeName": storeName,
-    "storeImageUrl": storeImageUrl,
-    "storeCategory": storeCategory,
-    "storePhoneNumber": storePhoneNumber,
-    "storeWebsite": storeWebsite,
-    "name": name,
-    "price": price,
-    // "validFrom": validFrom.toUtc().toIso8601String(),
-    // "validUntil": validUntil != null ? validUntil!.toUtc().toIso8601String(): null,
-    // "activatedAt": activatedAt != null && _statusToInt(status) != 1 ? activatedAt!.toUtc().toIso8601String(): "0000-00-00 00:00:00Z",
-    "validFrom": Util.convertDateTimeToUtcISO(validFrom),
-    "validUntil": Util.convertDateTimeToUtcISO(validUntil),
-    "activatedAt": activatedAt != null && _statusToInt(status) != 1
-        ? Util.convertDateTimeToUtcISO(activatedAt!)
-        : "0000-00-00 00:00:00",
-    "description": description,
-    "imageUrl": imageUrl,
-    "image": image != null ? base64Encode(image!) : null,
-    "videoUrl": videoUrl,
-    "video": video != null ? base64Encode(video!) : null,
-    "type": _typeToStringList(typeSet),
-    "status": _statusToInt(status),
-    "impressions": impressions,
-    "clicks": clicks,
-    "websiteClicks": websiteClicks,
-    "phoneClicks": phoneClicks,
-    "savedClicks": savedClicks,
-    "shareClicks": shareClicks,
-  };
-
+        "specialUuid": uuid,
+        "storeUuid": storeUuid,
+        "storeName": storeName,
+        "storeImageUrl": storeImageUrl,
+        "storeCategory": storeCategory,
+        "storePhoneNumber": storePhoneNumber,
+        "storeWebsite": storeWebsite,
+        "name": name,
+        "price": price,
+        // "validFrom": validFrom.toUtc().toIso8601String(),
+        // "validUntil": validUntil != null ? validUntil!.toUtc().toIso8601String(): null,
+        // "activatedAt": activatedAt != null && _statusToInt(status) != 1 ? activatedAt!.toUtc().toIso8601String(): "0000-00-00 00:00:00Z",
+        "validFrom": Util.convertDateTimeToUtcISO(validFrom),
+        "validUntil": Util.convertDateTimeToUtcISO(validUntil),
+        "activatedAt": activatedAt != null && _statusToInt(status) != 1
+            ? Util.convertDateTimeToUtcISO(activatedAt!)
+            : "0000-00-00 00:00:00",
+        "description": description,
+        "imageUrl": imageUrl,
+        "image": image != null ? base64Encode(image!) : null,
+        "videoUrl": videoUrl,
+        "video": video != null ? base64Encode(video!) : null,
+        "type": _typeToStringList(typeSet),
+        "status": _statusToInt(status),
+        "impressions": impressions,
+        "clicks": clicks,
+        "websiteClicks": websiteClicks,
+        "phoneClicks": phoneClicks,
+        "savedClicks": savedClicks,
+        "shareClicks": shareClicks,
+      };
 
   /// COMPARE ///
-  final Function _unOrdDeepEq = const DeepCollectionEquality.unordered().equals;
+  final Function(Set<SpecialType>, Set<SpecialType>) _unOrdDeepEq =
+      const DeepCollectionEquality.unordered().equals;
   bool isUpdated(Special other) {
     final equalType = _unOrdDeepEq(other.typeSet, typeSet) as bool;
 
     return other.uuid != uuid ||
-      other.name != name ||
-      other.description != description ||
-      other.price != price ||
-      other.validFrom != validFrom ||
-      other.validUntil != validUntil ||
-      other.imageUrl != imageUrl ||
-      other.videoUrl != videoUrl ||
-      other.image != null ||
-      other.video != null ||
-      // other.status != status ||
-      !equalType;
+        other.name != name ||
+        other.description != description ||
+        other.price != price ||
+        other.validFrom != validFrom ||
+        other.validUntil != validUntil ||
+        other.imageUrl != imageUrl ||
+        other.videoUrl != videoUrl ||
+        other.image != null ||
+        other.video != null ||
+        // other.status != status ||
+        !equalType;
   }
-
 
   // @override
   // int compareTo(MyObject other) {
@@ -329,12 +347,10 @@ class Special {
 
   @override
   bool operator ==(dynamic other) {
-    return (other is Special) &&
-        other.uuid == uuid;
+    return (other is Special) && other.uuid == uuid;
   }
 
   @override
-  int get hashCode =>
-      uuid.hashCode;
-
+  int get hashCode => uuid.hashCode;
 }
+

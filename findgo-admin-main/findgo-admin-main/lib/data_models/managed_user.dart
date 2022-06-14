@@ -7,7 +7,7 @@ class ManagedUser {
     this.email = "",
     this.firstName = "first",
     this.lastName = "last",
-    this.role = ManagedUserRole.none
+    this.role = ManagedUserRole.none,
   });
 
   final String uuid;
@@ -57,20 +57,20 @@ class ManagedUser {
   }
 
   factory ManagedUser.fromJson(Map<String, dynamic> json) => ManagedUser(
-    uuid : json["userUuid"] as String,
-    email : json["email"] as String,
-    firstName : json["firstName"] as String,
-    lastName : json["lastName"] as String,
-    role: _parseManagedUserRole(json["role"] as String? ?? "0")
-  );
+        uuid: json["userUuid"] as String,
+        email: json["email"] as String,
+        firstName: json["firstName"] as String,
+        lastName: json["lastName"] as String,
+        role: _parseManagedUserRole(json["role"] as String? ?? "0"),
+      );
 
   Map<String, dynamic> toJson() => {
-    "userUuid" : uuid,
-    "email" : email,
-    "firstName" : firstName,
-    "lastName" : lastName,
-    "role": managedUserRoleToInt(role),
-  };
+        "userUuid": uuid,
+        "email": email,
+        "firstName": firstName,
+        "lastName": lastName,
+        "role": managedUserRoleToInt(role),
+      };
 
   @override
   String toString() {
@@ -90,21 +90,15 @@ class ManagedUser {
         email: email ?? this.email,
         firstName: firstName ?? this.firstName,
         lastName: lastName ?? this.lastName,
-        role: role ?? this.role
+        role: role ?? this.role,
       );
-
 
   /// COMPARE ///
   @override
   bool operator ==(dynamic other) {
-    return (other is ManagedUser) &&
-        other.uuid == uuid;
+    return (other is ManagedUser) && other.uuid == uuid;
   }
 
   @override
   int get hashCode => uuid.hashCode;
 }
-
-
-
-

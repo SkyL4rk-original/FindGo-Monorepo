@@ -2,12 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:findgo_admin/core/constants.dart';
+import 'package:findgo_admin/core/exception.dart';
+import 'package:findgo_admin/core/success.dart';
+import 'package:findgo_admin/data_models/user.dart';
 import 'package:http/http.dart';
-
-import '../core/constants.dart';
-import '../core/exception.dart';
-import '../core/success.dart';
-import '../data_models/user.dart';
 
 const kType = "admin";
 
@@ -18,7 +17,7 @@ class RemoteAuthSource {
   RemoteAuthSource(this.http, this.serverUrl);
 
   void _handleError({required Response response}) {
-    final jsonResp = json.decode(response.body);
+    final jsonResp = json.decode(response.body) as Map<String, dynamic>;
     final message = jsonResp["Message"] as String;
     if (response.statusCode == 401) {
       throw AuthorizationException(message);
@@ -42,9 +41,11 @@ class RemoteAuthSource {
     try {
       // Send post request
       final response = await http
-          .post(uri,
-              headers: {"Content-Type": "application/json"},
-              body: json.encode(refreshMap))
+          .post(
+            uri,
+            headers: {"Content-Type": "application/json"},
+            body: json.encode(refreshMap),
+          )
           .timeout(kTimeOutDuration);
       // MOCK RESPONSE
       // final response = Response("", 200, headers: {"jwt" : "12345"});
@@ -74,9 +75,11 @@ class RemoteAuthSource {
     try {
       // Send post request
       final response = await http
-          .patch(uri,
-              headers: {"Content-Type": "application/json"},
-              body: json.encode(refreshMap))
+          .patch(
+            uri,
+            headers: {"Content-Type": "application/json"},
+            body: json.encode(refreshMap),
+          )
           .timeout(kTimeOutDuration);
       // MOCK RESPONSE
       // final response = Response("", 200, headers: {"jwt" : "12345"});
@@ -145,9 +148,11 @@ class RemoteAuthSource {
 
       // Send get request
       final response = await http
-          .post(uri,
-              headers: {"Content-Type": "application/json"},
-              body: json.encode(userMap))
+          .post(
+            uri,
+            headers: {"Content-Type": "application/json"},
+            body: json.encode(userMap),
+          )
           .timeout(kTimeOutDuration);
 
       // MOCK RESPONSE
@@ -169,7 +174,10 @@ class RemoteAuthSource {
         // print("jwt: $jwt");
         // print("refresh-token: $refreshToken");
         return ServerSuccess(
-            jwt: jwt, refreshToken: refreshToken, object: user);
+          jwt: jwt,
+          refreshToken: refreshToken,
+          object: user,
+        );
       } else {
         _handleError(response: response);
       }
@@ -191,9 +199,11 @@ class RemoteAuthSource {
     try {
       // Send get request
       final response = await http
-          .post(uri,
-              headers: {"Content-Type": "application/json"},
-              body: json.encode(userMap))
+          .post(
+            uri,
+            headers: {"Content-Type": "application/json"},
+            body: json.encode(userMap),
+          )
           .timeout(kTimeOutDuration);
 
       // mock response
@@ -215,7 +225,10 @@ class RemoteAuthSource {
         // print("jwt: $jwt");
         // print("refresh-token: $refreshToken");
         return ServerSuccess(
-            jwt: jwt, refreshToken: refreshToken, object: user);
+          jwt: jwt,
+          refreshToken: refreshToken,
+          object: user,
+        );
 
         // TODO SET RESPONSE ON SERVER
       } else if (response.statusCode == 200 || response.statusCode == 409) {
@@ -244,9 +257,11 @@ class RemoteAuthSource {
     try {
       // Send get request
       final response = await http
-          .post(uri,
-              headers: {"Content-Type": "application/json"},
-              body: json.encode(userMap))
+          .post(
+            uri,
+            headers: {"Content-Type": "application/json"},
+            body: json.encode(userMap),
+          )
           .timeout(kTimeOutDuration);
 
       // MOCK RESPONSE
@@ -410,7 +425,9 @@ class RemoteAuthSource {
   }
 
   Future<ServerSuccess> passwordReset(
-      String password, String passwordResetCode) async {
+    String password,
+    String passwordResetCode,
+  ) async {
     final uri = Uri.parse("$serverUrl/passwordReset.php");
     log(uri.toString());
 

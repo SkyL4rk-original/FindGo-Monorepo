@@ -1,7 +1,26 @@
+// ignore_for_file: avoid_bool_literals_in_conditional_expressions, use_build_context_synchronously
+
 import 'dart:typed_data';
 
+import 'package:findgo_admin/core/constants.dart';
+import 'package:findgo_admin/data_models/location.dart';
+import 'package:findgo_admin/data_models/special.dart';
+import 'package:findgo_admin/data_models/store.dart';
+import 'package:findgo_admin/main.dart';
+import 'package:findgo_admin/view_models/auth_vm.dart';
+import 'package:findgo_admin/view_models/locations_vm.dart';
+import 'package:findgo_admin/view_models/specials_vm.dart';
+import 'package:findgo_admin/view_models/stores_vm.dart';
+import 'package:findgo_admin/view_pages/location_pg.dart';
+import 'package:findgo_admin/view_pages/store_pg.dart';
+import 'package:findgo_admin/view_pages/store_stats_pg.dart';
+import 'package:findgo_admin/widgets/image_cropper.dart';
+import 'package:findgo_admin/widgets/loading.dart';
+import 'package:findgo_admin/widgets/notificaion_timer.dart';
+import 'package:findgo_admin/widgets/snackbar.dart';
+import 'package:findgo_admin/widgets/special_card.dart';
+import 'package:findgo_admin/widgets/stats_card.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart';
 import 'package:image_compression/image_compression.dart';
@@ -9,33 +28,14 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:vrouter/vrouter.dart';
 
-import '../core/constants.dart';
-import '../data_models/special.dart';
-import '../data_models/store.dart';
-import '../data_models/location.dart';
-import '../main.dart';
-import '../view_models/auth_vm.dart';
-import '../view_models/specials_vm.dart';
-import '../view_models/stores_vm.dart';
-import '../view_models/locations_vm.dart';
-import '../view_pages/store_pg.dart';
-import '../view_pages/location_pg.dart';
-import '../view_pages/store_stats_pg.dart';
-import '../widgets/image_cropper.dart';
-import '../widgets/loading.dart';
-import '../widgets/notificaion_timer.dart';
-import '../widgets/snackbar.dart';
-import '../widgets/special_card.dart';
-import '../widgets/stats_card.dart';
-
-class HomePage extends StatefulWidget {
+class HomePage extends ConsumerStatefulWidget {
   const HomePage({Key? key}) : super(key: key);
 
   @override
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends ConsumerState<HomePage> {
   late AuthViewModel _authViewModel;
   late StoresViewModel _storesViewModel;
   late LocationsViewModel _locationsViewModel;
@@ -61,12 +61,12 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    _authViewModel = context.read(authVMProvider);
-    _storesViewModel = context.read(storesVMProvider);
-    _locationsViewModel = context.read(locationsVMProvider);
-    _specialsViewModel = context.read(specialsVMProvider);
+    _authViewModel = ref.read(authVMProvider);
+    _storesViewModel = ref.read(storesVMProvider);
+    _locationsViewModel = ref.read(locationsVMProvider);
+    _specialsViewModel = ref.read(specialsVMProvider);
 
-    WidgetsBinding.instance!.addPostFrameCallback((_) async {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       // print("CHECKING CURRENT USER HOME PG");
       if (await _authViewModel.getCurrentUser()) {
         _specialsViewModel.getAllSpecials();
@@ -78,7 +78,8 @@ class _HomePageState extends State<HomePage> {
 
         if (_authViewModel.currentUser.storeUuid != "") {
           _selectedStore = _storesViewModel.storesList.firstWhere(
-              (store) => store.uuid == _authViewModel.currentUser.storeUuid);
+            (store) => store.uuid == _authViewModel.currentUser.storeUuid,
+          );
           _showActivity = true;
         }
         setState(() {});
@@ -95,8 +96,13 @@ class _HomePageState extends State<HomePage> {
     if (_selectedSpecial != null &&
         _tempSpecial != null &&
         (_tempSpecial!.typeSet.contains(SpecialType.featured))) {
-      final endOfDayValidFrom = DateTime(_tempSpecial!.validFrom.year,
-          _tempSpecial!.validFrom.month, _tempSpecial!.validFrom.day, 23, 59);
+      final endOfDayValidFrom = DateTime(
+        _tempSpecial!.validFrom.year,
+        _tempSpecial!.validFrom.month,
+        _tempSpecial!.validFrom.day,
+        23,
+        59,
+      );
 
       if (_tempSpecial!.validUntil.isAfter(endOfDayValidFrom) ||
           _tempSpecial!.validUntil.isBefore(_tempSpecial!.validFrom)) {
@@ -110,11 +116,12 @@ class _HomePageState extends State<HomePage> {
         appBar: AppBar(
           leading: ExcludeFocus(
             child: IconButton(
-                onPressed: () async {
-                  if (!await _removeSpecialChanges()) return;
-                  context.vRouter.to("/user", isReplacement: true);
-                },
-                icon: const Icon(Icons.account_circle_outlined)),
+              onPressed: () async {
+                if (!await _removeSpecialChanges()) return;
+                context.vRouter.to("/user", isReplacement: true);
+              },
+              icon: const Icon(Icons.account_circle_outlined),
+            ),
           ),
           title: _authViewModel.currentUser.storeUuid != "" &&
                   _selectedStore != null
@@ -193,20 +200,21 @@ class _HomePageState extends State<HomePage> {
           actions: [
             if (_authViewModel.currentUser.isSuperUser)
               ExcludeFocus(
-                child: StatefulBuilder(builder: (context, setBroadCastState) {
-                  if (_isBroadcastingMessage) {
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 30.0),
-                      child: Center(
-                        child: SizedBox(
-                          height: 20.0,
-                          width: 20.0,
-                          child: LoadWidget(),
+                child: StatefulBuilder(
+                  builder: (context, setBroadCastState) {
+                    if (_isBroadcastingMessage) {
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 30.0),
+                        child: Center(
+                          child: SizedBox(
+                            height: 20.0,
+                            width: 20.0,
+                            child: LoadWidget(),
+                          ),
                         ),
-                      ),
-                    );
-                  }
-                  return TextButton(
+                      );
+                    }
+                    return TextButton(
                       onPressed: () async {
                         final message = await showDialog(
                           context: context,
@@ -250,8 +258,9 @@ class _HomePageState extends State<HomePage> {
                           setBroadCastState(
                             () => _isBroadcastingMessage = true,
                           );
-                          if (confirmSend != null && confirmSend)
+                          if (confirmSend != null && confirmSend) {
                             await _authViewModel.broadcastMessage(message);
+                          }
                           setBroadCastState(
                             () => _isBroadcastingMessage = false,
                           );
@@ -260,23 +269,26 @@ class _HomePageState extends State<HomePage> {
                       child: const Text(
                         "Broadcast",
                         style: TextStyle(color: Colors.white),
-                      ));
-                }),
+                      ),
+                    );
+                  },
+                ),
               ),
             const SizedBox(
               width: 16.0,
             ),
             ExcludeFocus(
               child: TextButton(
-                  onPressed: () async {
-                    if (!await _removeSpecialChanges()) return;
+                onPressed: () async {
+                  if (!await _removeSpecialChanges()) return;
 
-                    _authViewModel.logout();
-                  },
-                  child: const Text(
-                    "Logout",
-                    style: TextStyle(color: Colors.white),
-                  )),
+                  _authViewModel.logout();
+                },
+                child: const Text(
+                  "Logout",
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
             ),
             const SizedBox(
               width: 16.0,
@@ -288,70 +300,79 @@ class _HomePageState extends State<HomePage> {
           width: MediaQuery.of(context).size.width,
           child: Stack(
             children: [
-              Consumer(builder: (context, watch, child) {
-                final authVM = watch(authVMProvider);
-                final specialsVM = watch(specialsVMProvider);
-                final storesVM = watch(storesVMProvider);
-                final locationsVM = watch(locationsVMProvider);
+              Consumer(
+                builder: (context, ref, _) {
+                  final authVM = ref.watch(authVMProvider);
+                  final specialsVM = ref.watch(specialsVMProvider);
+                  final storesVM = ref.watch(storesVMProvider);
+                  ref.watch(locationsVMProvider);
 
-                authVM.context = context;
-                specialsVM.context = context;
-                storesVM.context = context;
+                  authVM.context = context;
+                  specialsVM.context = context;
+                  storesVM.context = context;
 
-                return authVM.state == AuthViewState.fetchingUser
-                    ? Center(child: LoadWidget())
-                    : SingleChildScrollView(
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Padding(
-                            padding: const EdgeInsets.all(20.0),
-                            child: Row(
-                              // mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                if (_authViewModel.currentUser.storeUuid == "")
-                                  _locationSearchSection(),
-                                if (_showStores) const SizedBox(width: 20.0),
-                                if (_authViewModel.currentUser.storeUuid == "")
-                                  _storeSearchSection(),
-                                if (_showActivity) const SizedBox(width: 20.0),
-                                if (_selectedStore != null) _activitySection(),
-                                const SizedBox(width: 20.0),
-                                if (_selectedSpecial != null)
-                                  _selectedSpecialSection(),
-                                const SizedBox(width: 20.0),
-                                if (_selectedStore != null &&
-                                    _selectedSpecial != null)
-                                  SizedBox(
-                                    width: 300.0,
-                                    child: Column(
-                                      children: [
-                                        const SizedBox(height: 10.0),
-                                        const SizedBox(
+                  return authVM.state == AuthViewState.fetchingUser
+                      ? Center(child: LoadWidget())
+                      : SingleChildScrollView(
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Padding(
+                              padding: const EdgeInsets.all(20.0),
+                              child: Row(
+                                // mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  if (_authViewModel.currentUser.storeUuid ==
+                                      "")
+                                    _locationSearchSection(),
+                                  if (_showStores) const SizedBox(width: 20.0),
+                                  if (_authViewModel.currentUser.storeUuid ==
+                                      "")
+                                    _storeSearchSection(),
+                                  if (_showActivity)
+                                    const SizedBox(width: 20.0),
+                                  if (_selectedStore != null)
+                                    _activitySection(),
+                                  const SizedBox(width: 20.0),
+                                  if (_selectedSpecial != null)
+                                    _selectedSpecialSection(),
+                                  const SizedBox(width: 20.0),
+                                  if (_selectedStore != null &&
+                                      _selectedSpecial != null)
+                                    SizedBox(
+                                      width: 300.0,
+                                      child: Column(
+                                        children: [
+                                          const SizedBox(height: 10.0),
+                                          const SizedBox(
                                             height: 22.0,
                                             width: double.infinity,
                                             child: Center(
-                                                child: Text(
-                                              "Special Preview",
-                                              textAlign: TextAlign.center,
-                                            ))),
-                                        const SizedBox(height: 16.0),
-                                        SpecialCard(special: _tempSpecial!),
-                                        const SizedBox(height: 16.0),
-                                        if (_tempSpecial!.uuid != "" &&
-                                            _tempSpecial!.status !=
-                                                SpecialStatus.pending)
-                                          SpecialStatsCard(
-                                              special: _tempSpecial!),
-                                      ],
+                                              child: Text(
+                                                "Special Preview",
+                                                textAlign: TextAlign.center,
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 16.0),
+                                          SpecialCard(special: _tempSpecial!),
+                                          const SizedBox(height: 16.0),
+                                          if (_tempSpecial!.uuid != "" &&
+                                              _tempSpecial!.status !=
+                                                  SpecialStatus.pending)
+                                            SpecialStatsCard(
+                                              special: _tempSpecial!,
+                                            ),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                      );
-              }),
+                        );
+                },
+              ),
               Positioned(
                 right: 8.0,
                 bottom: 8.0,
@@ -404,25 +425,28 @@ class _HomePageState extends State<HomePage> {
         width: 300.0,
         child: Column(
           children: [
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              InkWell(
-                canRequestFocus: false,
-                onTap: () => setState(() => _showStores = false),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    children: [
-                      const Text("Stores"),
-                      const SizedBox(
-                        width: 12.0,
-                      ),
-                      const Icon(Icons.keyboard_arrow_down)
-                    ],
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                InkWell(
+                  canRequestFocus: false,
+                  onTap: () => setState(() => _showStores = false),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        const Text("Stores"),
+                        const SizedBox(
+                          width: 12.0,
+                        ),
+                        const Icon(Icons.keyboard_arrow_down)
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              _addStoreButton(),
-            ]),
+                _addStoreButton(),
+              ],
+            ),
             const SizedBox(height: 8.0),
             // const Divider(
             //   thickness: 0.5,
@@ -439,8 +463,9 @@ class _HomePageState extends State<HomePage> {
               height: 20.0,
             ),
             SizedBox(
-                height: MediaQuery.of(context).size.height - 210.0,
-                child: storeListView()),
+              height: MediaQuery.of(context).size.height - 210.0,
+              child: storeListView(),
+            ),
           ],
         ),
       );
@@ -463,7 +488,9 @@ class _HomePageState extends State<HomePage> {
               RotatedBox(
                 quarterTurns: 3,
                 child: Text(
-                  _selectedLocation != null ? _selectedLocation!.name : "Locations",
+                  _selectedLocation != null
+                      ? _selectedLocation!.name
+                      : "Locations",
                   // "Locations",
                 ),
               ),
@@ -479,25 +506,28 @@ class _HomePageState extends State<HomePage> {
         width: 300.0,
         child: Column(
           children: [
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              InkWell(
-                canRequestFocus: false,
-                onTap: () => setState(() => _showLocations = false),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    children: [
-                      const Text("Locations"),
-                      const SizedBox(
-                        width: 12.0,
-                      ),
-                      const Icon(Icons.keyboard_arrow_down)
-                    ],
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                InkWell(
+                  canRequestFocus: false,
+                  onTap: () => setState(() => _showLocations = false),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        const Text("Locations"),
+                        const SizedBox(
+                          width: 12.0,
+                        ),
+                        const Icon(Icons.keyboard_arrow_down)
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              _addLocationButton(), // ?
-            ]),
+                _addLocationButton(), // ?
+              ],
+            ),
             const SizedBox(height: 8.0),
             // const Divider(
             //   thickness: 0.5,
@@ -514,8 +544,9 @@ class _HomePageState extends State<HomePage> {
               height: 20.0,
             ),
             SizedBox(
-                height: MediaQuery.of(context).size.height - 210.0,
-                child: locationListView()),
+              height: MediaQuery.of(context).size.height - 210.0,
+              child: locationListView(),
+            ),
           ],
         ),
       );
@@ -523,204 +554,222 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget storeListView() {
-    return Consumer(builder: (context, watch, child) {
-      final storeVM = watch(storesVMProvider);
-      storeVM.context = context;
+    return Consumer(
+      builder: (context, ref, _) {
+        final storeVM = ref.watch(storesVMProvider);
+        storeVM.context = context;
 
-      final filteredStoresList = storeVM.storesList.where((store) =>
-          store.name.toLowerCase().contains(_storeFilter.toLowerCase())
-          && ((_selectedLocation == null || _selectedLocation!.id == 0 )? true : store.locationId == _selectedLocation!.id)
+        final filteredStoresList = storeVM.storesList.where(
+          (store) =>
+              store.name.toLowerCase().contains(_storeFilter.toLowerCase()) &&
+              ((_selectedLocation == null || _selectedLocation!.id == 0)
+                  ? true
+                  : store.locationId == _selectedLocation!.id),
         );
 
-      return storeVM.state == StoresViewState.busy
-          ? const Center(child: CircularProgressIndicator())
-          : ListView.builder(
-              //scrollDirection: Axis.horizontal,
-              itemCount: filteredStoresList.length,
-              itemBuilder: (context, index) {
-                final store = filteredStoresList.elementAt(index);
-                return Card(
-                  shape: const ContinuousRectangleBorder(),
-                  margin: EdgeInsets.zero,
-                  color: _selectedStore != null &&
-                          store.uuid == _selectedStore!.uuid
-                      ? kColorSelected
-                      : kColorCard,
-                  child: InkWell(
-                    canRequestFocus: false,
-                    onTap: () async {
-                      if (!await _removeSpecialChanges()) return;
+        return storeVM.state == StoresViewState.busy
+            ? const Center(child: CircularProgressIndicator())
+            : ListView.builder(
+                //scrollDirection: Axis.horizontal,
+                itemCount: filteredStoresList.length,
+                itemBuilder: (context, index) {
+                  final store = filteredStoresList.elementAt(index);
+                  return Card(
+                    shape: const ContinuousRectangleBorder(),
+                    margin: EdgeInsets.zero,
+                    color: _selectedStore != null &&
+                            store.uuid == _selectedStore!.uuid
+                        ? kColorSelected
+                        : kColorCard,
+                    child: InkWell(
+                      canRequestFocus: false,
+                      onTap: () async {
+                        if (!await _removeSpecialChanges()) return;
 
-                      _selectedSpecial = null;
-                      _tempSpecial = null;
-                      _selectedStore = store;
-                      _showStores = false;
-                      _showActivity = true;
-                      setState(() {});
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(store.name),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              // InkWell(
-                              //   canRequestFocus: false,
-                              //   onTap: () async {
-                              //     if (!await _removeSpecialChanges()) return;
-                              //
-                              //     await Navigator.of(context).push(
-                              //       MaterialPageRoute(
-                              //         builder: (ctx) => UsersPage(store: store),
-                              //       ),
-                              //     );
-                              //   },
-                              //   hoverColor: kColorAccent.withAlpha(60),
-                              //   child: const Padding(
-                              //     padding: EdgeInsets.all(8.0),
-                              //     child: Text(
-                              //       "Users", // Navbar
-                              //       style: kTextStyleSmallSecondary,
-                              //     ),
-                              //   ),
-                              // ),
-                              // const SizedBox(width: 8.0),
-                              InkWell(
-                                canRequestFocus: false,
-                                onTap: () async {
-                                  if (!await _removeSpecialChanges()) return;
+                        _selectedSpecial = null;
+                        _tempSpecial = null;
+                        _selectedStore = store;
+                        _showStores = false;
+                        _showActivity = true;
+                        setState(() {});
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(store.name),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                // InkWell(
+                                //   canRequestFocus: false,
+                                //   onTap: () async {
+                                //     if (!await _removeSpecialChanges()) return;
+                                //
+                                //     await Navigator.of(context).push(
+                                //       MaterialPageRoute(
+                                //         builder: (ctx) => UsersPage(store: store),
+                                //       ),
+                                //     );
+                                //   },
+                                //   hoverColor: kColorAccent.withAlpha(60),
+                                //   child: const Padding(
+                                //     padding: EdgeInsets.all(8.0),
+                                //     child: Text(
+                                //       "Users", // Navbar
+                                //       style: kTextStyleSmallSecondary,
+                                //     ),
+                                //   ),
+                                // ),
+                                // const SizedBox(width: 8.0),
+                                InkWell(
+                                  canRequestFocus: false,
+                                  onTap: () async {
+                                    if (!await _removeSpecialChanges()) return;
 
-                                  await Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (ctx) =>
-                                          StoreStatsPage(store: store),
+                                    await Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (ctx) =>
+                                            StoreStatsPage(store: store),
+                                      ),
+                                    );
+                                  },
+                                  hoverColor: kColorAccent.withAlpha(60),
+                                  child: const Padding(
+                                    padding: EdgeInsets.all(8.0),
+                                    child: Text(
+                                      "Stats", // Navbar
+                                      style: kTextStyleSmallSecondary,
                                     ),
-                                  );
-                                },
-                                hoverColor: kColorAccent.withAlpha(60),
-                                child: const Padding(
-                                  padding: EdgeInsets.all(8.0),
-                                  child: Text(
-                                    "Stats", // Navbar
-                                    style: kTextStyleSmallSecondary,
                                   ),
                                 ),
-                              ),
-                              const SizedBox(width: 8.0),
-                              InkWell(
-                                canRequestFocus: false,
-                                onTap: () async {
-                                  if (!await _removeSpecialChanges()) return;
+                                const SizedBox(width: 8.0),
+                                InkWell(
+                                  canRequestFocus: false,
+                                  onTap: () async {
+                                    if (!await _removeSpecialChanges()) return;
 
-                                  await Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (ctx) => StorePage(store: store),
+                                    await Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (ctx) =>
+                                            StorePage(store: store),
+                                      ),
+                                    );
+                                  },
+                                  hoverColor: kColorAccent.withAlpha(60),
+                                  child: const Padding(
+                                    padding: EdgeInsets.all(8.0),
+                                    child: Text(
+                                      "Edit",
+                                      style: kTextStyleSmallSecondary,
                                     ),
-                                  );
-                                },
-                                hoverColor: kColorAccent.withAlpha(60),
-                                child: const Padding(
-                                  padding: EdgeInsets.all(8.0),
-                                  child: Text(
-                                    "Edit",
-                                    style: kTextStyleSmallSecondary,
                                   ),
                                 ),
-                              ),
-                            ],
-                          )
-                        ],
+                              ],
+                            )
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                );
-              });
-    });
+                  );
+                },
+              );
+      },
+    );
   }
 
   Widget locationListView() {
-    return Consumer(builder: (context, watch, child) {
-      final locationVM = watch(locationsVMProvider);
-      locationVM.context = context;
+    return Consumer(
+      builder: (context, ref, _) {
+        final locationVM = ref.watch(locationsVMProvider);
+        locationVM.context = context;
 
-      List<Location> tmpList = locationVM.locationsList;
-      Location tmpLocation = Location(id: 0, name: "All Stores");
-      if(tmpList.contains(tmpLocation)) {
-        tmpList.remove(tmpLocation);
-      }
-      tmpList.insert(0, tmpLocation);
-      final filteredLocationsList = tmpList.where((location) =>
-          location.name.toLowerCase().contains(_locationFilter.toLowerCase()));
+        final List<Location> tmpList = locationVM.locationsList;
+        final Location tmpLocation = Location(id: 0, name: "All Stores");
+        if (tmpList.contains(tmpLocation)) {
+          tmpList.remove(tmpLocation);
+        }
+        tmpList.insert(0, tmpLocation);
+        final filteredLocationsList = tmpList.where(
+          (location) => location.name
+              .toLowerCase()
+              .contains(_locationFilter.toLowerCase()),
+        );
 
-      return locationVM.state == LocationsViewState.busy
-          ? const Center(child: CircularProgressIndicator())
-          : ListView.builder(
-              //scrollDirection: Axis.horizontal,
-              itemCount: filteredLocationsList.length,
-              itemBuilder: (context, index) {
-                final location = filteredLocationsList.elementAt(index);
-                return Card(
-                  shape: const ContinuousRectangleBorder(),
-                  margin: EdgeInsets.zero,
-                  color: _selectedLocation == null && location.id == 0 ? kColorSelected : _selectedLocation != null &&
-                          location.id == _selectedLocation!.id
-                      ? kColorSelected
-                      : kColorCard,
-                  child: InkWell(
-                    canRequestFocus: false,
-                    onTap: () async {
-                      if (!await _removeSpecialChanges()) return;
+        return locationVM.state == LocationsViewState.busy
+            ? const Center(child: CircularProgressIndicator())
+            : ListView.builder(
+                //scrollDirection: Axis.horizontal,
+                itemCount: filteredLocationsList.length,
+                itemBuilder: (context, index) {
+                  final location = filteredLocationsList.elementAt(index);
+                  return Card(
+                    shape: const ContinuousRectangleBorder(),
+                    margin: EdgeInsets.zero,
+                    color: _selectedLocation == null && location.id == 0
+                        ? kColorSelected
+                        : _selectedLocation != null &&
+                                location.id == _selectedLocation!.id
+                            ? kColorSelected
+                            : kColorCard,
+                    child: InkWell(
+                      canRequestFocus: false,
+                      onTap: () async {
+                        if (!await _removeSpecialChanges()) return;
 
-                      _selectedSpecial = null;
-                      _tempSpecial = null;
-                      _selectedLocation = location;
-                      _showLocations = false;
-                      _showStores = true;
-                      setState(() {});
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(location.name),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              const SizedBox(width: 8.0),
-                              if(location.id != 0)
-                              InkWell(
-                                canRequestFocus: false,
-                                onTap: () async {
-                                  if (!await _removeSpecialChanges()) return;
+                        _selectedSpecial = null;
+                        _tempSpecial = null;
+                        _selectedLocation = location;
+                        _showLocations = false;
+                        _showStores = true;
+                        setState(() {});
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(location.name),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                const SizedBox(width: 8.0),
+                                if (location.id != 0)
+                                  InkWell(
+                                    canRequestFocus: false,
+                                    onTap: () async {
+                                      if (!await _removeSpecialChanges()) {
+                                        return;
+                                      }
 
-                                  await Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (ctx) => LocationPage(location: location),
+                                      await Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (ctx) =>
+                                              LocationPage(location: location),
+                                        ),
+                                      );
+                                    },
+                                    hoverColor: kColorAccent.withAlpha(60),
+                                    child: const Padding(
+                                      padding: EdgeInsets.all(8.0),
+                                      child: Text(
+                                        "Edit",
+                                        style: kTextStyleSmallSecondary,
+                                      ),
                                     ),
-                                  );
-                                },
-                                hoverColor: kColorAccent.withAlpha(60),
-                                child: const Padding(
-                                  padding: EdgeInsets.all(8.0),
-                                  child: Text(
-                                    "Edit",
-                                    style: kTextStyleSmallSecondary,
                                   ),
-                                ),
-                              ),
-                            ],
-                          )
-                        ],
+                              ],
+                            )
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                );
-              });
-    });
+                  );
+                },
+              );
+      },
+    );
   }
 
   Widget _addStoreButton() {
@@ -728,27 +777,28 @@ class _HomePageState extends State<HomePage> {
       height: 40.0,
       width: 130.0,
       child: Center(
-          child: ExcludeFocus(
-        child: TextButton.icon(
-          onPressed: () async {
-            final newStoreUuid = await Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (ctx) => const StorePage(),
-              ),
-            ) as String?;
+        child: ExcludeFocus(
+          child: TextButton.icon(
+            onPressed: () async {
+              final newStoreUuid = await Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (ctx) => const StorePage(),
+                ),
+              ) as String?;
 
-            if (newStoreUuid != null) {
-              _selectedStore = _storesViewModel.storesList
-                  .firstWhere((store) => store.uuid == newStoreUuid);
-              _selectedSpecial = null;
-              _tempSpecial = null;
-              setState(() {});
-            }
-          },
-          icon: const Icon(Icons.add),
-          label: const Text("Add Store"),
+              if (newStoreUuid != null) {
+                _selectedStore = _storesViewModel.storesList
+                    .firstWhere((store) => store.uuid == newStoreUuid);
+                _selectedSpecial = null;
+                _tempSpecial = null;
+                setState(() {});
+              }
+            },
+            icon: const Icon(Icons.add),
+            label: const Text("Add Store"),
+          ),
         ),
-      )),
+      ),
     );
   }
 
@@ -757,27 +807,33 @@ class _HomePageState extends State<HomePage> {
       height: 40.0,
       width: 130.0,
       child: Center(
-          child: ExcludeFocus(
-        child: TextButton.icon(
-          onPressed: () async {
-            final newLocationId = await Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (ctx) => const LocationPage(),
-              ),
-            ) as int?;
+        child: ExcludeFocus(
+          child: TextButton.icon(
+            onPressed: () async {
+              // final newLocationId = await Navigator.of(context).push(
+              //   MaterialPageRoute(
+              //     builder: (ctx) => const LocationPage(),
+              //   ),
+              // ) as int?;
+              await Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (ctx) => const LocationPage(),
+                ),
+              );
 
-            // if (newStoreUuid != null) {
-            //   _selectedStore = _storesViewModel.storesList
-            //       .firstWhere((store) => store.uuid == newStoreUuid);
-            //   _selectedSpecial = null;
-            //   _tempSpecial = null;
-            //   setState(() {});
-            // }
-          },
-          icon: const Icon(Icons.add),
-          label: const Text("Add Location"),
+              // if (newStoreUuid != null) {
+              //   _selectedStore = _storesViewModel.storesList
+              //       .firstWhere((store) => store.uuid == newStoreUuid);
+              //   _selectedSpecial = null;
+              //   _tempSpecial = null;
+              //   setState(() {});
+              // }
+            },
+            icon: const Icon(Icons.add),
+            label: const Text("Add Location"),
+          ),
         ),
-      )),
+      ),
     );
   }
 
@@ -869,25 +925,28 @@ class _HomePageState extends State<HomePage> {
         width: 300.0,
         child: Column(
           children: [
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              InkWell(
-                canRequestFocus: false,
-                onTap: () => setState(() => _showActivity = false),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    children: [
-                      const Text("Activity"),
-                      const SizedBox(
-                        width: 12.0,
-                      ),
-                      const Icon(Icons.keyboard_arrow_right_rounded)
-                    ],
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                InkWell(
+                  canRequestFocus: false,
+                  onTap: () => setState(() => _showActivity = false),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        const Text("Activity"),
+                        const SizedBox(
+                          width: 12.0,
+                        ),
+                        const Icon(Icons.keyboard_arrow_right_rounded)
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              _addSpecialButton(),
-            ]),
+                _addSpecialButton(),
+              ],
+            ),
             // const SizedBox(height: 16.0),
             // const Align(
             //   alignment: Alignment.centerLeft,
@@ -896,31 +955,32 @@ class _HomePageState extends State<HomePage> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: DropdownButtonFormField(
-                  icon: const Icon(Icons.filter_list_outlined),
-                  value: _getFilterDropdownValue(),
-                  items: _specialStatusList(),
-                  onChanged: (specialStatus) {
-                    if (specialStatus != null) {
-                      switch (specialStatus) {
-                        case "all":
-                          _specialFilterStatus = null;
-                          break;
-                        case "pending":
-                          _specialFilterStatus = SpecialStatus.pending;
-                          break;
-                        case "active":
-                          _specialFilterStatus = SpecialStatus.active;
-                          break;
-                        case "inactive":
-                          _specialFilterStatus = SpecialStatus.inactive;
-                          break;
-                        default:
-                          _specialFilterStatus = null;
-                      }
-
-                      setState(() {});
+                icon: const Icon(Icons.filter_list_outlined),
+                value: _getFilterDropdownValue(),
+                items: _specialStatusList(),
+                onChanged: (specialStatus) {
+                  if (specialStatus != null) {
+                    switch (specialStatus) {
+                      case "all":
+                        _specialFilterStatus = null;
+                        break;
+                      case "pending":
+                        _specialFilterStatus = SpecialStatus.pending;
+                        break;
+                      case "active":
+                        _specialFilterStatus = SpecialStatus.active;
+                        break;
+                      case "inactive":
+                        _specialFilterStatus = SpecialStatus.inactive;
+                        break;
+                      default:
+                        _specialFilterStatus = null;
                     }
-                  }),
+
+                    setState(() {});
+                  }
+                },
+              ),
             ),
             const SizedBox(height: 16.0),
             SizedBox(height: _height - 60.0, child: _activityListView()),
@@ -932,12 +992,13 @@ class _HomePageState extends State<HomePage> {
 
   Widget _activityListView() {
     // Add specials with matching store uuids & matching _selectedStatus
-    final storeSpecialsList = _specialsViewModel.specialsList.where((special) =>
-        // ignore: avoid_bool_literals_in_conditional_expressions
-        special.storeUuid == _selectedStore!.uuid &&
-        (_specialFilterStatus == null
-            ? true
-            : special.status == _specialFilterStatus));
+    final storeSpecialsList = _specialsViewModel.specialsList.where(
+      (special) =>
+          special.storeUuid == _selectedStore!.uuid &&
+          (_specialFilterStatus == null
+              ? true
+              : special.status == _specialFilterStatus),
+    );
 
     return _specialsViewModel.state == SpecialViewState.busy
         ? const Center(child: CircularProgressIndicator())
@@ -981,33 +1042,41 @@ class _HomePageState extends State<HomePage> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Expanded(
-                                  child: SizedBox(
-                                      child: Text(special.name.toUpperCase()))),
+                                child: SizedBox(
+                                  child: Text(special.name.toUpperCase()),
+                                ),
+                              ),
                               Text(
-                                  toBeginningOfSentenceCase(
-                                      special.statusToString)!,
-                                  style: TextStyle(
-                                      color: _getStatusColor(special))),
+                                toBeginningOfSentenceCase(
+                                  special.statusToString,
+                                )!,
+                                style: TextStyle(
+                                  color: _getStatusColor(special),
+                                ),
+                              ),
                             ],
                           ),
                           const SizedBox(height: 12.0),
-                          Text(_typeStringBuilder(special.typeSet),
-                              style:
-                                  const TextStyle(color: kColorSecondaryText)),
+                          Text(
+                            _typeStringBuilder(special.typeSet),
+                            style: const TextStyle(color: kColorSecondaryText),
+                          ),
                           const SizedBox(height: 12.0),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                  DateFormat.yMMMd()
-                                      .add_jm()
-                                      .format(special.validFrom),
-                                  style: kTextStyleTinySecondary),
+                                DateFormat.yMMMd()
+                                    .add_jm()
+                                    .format(special.validFrom),
+                                style: kTextStyleTinySecondary,
+                              ),
                               Text(
-                                  DateFormat.yMMMd()
-                                      .add_jm()
-                                      .format(special.validUntil),
-                                  style: kTextStyleTinySecondary),
+                                DateFormat.yMMMd()
+                                    .add_jm()
+                                    .format(special.validUntil),
+                                style: kTextStyleTinySecondary,
+                              ),
                             ],
                           ),
                           // const Divider(
@@ -1020,13 +1089,15 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               );
-            });
+            },
+          );
   }
 
   String _typeStringBuilder(Set<SpecialType> typeSet) {
     String typeString = "";
     if (typeSet.isEmpty) return typeString;
     for (final type in typeSet) {
+      // ignore: use_string_buffers
       typeString =
           "$typeString   ${type.toString().substring(12).capitalizeFirsTofEach}";
     }
@@ -1037,20 +1108,25 @@ class _HomePageState extends State<HomePage> {
     Widget buttonContent;
     if (_specialsViewModel.state == SpecialViewState.create) {
       buttonContent = const SizedBox(
-          height: 30.0,
-          width: 30.0,
-          child: Center(
-              child: CircularProgressIndicator(
+        height: 30.0,
+        width: 30.0,
+        child: Center(
+          child: CircularProgressIndicator(
             valueColor: AlwaysStoppedAnimation<Color>(kColorAccent),
             strokeWidth: 2,
-          )));
+          ),
+        ),
+      );
     } else {
       buttonContent = ExcludeFocus(
         child: TextButton.icon(
           onPressed: () async {
             if (_selectedStore == null) {
-              InfoSnackBar.show(context, "No Store Selected",
-                  color: SnackBarColor.error);
+              InfoSnackBar.show(
+                context,
+                "No Store Selected",
+                color: SnackBarColor.error,
+              );
               return;
             }
             if (!await _removeSpecialChanges()) return;
@@ -1108,28 +1184,33 @@ class _HomePageState extends State<HomePage> {
             _selectedSpecial!.isUpdated(_tempSpecial!)) ||
         _tempSpecial!.uuid.isEmpty) {
       final confirmCancel = await showDialog(
-          context: context,
-          builder: (ctx) => AlertDialog(
-                title: Row(
-                  children: [
-                    const Icon(Icons.error_outline),
-                    const SizedBox(width: 16.0),
-                    const Text("Unsaved Changes"),
-                  ],
-                ),
-                content: const SizedBox(
-                    width: 260.0,
-                    child: Text(
-                        "Please confirm you want to remove all changes made to current special.")),
-                actions: [
-                  TextButton(
-                      onPressed: () => Navigator.of(ctx).pop(false),
-                      child: const Text("Cancel")),
-                  TextButton(
-                      onPressed: () => Navigator.of(ctx).pop(true),
-                      child: const Text("Remove")),
-                ],
-              )) as bool?;
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Row(
+            children: [
+              const Icon(Icons.error_outline),
+              const SizedBox(width: 16.0),
+              const Text("Unsaved Changes"),
+            ],
+          ),
+          content: const SizedBox(
+            width: 260.0,
+            child: Text(
+              "Please confirm you want to remove all changes made to current special.",
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: const Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: const Text("Remove"),
+            ),
+          ],
+        ),
+      ) as bool?;
 
       if (confirmCancel == null || confirmCancel == false) return false;
     }
@@ -1140,13 +1221,15 @@ class _HomePageState extends State<HomePage> {
     Widget buttonContent;
     if (_specialsViewModel.state == SpecialViewState.create) {
       buttonContent = const SizedBox(
-          height: 30.0,
-          width: 30.0,
-          child: Center(
-              child: CircularProgressIndicator(
+        height: 30.0,
+        width: 30.0,
+        child: Center(
+          child: CircularProgressIndicator(
             valueColor: AlwaysStoppedAnimation<Color>(kColorAccent),
             strokeWidth: 2,
-          )));
+          ),
+        ),
+      );
     } else {
       buttonContent = TextButton.icon(
         onPressed: () async {
@@ -1213,12 +1296,14 @@ class _HomePageState extends State<HomePage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const SizedBox(
-                    height: 38.0,
-                    child: Center(
-                        child: Text(
+                  height: 38.0,
+                  child: Center(
+                    child: Text(
                       "Edit Special",
                       textAlign: TextAlign.center,
-                    ))),
+                    ),
+                  ),
+                ),
                 _duplicateSpecialButton(),
               ],
             ),
@@ -1238,15 +1323,20 @@ class _HomePageState extends State<HomePage> {
                       children: [
                         Expanded(
                           child: _tempSpecial!.copied
-                              ? const Text("DUPLICATE ",
-                                  style: TextStyle(color: Colors.yellowAccent))
+                              ? const Text(
+                                  "DUPLICATE ",
+                                  style: TextStyle(color: Colors.yellowAccent),
+                                )
                               : const SizedBox(),
                         ),
                         Text(
-                            toBeginningOfSentenceCase(
-                                _tempSpecial!.statusToString)!,
-                            style: TextStyle(
-                                color: _getStatusColor(_tempSpecial!))),
+                          toBeginningOfSentenceCase(
+                            _tempSpecial!.statusToString,
+                          )!,
+                          style: TextStyle(
+                            color: _getStatusColor(_tempSpecial!),
+                          ),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 12.0),
@@ -1270,13 +1360,14 @@ class _HomePageState extends State<HomePage> {
                                   setState(() {});
                                 },
                                 child: DecoratedBox(
-                                    decoration: BoxDecoration(
-                                        color: _tempSpecial!.typeSet
-                                                .contains(SpecialType.special)
-                                            ? kColorAccent
-                                            : kColorCard),
-                                    child:
-                                        const Center(child: Text("Special"))),
+                                  decoration: BoxDecoration(
+                                    color: _tempSpecial!.typeSet
+                                            .contains(SpecialType.special)
+                                        ? kColorAccent
+                                        : kColorCard,
+                                  ),
+                                  child: const Center(child: Text("Special")),
+                                ),
                               ),
                             ),
                           ),
@@ -1297,12 +1388,14 @@ class _HomePageState extends State<HomePage> {
                                   setState(() {});
                                 },
                                 child: DecoratedBox(
-                                    decoration: BoxDecoration(
-                                        color: _tempSpecial!.typeSet
-                                                .contains(SpecialType.event)
-                                            ? kColorAccent
-                                            : kColorCard),
-                                    child: const Center(child: Text("Event"))),
+                                  decoration: BoxDecoration(
+                                    color: _tempSpecial!.typeSet
+                                            .contains(SpecialType.event)
+                                        ? kColorAccent
+                                        : kColorCard,
+                                  ),
+                                  child: const Center(child: Text("Event")),
+                                ),
                               ),
                             ),
                           ),
@@ -1325,13 +1418,14 @@ class _HomePageState extends State<HomePage> {
                                   setState(() {});
                                 },
                                 child: DecoratedBox(
-                                    decoration: BoxDecoration(
-                                        color: _tempSpecial!.typeSet
-                                                .contains(SpecialType.discount)
-                                            ? kColorAccent
-                                            : kColorCard),
-                                    child:
-                                        const Center(child: Text("Discount"))),
+                                  decoration: BoxDecoration(
+                                    color: _tempSpecial!.typeSet
+                                            .contains(SpecialType.discount)
+                                        ? kColorAccent
+                                        : kColorCard,
+                                  ),
+                                  child: const Center(child: Text("Discount")),
+                                ),
                               ),
                             ),
                           ),
@@ -1354,13 +1448,14 @@ class _HomePageState extends State<HomePage> {
                                   setState(() {});
                                 },
                                 child: DecoratedBox(
-                                    decoration: BoxDecoration(
-                                        color: _tempSpecial!.typeSet
-                                                .contains(SpecialType.featured)
-                                            ? kColorAccent
-                                            : kColorCard),
-                                    child:
-                                        const Center(child: Text("Featured"))),
+                                  decoration: BoxDecoration(
+                                    color: _tempSpecial!.typeSet
+                                            .contains(SpecialType.featured)
+                                        ? kColorAccent
+                                        : kColorCard,
+                                  ),
+                                  child: const Center(child: Text("Featured")),
+                                ),
                               ),
                             ),
                           ),
@@ -1434,93 +1529,109 @@ class _HomePageState extends State<HomePage> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           TextButton.icon(
-                              onPressed: () async {
-                                final pickedFile = await _picker.pickImage(
-                                    source: ImageSource.gallery);
-                                if (pickedFile != null) {
-                                  var file = await pickedFile.readAsBytes();
+                            onPressed: () async {
+                              final pickedFile = await _picker.pickImage(
+                                source: ImageSource.gallery,
+                              );
+                              if (pickedFile != null) {
+                                var file = await pickedFile.readAsBytes();
 
-                                  // If file large -> over 1MB
-                                  if (file.lengthInBytes > kMaxImageByteSize) {
-                                    showDialog(
-                                        context: context,
-                                        builder: (ctx) => AlertDialog(
-                                              content: SizedBox(
-                                                height: 250.0,
-                                                child: Column(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: [
-                                                    const Text(
-                                                        "Loading large file... may take a while",
-                                                        style: TextStyle(
-                                                            fontSize: 12)),
-                                                    const SizedBox(
-                                                        height: 16.0),
-                                                    const CircularProgressIndicator(),
-                                                  ],
-                                                ),
+                                // If file large -> over 1MB
+                                if (file.lengthInBytes > kMaxImageByteSize) {
+                                  showDialog(
+                                    context: context,
+                                    builder: (ctx) => AlertDialog(
+                                      content: SizedBox(
+                                        height: 250.0,
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            const Text(
+                                              "Loading large file... may take a while",
+                                              style: TextStyle(
+                                                fontSize: 12,
                                               ),
-                                            ));
-                                    await Future.delayed(
-                                        const Duration(milliseconds: 300));
+                                            ),
+                                            const SizedBox(
+                                              height: 16.0,
+                                            ),
+                                            const CircularProgressIndicator(),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                  await Future.delayed(
+                                    const Duration(milliseconds: 300),
+                                  );
 
-                                    final input = ImageFile(
-                                      rawBytes: file,
-                                      filePath: pickedFile.path,
-                                    );
-                                    final compImg = await compressInQueue(
-                                        ImageFileConfiguration(
+                                  final input = ImageFile(
+                                    rawBytes: file,
+                                    filePath: pickedFile.path,
+                                  );
+                                  final compImg = await compressInQueue(
+                                    ImageFileConfiguration(
                                       input: input,
                                       config:
                                           const Configuration(jpgQuality: 30),
-                                    ));
-                                    file = compImg.rawBytes;
+                                    ),
+                                  );
+                                  file = compImg.rawBytes;
 
-                                    Navigator.of(context).pop();
-                                  }
+                                  if (!mounted) return;
+                                  Navigator.of(context).pop();
+                                }
 //                                   print(
 //                                       "${pickedFile.path} : ${file.lengthInBytes / 1000000}");
-                                  if (file.lengthInBytes > kMaxImageByteSize) {
-                                    InfoSnackBar.show(
-                                        context, "Image too large",
-                                        color: SnackBarColor.error);
-                                    showDialog(
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        return const AlertDialog(
-                                          backgroundColor: kColorError,
-                                          title: Center(
-                                              child: Text("Image too large")),
-                                          content: Text(
-                                              "Max image upload size is ${kMaxImageByteSize / 1000000}MB"),
-                                          actions: [],
-                                          elevation: 4,
-                                        );
-                                      },
-                                    );
-                                    return;
-                                  }
-
-                                  _tempSpecial!.image = file;
-                                  setState(() {});
-                                } else {
-                                  print('No image selected.');
+                                if (file.lengthInBytes > kMaxImageByteSize) {
+                                  InfoSnackBar.show(
+                                    context,
+                                    "Image too large",
+                                    color: SnackBarColor.error,
+                                  );
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return const AlertDialog(
+                                        backgroundColor: kColorError,
+                                        title: Center(
+                                          child: Text("Image too large"),
+                                        ),
+                                        content: Text(
+                                          "Max image upload size is ${kMaxImageByteSize / 1000000}MB",
+                                        ),
+                                        actions: [],
+                                        elevation: 4,
+                                      );
+                                    },
+                                  );
+                                  return;
                                 }
-                              },
-                              icon: const Icon(
-                                Icons.image_outlined,
-                                color: Colors.white,
-                              ),
-                              label: _tempSpecial!.image == null &&
-                                      _tempSpecial!.imageUrl == ""
-                                  ? const Text("Add Image",
-                                      style: TextStyle(color: Colors.white))
-                                  : const Text("Update Image",
-                                      style: TextStyle(color: Colors.white))
-                              // ? const Text("Add Image (max ${kMaxImageByteSize/1000000}MB)", style: TextStyle(color: Colors.white))
-                              // : const Text("Update Image (max ${kMaxImageByteSize/1000000}MB)", style: TextStyle(color: Colors.white))
-                              ),
+
+                                _tempSpecial!.image = file;
+                                setState(() {});
+                              } else {
+                                print('No image selected.');
+                              }
+                            },
+                            icon: const Icon(
+                              Icons.image_outlined,
+                              color: Colors.white,
+                            ),
+                            label: _tempSpecial!.image == null &&
+                                    _tempSpecial!.imageUrl == ""
+                                ? const Text(
+                                    "Add Image",
+                                    style: TextStyle(color: Colors.white),
+                                  )
+                                : const Text(
+                                    "Update Image",
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                            // ? const Text("Add Image (max ${kMaxImageByteSize/1000000}MB)", style: TextStyle(color: Colors.white))
+                            // : const Text("Update Image (max ${kMaxImageByteSize/1000000}MB)", style: TextStyle(color: Colors.white))
+                          ),
                           if (_tempSpecial!.image != null ||
                               _tempSpecial!.imageUrl.isNotEmpty)
                             TextButton.icon(
@@ -1539,31 +1650,34 @@ class _HomePageState extends State<HomePage> {
                                 }
 
                                 showDialog(
-                                    context: context,
-                                    builder: (ctx) => AlertDialog(
-                                          content: SizedBox(
-                                            height: 250.0,
-                                            child: Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                const Text(
-                                                    "Preparing... may take a while",
-                                                    style: TextStyle(
-                                                        fontSize: 12)),
-                                                const SizedBox(height: 16.0),
-                                                const CircularProgressIndicator(),
-                                              ],
+                                  context: context,
+                                  builder: (ctx) => AlertDialog(
+                                    content: SizedBox(
+                                      height: 250.0,
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          const Text(
+                                            "Preparing... may take a while",
+                                            style: TextStyle(
+                                              fontSize: 12,
                                             ),
                                           ),
-                                        ));
+                                          const SizedBox(height: 16.0),
+                                          const CircularProgressIndicator(),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                );
                                 await Future.delayed(
-                                    const Duration(milliseconds: 300));
+                                  const Duration(milliseconds: 300),
+                                );
                                 final img = await showDialog(
-                                        context: context,
-                                        builder: (ctx) =>
-                                            ImageCropper(image: image))
-                                    as Uint8List?;
+                                  context: context,
+                                  builder: (ctx) => ImageCropper(image: image),
+                                ) as Uint8List?;
                                 if (img != null) _tempSpecial!.image = img;
                                 Navigator.of(context).pop();
                                 setState(() {});
@@ -1572,8 +1686,10 @@ class _HomePageState extends State<HomePage> {
                                 Icons.crop,
                                 color: Colors.white,
                               ),
-                              label: const Text("Crop Image",
-                                  style: TextStyle(color: Colors.white)),
+                              label: const Text(
+                                "Crop Image",
+                                style: TextStyle(color: Colors.white),
+                              ),
                             ),
                         ],
                       ),
@@ -1585,8 +1701,10 @@ class _HomePageState extends State<HomePage> {
                       splashColor: Colors.transparent,
                       hoverColor: Colors.transparent,
                       onTap: () => _descriptionFocusNode.requestFocus(),
-                      child: Text("Description & Terms",
-                          style: _formHeadingTextStyle),
+                      child: Text(
+                        "Description & Terms",
+                        style: _formHeadingTextStyle,
+                      ),
                     ),
                     const SizedBox(height: 8.0),
                     Stack(
@@ -1607,9 +1725,10 @@ class _HomePageState extends State<HomePage> {
                             setState(() {});
                           },
                           decoration: const InputDecoration(
-                              border: OutlineInputBorder(),
-                              helperMaxLines: 4,
-                              hintMaxLines: 4),
+                            border: OutlineInputBorder(),
+                            helperMaxLines: 4,
+                            hintMaxLines: 4,
+                          ),
                           focusNode: _descriptionFocusNode,
                           controller: _descriptionTextEditingController,
                           style: const TextStyle(fontSize: 12.0),
@@ -1626,9 +1745,10 @@ class _HomePageState extends State<HomePage> {
                             child: Text(
                               "Save",
                               style: TextStyle(
-                                  color: _descriptionFocusNode.hasFocus
-                                      ? kColorAccent
-                                      : kColorSecondaryText),
+                                color: _descriptionFocusNode.hasFocus
+                                    ? kColorAccent
+                                    : kColorSecondaryText,
+                              ),
                             ),
                           ),
                         ),
@@ -1646,25 +1766,30 @@ class _HomePageState extends State<HomePage> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text("Valid From",
-                                    style: _formHeadingTextStyle),
+                                Text(
+                                  "Valid From",
+                                  style: _formHeadingTextStyle,
+                                ),
                                 const SizedBox(height: 4.0),
                                 InkWell(
                                   onTap: () async {
                                     final tempTime = TimeOfDay.fromDateTime(
-                                        _tempSpecial!.validFrom);
+                                      _tempSpecial!.validFrom,
+                                    );
                                     final picked = await selectDate(
-                                        _tempSpecial!.validFrom);
+                                      _tempSpecial!.validFrom,
+                                    );
 
                                     if (picked != null &&
                                         picked != _tempSpecial!.validFrom) {
                                       setState(() {
                                         _tempSpecial!.validFrom = DateTime(
-                                            picked.year,
-                                            picked.month,
-                                            picked.day,
-                                            tempTime.hour,
-                                            tempTime.minute);
+                                          picked.year,
+                                          picked.month,
+                                          picked.day,
+                                          tempTime.hour,
+                                          tempTime.minute,
+                                        );
                                         // _gift.validUntil = DateTime(_gift.validFrom.year, _gift.validFrom.month + _giftCard.validDurationMonth, _gift.validFrom.day, _gift.validFrom.hour, _gift.validFrom.minute);
                                         //print("valid from: ${_gift.validFrom} -- until ${_gift.validUntil}");
                                       });
@@ -1680,55 +1805,62 @@ class _HomePageState extends State<HomePage> {
                                     DateFormat.yMMMd()
                                         .format(_tempSpecial!.validFrom),
                                     style: TextStyle(
-                                        color: _tempSpecial!.status ==
-                                                    SpecialStatus.pending &&
-                                                _tempSpecial!.validFrom
-                                                    .isBefore(DateTime.now())
-                                            ? kColorError
-                                            : Colors.white),
+                                      color: _tempSpecial!.status ==
+                                                  SpecialStatus.pending &&
+                                              _tempSpecial!.validFrom
+                                                  .isBefore(DateTime.now())
+                                          ? kColorError
+                                          : Colors.white,
+                                    ),
                                   ),
                                 ),
                                 const SizedBox(height: 4.0),
                                 InkWell(
-                                    onTap: () async {
-                                      final tempDate = _tempSpecial!.validFrom;
-                                      final picked = await selectTime(
-                                          TimeOfDay.fromDateTime(
-                                              _tempSpecial!.validFrom));
+                                  onTap: () async {
+                                    final tempDate = _tempSpecial!.validFrom;
+                                    final picked = await selectTime(
+                                      TimeOfDay.fromDateTime(
+                                        _tempSpecial!.validFrom,
+                                      ),
+                                    );
 
-                                      if (picked != null &&
-                                          picked !=
-                                              TimeOfDay.fromDateTime(
-                                                  _tempSpecial!.validFrom)) {
-                                        setState(() {
-                                          _tempSpecial!.validFrom = DateTime(
-                                              tempDate.year,
-                                              tempDate.month,
-                                              tempDate.day,
-                                              picked.hour,
-                                              picked.minute);
-                                          // _gift.validUntil = DateTime(_gift.validFrom.year, _gift.validFrom.month + _giftCard.validDurationMonth, _gift.validFrom.day, _gift.validFrom.hour, _gift.validFrom.minute);
-                                          //print("valid from: ${_gift.validFrom} -- until ${_gift.validUntil}");
-                                        });
-                                      }
+                                    if (picked != null &&
+                                        picked !=
+                                            TimeOfDay.fromDateTime(
+                                              _tempSpecial!.validFrom,
+                                            )) {
+                                      setState(() {
+                                        _tempSpecial!.validFrom = DateTime(
+                                          tempDate.year,
+                                          tempDate.month,
+                                          tempDate.day,
+                                          picked.hour,
+                                          picked.minute,
+                                        );
+                                        // _gift.validUntil = DateTime(_gift.validFrom.year, _gift.validFrom.month + _giftCard.validDurationMonth, _gift.validFrom.day, _gift.validFrom.hour, _gift.validFrom.minute);
+                                        //print("valid from: ${_gift.validFrom} -- until ${_gift.validUntil}");
+                                      });
+                                    }
 
-                                      if (_tempSpecial!.validUntil
-                                          .isBefore(_tempSpecial!.validFrom)) {
-                                        _tempSpecial!.validUntil =
-                                            _tempSpecial!.validFrom;
-                                      }
-                                    },
-                                    child: Text(
-                                      DateFormat.Hm()
-                                          .format(_tempSpecial!.validFrom),
-                                      style: TextStyle(
-                                          color: _tempSpecial!.status ==
-                                                      SpecialStatus.pending &&
-                                                  _tempSpecial!.validFrom
-                                                      .isBefore(DateTime.now())
-                                              ? kColorError
-                                              : Colors.white),
-                                    )),
+                                    if (_tempSpecial!.validUntil
+                                        .isBefore(_tempSpecial!.validFrom)) {
+                                      _tempSpecial!.validUntil =
+                                          _tempSpecial!.validFrom;
+                                    }
+                                  },
+                                  child: Text(
+                                    DateFormat.Hm()
+                                        .format(_tempSpecial!.validFrom),
+                                    style: TextStyle(
+                                      color: _tempSpecial!.status ==
+                                                  SpecialStatus.pending &&
+                                              _tempSpecial!.validFrom
+                                                  .isBefore(DateTime.now())
+                                          ? kColorError
+                                          : Colors.white,
+                                    ),
+                                  ),
+                                ),
                                 // if (_gift.validFrom.difference(DateTime(_now.year, _now.month, _now.day)).inDays >= 1) Text(DateFormat.yMMMd().format(_gift.validFrom))
                                 // else const Text("Immediately"),
                               ],
@@ -1741,8 +1873,10 @@ class _HomePageState extends State<HomePage> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                Text("Valid Until",
-                                    style: _formHeadingTextStyle),
+                                Text(
+                                  "Valid Until",
+                                  style: _formHeadingTextStyle,
+                                ),
                                 const SizedBox(height: 4.0),
                                 InkWell(
                                   onTap: () async {
@@ -1756,19 +1890,22 @@ class _HomePageState extends State<HomePage> {
                                     //   );}
 
                                     final tempTime = TimeOfDay.fromDateTime(
-                                        _tempSpecial!.validUntil);
+                                      _tempSpecial!.validUntil,
+                                    );
                                     final picked = await selectDate(
-                                        _tempSpecial!.validUntil);
+                                      _tempSpecial!.validUntil,
+                                    );
 
                                     if (picked != null &&
                                         picked != _tempSpecial!.validUntil) {
                                       setState(() {
                                         _tempSpecial!.validUntil = DateTime(
-                                            picked.year,
-                                            picked.month,
-                                            picked.day,
-                                            tempTime.hour,
-                                            tempTime.minute);
+                                          picked.year,
+                                          picked.month,
+                                          picked.day,
+                                          tempTime.hour,
+                                          tempTime.minute,
+                                        );
                                         // _gift.validUntil = DateTime(_gift.validFrom.year, _gift.validFrom.month + _giftCard.validDurationMonth, _gift.validFrom.day, _gift.validFrom.hour, _gift.validFrom.minute);
                                         //print("valid from: ${_gift.validFrom} -- until ${_gift.validUntil}");
                                       });
@@ -1784,15 +1921,17 @@ class _HomePageState extends State<HomePage> {
                                     DateFormat.yMMMd()
                                         .format(_tempSpecial!.validUntil),
                                     style: TextStyle(
-                                        color: _tempSpecial!.status ==
-                                                    SpecialStatus.pending &&
-                                                (_tempSpecial!.validUntil
-                                                        .isBefore(
-                                                            DateTime.now()) ||
-                                                    _tempSpecial!.validUntil ==
-                                                        _tempSpecial!.validFrom)
-                                            ? kColorError
-                                            : Colors.white),
+                                      color: _tempSpecial!.status ==
+                                                  SpecialStatus.pending &&
+                                              (_tempSpecial!.validUntil
+                                                      .isBefore(
+                                                    DateTime.now(),
+                                                  ) ||
+                                                  _tempSpecial!.validUntil ==
+                                                      _tempSpecial!.validFrom)
+                                          ? kColorError
+                                          : Colors.white,
+                                    ),
                                   ),
                                 ),
                                 const SizedBox(height: 4.0),
@@ -1809,20 +1948,24 @@ class _HomePageState extends State<HomePage> {
 
                                     final tempDate = _tempSpecial!.validUntil;
                                     final picked = await selectTime(
-                                        TimeOfDay.fromDateTime(
-                                            _tempSpecial!.validUntil));
+                                      TimeOfDay.fromDateTime(
+                                        _tempSpecial!.validUntil,
+                                      ),
+                                    );
 
                                     if (picked != null &&
                                         picked !=
                                             TimeOfDay.fromDateTime(
-                                                _tempSpecial!.validUntil)) {
+                                              _tempSpecial!.validUntil,
+                                            )) {
                                       setState(() {
                                         _tempSpecial!.validUntil = DateTime(
-                                            tempDate.year,
-                                            tempDate.month,
-                                            tempDate.day,
-                                            picked.hour,
-                                            picked.minute);
+                                          tempDate.year,
+                                          tempDate.month,
+                                          tempDate.day,
+                                          picked.hour,
+                                          picked.minute,
+                                        );
                                         // _gift.validUntil = DateTime(_gift.validFrom.year, _gift.validFrom.month + _giftCard.validDurationMonth, _gift.validFrom.day, _gift.validFrom.hour, _gift.validFrom.minute);
                                         //print("valid from: ${_gift.validFrom} -- until ${_gift.validUntil}");
                                       });
@@ -1838,15 +1981,17 @@ class _HomePageState extends State<HomePage> {
                                     DateFormat.Hm()
                                         .format(_tempSpecial!.validUntil),
                                     style: TextStyle(
-                                        color: _tempSpecial!.status ==
-                                                    SpecialStatus.pending &&
-                                                (_tempSpecial!.validUntil
-                                                        .isBefore(
-                                                            DateTime.now()) ||
-                                                    _tempSpecial!.validUntil ==
-                                                        _tempSpecial!.validFrom)
-                                            ? kColorError
-                                            : Colors.white),
+                                      color: _tempSpecial!.status ==
+                                                  SpecialStatus.pending &&
+                                              (_tempSpecial!.validUntil
+                                                      .isBefore(
+                                                    DateTime.now(),
+                                                  ) ||
+                                                  _tempSpecial!.validUntil ==
+                                                      _tempSpecial!.validFrom)
+                                          ? kColorError
+                                          : Colors.white,
+                                    ),
                                   ),
                                 ),
                                 // if (_gift.validFrom.difference(DateTime(_now.year, _now.month, _now.day)).inDays >= 1) Text(DateFormat.yMMMd().format(_gift.validFrom))
@@ -1874,15 +2019,16 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                         Expanded(
-                            child: _selectedSpecial!.isUpdated(_tempSpecial!) &&
-                                    _tempSpecial!.status ==
-                                        SpecialStatus.pending
-                                ? Align(
-                                    alignment: Alignment.centerRight,
-                                    child: _tempSpecial!.uuid == ""
-                                        ? _createSpecialButton()
-                                        : _updateSpecialButton())
-                                : const SizedBox()),
+                          child: _selectedSpecial!.isUpdated(_tempSpecial!) &&
+                                  _tempSpecial!.status == SpecialStatus.pending
+                              ? Align(
+                                  alignment: Alignment.centerRight,
+                                  child: _tempSpecial!.uuid == ""
+                                      ? _createSpecialButton()
+                                      : _updateSpecialButton(),
+                                )
+                              : const SizedBox(),
+                        ),
                       ],
                     )
                   ],
@@ -1891,7 +2037,9 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           Align(
-              alignment: Alignment.centerRight, child: _deleteSpecialButton()),
+            alignment: Alignment.centerRight,
+            child: _deleteSpecialButton(),
+          ),
         ],
       ),
     );
@@ -1900,28 +2048,35 @@ class _HomePageState extends State<HomePage> {
   Future<DateTime?> selectDate(DateTime initDateTime) async {
     final now = DateTime.now();
     final DateTime? picked = await showDatePicker(
-        context: context,
-        initialDate: initDateTime.isBefore(now) ? now : initDateTime,
-        firstDate: now,
-        lastDate: DateTime(
-            initDateTime.year, initDateTime.month + 3, initDateTime.day));
+      context: context,
+      initialDate: initDateTime.isBefore(now) ? now : initDateTime,
+      firstDate: now,
+      lastDate: DateTime(
+        initDateTime.year,
+        initDateTime.month + 3,
+        initDateTime.day,
+      ),
+    );
 
     return picked;
   }
 
   Future<TimeOfDay?> selectTime(TimeOfDay initTime) async {
     final TimeOfDay? picked = await showTimePicker(
-        context: context,
-        initialTime: initTime,
-        // initialEntryMode: TimePickerEntryMode.input,
-        builder: (context, childWidget) {
-          return MediaQuery(
-              data: MediaQuery.of(context).copyWith(
-                  // Using 24-Hour format
-                  alwaysUse24HourFormat: true),
-              // If you want 12-Hour format, just change alwaysUse24HourFormat to false or remove all the builder argument
-              child: childWidget!);
-        });
+      context: context,
+      initialTime: initTime,
+      // initialEntryMode: TimePickerEntryMode.input,
+      builder: (context, childWidget) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(
+            // Using 24-Hour format
+            alwaysUse24HourFormat: true,
+          ),
+          // If you want 12-Hour format, just change alwaysUse24HourFormat to false or remove all the builder argument
+          child: childWidget!,
+        );
+      },
+    );
 
     return picked;
   }
@@ -1932,21 +2087,25 @@ class _HomePageState extends State<HomePage> {
   }
 
   final _specialsStatusActivateButtonStyle = ElevatedButton.styleFrom(
-      primary: kColorActive,
-      // side: BorderSide(color: color),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)));
+    primary: kColorActive,
+    // side: BorderSide(color: color),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+  );
   final _specialsStatusActivateErrorButtonStyle = ElevatedButton.styleFrom(
-      primary: kColorUpdateInactive,
-      // side: BorderSide(color: color),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)));
+    primary: kColorUpdateInactive,
+    // side: BorderSide(color: color),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+  );
   final _specialsStatusDeactivateButtonStyle = TextButton.styleFrom(
-      primary: kColorInactive,
-      side: const BorderSide(color: kColorInactive),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)));
+    primary: kColorInactive,
+    side: const BorderSide(color: kColorInactive),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+  );
   final _specialsStatusUpdateButtonStyle = ElevatedButton.styleFrom(
-      primary: kColorUpdate,
-      // side: BorderSide(color: color),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)));
+    primary: kColorUpdate,
+    // side: BorderSide(color: color),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+  );
   // final _specialsStatusUpdateInactiveButtonStyle = ElevatedButton.styleFrom(
   //     primary: kColorUpdateInactive,
   //     // side: BorderSide(color: color),
@@ -1959,16 +2118,18 @@ class _HomePageState extends State<HomePage> {
     // Check if inactive on save
     if (_specialsViewModel.state == SpecialViewState.updatingStatus) {
       buttonContent = const SizedBox(
-          height: 30.0,
-          width: 30.0,
-          child: Center(child: CircularProgressIndicator()));
+        height: 30.0,
+        width: 30.0,
+        child: Center(child: CircularProgressIndicator()),
+      );
     } else if (_tempSpecial!.status == SpecialStatus.inactive ||
         _tempSpecial!.status == SpecialStatus.pending) {
       _tempSpecial!.activatedAt = DateTime.now();
 
       final canActivate = !(_selectedSpecial!.isUpdated(_tempSpecial!) ||
           !_tempSpecial!.validUntil.isAfter(
-              _tempSpecial!.validFrom.add(const Duration(minutes: 14))) ||
+            _tempSpecial!.validFrom.add(const Duration(minutes: 14)),
+          ) ||
           _tempSpecial!.activatedAt!.isAfter(_tempSpecial!.validFrom) ||
           (_tempSpecial!.activatedAt!.isAfter(_tempSpecial!.validUntil)));
 
@@ -1978,30 +2139,39 @@ class _HomePageState extends State<HomePage> {
           onPressed: () async {
             if (_selectedSpecial!.isUpdated(_tempSpecial!)) {
               InfoSnackBar.show(
-                  context, "Please save special before activating",
-                  color: SnackBarColor.error);
+                context,
+                "Please save special before activating",
+                color: SnackBarColor.error,
+              );
               _tempSpecial!.activatedAt = null;
               return;
             }
             if (_tempSpecial!.activatedAt!.isAfter(_tempSpecial!.validFrom)) {
               InfoSnackBar.show(
-                  context, "Valid from needs to be after current date & time",
-                  color: SnackBarColor.error);
+                context,
+                "Valid from needs to be after current date & time",
+                color: SnackBarColor.error,
+              );
               _tempSpecial!.activatedAt = null;
               return;
             }
             if (_tempSpecial!.activatedAt!.isAfter(_tempSpecial!.validUntil)) {
               InfoSnackBar.show(
-                  context, "Valid until cant be before current date & time",
-                  color: SnackBarColor.error);
+                context,
+                "Valid until cant be before current date & time",
+                color: SnackBarColor.error,
+              );
               _tempSpecial!.activatedAt = null;
               return;
             }
             if (!_tempSpecial!.validUntil.isAfter(
-                _tempSpecial!.validFrom.add(const Duration(minutes: 14)))) {
-              InfoSnackBar.show(context,
-                  "Please set time Until to be at least 15min after valid from time",
-                  color: SnackBarColor.error);
+              _tempSpecial!.validFrom.add(const Duration(minutes: 14)),
+            )) {
+              InfoSnackBar.show(
+                context,
+                "Please set time Until to be at least 15min after valid from time",
+                color: SnackBarColor.error,
+              );
               return;
             }
 
@@ -2068,9 +2238,10 @@ class _HomePageState extends State<HomePage> {
     Widget buttonContent;
     if (_specialsViewModel.state == SpecialViewState.uploading) {
       buttonContent = const SizedBox(
-          height: 30.0,
-          width: 30.0,
-          child: Center(child: CircularProgressIndicator()));
+        height: 30.0,
+        width: 30.0,
+        child: Center(child: CircularProgressIndicator()),
+      );
       // } else if (_tempSpecial!.validFrom.isBefore(DateTime.now())) {       // TODO REMOVE AND AUTO CHANGE TIME TO NOW ON CREATE
       //   buttonContent =  ElevatedButton.icon(
       //     onPressed: () async {
@@ -2099,8 +2270,10 @@ class _HomePageState extends State<HomePage> {
 
           if (_tempSpecial!.imageUrl == "" && _tempSpecial!.image == null) {
             InfoSnackBar.show(
-                context, "Please add an image for current special",
-                color: SnackBarColor.error);
+              context,
+              "Please add an image for current special",
+              color: SnackBarColor.error,
+            );
             return;
           }
 
@@ -2135,13 +2308,15 @@ class _HomePageState extends State<HomePage> {
     Widget buttonContent;
     if (_specialsViewModel.state == SpecialViewState.create) {
       buttonContent = const SizedBox(
-          height: 30.0,
-          width: 30.0,
-          child: Center(
-              child: CircularProgressIndicator(
+        height: 30.0,
+        width: 30.0,
+        child: Center(
+          child: CircularProgressIndicator(
             valueColor: AlwaysStoppedAnimation<Color>(kColorUpdate),
             strokeWidth: 2,
-          )));
+          ),
+        ),
+      );
     } else {
       buttonContent = ElevatedButton.icon(
         onPressed: () async {
@@ -2149,8 +2324,10 @@ class _HomePageState extends State<HomePage> {
               _tempSpecial!.imageUrl.isEmpty &&
               !_tempSpecial!.copied) {
             InfoSnackBar.show(
-                context, "Please add an image for current special",
-                color: SnackBarColor.error);
+              context,
+              "Please add an image for current special",
+              color: SnackBarColor.error,
+            );
             return;
           }
           if (_formKey.currentState != null &&
@@ -2188,13 +2365,15 @@ class _HomePageState extends State<HomePage> {
     Widget buttonContent;
     if (_specialsViewModel.state == SpecialViewState.deleting) {
       buttonContent = const SizedBox(
-          height: 30.0,
-          width: 30.0,
-          child: Center(
-              child: CircularProgressIndicator(
+        height: 30.0,
+        width: 30.0,
+        child: Center(
+          child: CircularProgressIndicator(
             valueColor: AlwaysStoppedAnimation<Color>(kColorInactive),
             strokeWidth: 2,
-          )));
+          ),
+        ),
+      );
     } else {
       buttonContent = TextButton.icon(
         onPressed: () async {
@@ -2278,9 +2457,10 @@ class _BroadcastMessageDialogState extends State<BroadcastMessageDialog> {
           child: Text(
             "Send",
             style: TextStyle(
-                color: _messageTextController.text.trim().isNotEmpty
-                    ? kColorAccent
-                    : kColorSecondaryText),
+              color: _messageTextController.text.trim().isNotEmpty
+                  ? kColorAccent
+                  : kColorSecondaryText,
+            ),
           ),
         ),
       ],

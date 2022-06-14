@@ -1,31 +1,31 @@
+import 'package:findgo_admin/core/constants.dart';
+import 'package:findgo_admin/data_models/special.dart';
+import 'package:findgo_admin/main.dart';
+import 'package:findgo_admin/view_models/specials_vm.dart';
+import 'package:findgo_admin/widgets/special_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vrouter/vrouter.dart';
 
-import '../core/constants.dart';
-import '../data_models/special.dart';
-import '../main.dart';
-import '../view_models/specials_vm.dart';
-import '../widgets/special_card.dart';
-
-class DownloadPage extends StatefulWidget {
+class DownloadPage extends ConsumerStatefulWidget {
   @override
   _DownloadPageState createState() => _DownloadPageState();
 }
 
-class _DownloadPageState extends State<DownloadPage> {
+class _DownloadPageState extends ConsumerState<DownloadPage> {
   late SpecialsViewModel _specialsViewModel;
   Special? _special;
   // double _screenWidth = 0.0;
   @override
   void initState() {
-    _specialsViewModel = context.read(specialsVMProvider);
+    _specialsViewModel = ref.read(specialsVMProvider);
 
-    WidgetsBinding.instance!.addPostFrameCallback((_) async {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       final uuid = context.vRouter.queryParameters["uid"];
       // print("SPECIAL UUID: $uuid");
-      if (uuid != null)
+      if (uuid != null) {
         _special = await _specialsViewModel.getSpecialByUuid(uuid);
+      }
       // print(_special);
     });
 
@@ -34,19 +34,21 @@ class _DownloadPageState extends State<DownloadPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer(builder: (context, watch, child) {
-      final specialVM = watch(specialsVMProvider);
-      specialVM.context = context;
-      // _screenWidth = MediaQuery.of(context).size.width;
+    return Consumer(
+      builder: (context, ref, _) {
+        final specialVM = ref.watch(specialsVMProvider);
+        specialVM.context = context;
+        // _screenWidth = MediaQuery.of(context).size.width;
 
-      return Scaffold(
-        backgroundColor: kColorBackground,
-        body: Scrollbar(
-          isAlwaysShown: true,
-          child: SingleChildScrollView(child: _downloadSection()),
-        ),
-      );
-    });
+        return Scaffold(
+          backgroundColor: kColorBackground,
+          body: Scrollbar(
+            thumbVisibility: true,
+            child: SingleChildScrollView(child: _downloadSection()),
+          ),
+        );
+      },
+    );
   }
 
   final _kButtonHeight = 40.0;
@@ -86,8 +88,9 @@ class _DownloadPageState extends State<DownloadPage> {
                 // width: _kButtonWidth,
                 child: InkWell(
                   onTap: () => context.vRouter.toExternal(
-                      "https://apps.apple.com/us/app/findgo/id1574321570",
-                      openNewTab: true),
+                    "https://apps.apple.com/us/app/findgo/id1574321570",
+                    openNewTab: true,
+                  ),
                   child: Image.asset("images/apple_store.png"),
                 ),
               ),
@@ -99,8 +102,9 @@ class _DownloadPageState extends State<DownloadPage> {
                 // width: _kButtonWidth,
                 child: InkWell(
                   onTap: () => context.vRouter.toExternal(
-                      "https://play.google.com/store/apps/details?id=app.specials.findgo",
-                      openNewTab: true),
+                    "https://play.google.com/store/apps/details?id=app.specials.findgo",
+                    openNewTab: true,
+                  ),
                   child: Image.asset("images/google_store.png"),
                 ),
               ),
@@ -112,8 +116,9 @@ class _DownloadPageState extends State<DownloadPage> {
                 // width: _kButtonWidth,
                 child: InkWell(
                   onTap: () => context.vRouter.toExternal(
-                      "https://appgallery.huawei.com/#/app/C104564149",
-                      openNewTab: true),
+                    "https://appgallery.huawei.com/#/app/C104564149",
+                    openNewTab: true,
+                  ),
                   child: Image.asset("images/huawei_store.png"),
                 ),
               ),
@@ -127,4 +132,3 @@ class _DownloadPageState extends State<DownloadPage> {
     );
   }
 }
-

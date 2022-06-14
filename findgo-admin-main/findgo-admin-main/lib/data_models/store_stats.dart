@@ -1,15 +1,4 @@
 class StoreStats {
-  StoreStats.init({
-    required this.storeUuid,
-    this.followers = 0,
-    this.impressions = 0,
-    this.clicks = 0,
-    this.phoneClicks = 0,
-    this.savedClicks = 0,
-    this.sharedClicks = 0,
-    this.websiteClicks = 0,
-  });
-
   StoreStats({
     required this.storeUuid,
     required this.followers,
@@ -19,6 +8,16 @@ class StoreStats {
     required this.savedClicks,
     required this.sharedClicks,
     required this.websiteClicks,
+  });
+  StoreStats.init({
+    required this.storeUuid,
+    this.followers = 0,
+    this.impressions = 0,
+    this.clicks = 0,
+    this.phoneClicks = 0,
+    this.savedClicks = 0,
+    this.sharedClicks = 0,
+    this.websiteClicks = 0,
   });
 
   final String storeUuid;
@@ -39,7 +38,6 @@ class StoreStats {
     int? savedClicks,
     int? sharedClicks,
     int? websiteClicks,
-
   }) =>
       StoreStats(
         storeUuid: storeUuid ?? this.storeUuid,
@@ -53,24 +51,25 @@ class StoreStats {
       );
 
   factory StoreStats.fromJson(Map<String, dynamic> json) => StoreStats(
-    storeUuid: json["storeUuid"] as String,
-    followers: int.tryParse(json["followers"] as String) ?? -1,
-    impressions: int.tryParse(json["impressions"] as String) ?? -1,
-    clicks: int.tryParse(json["clicks"] as String) ?? -1,
-    phoneClicks: int.tryParse(json["phoneClicks"] as String) ?? -1,
-    savedClicks: int.tryParse(json["savedClicks"] as String) ?? -1,
-    sharedClicks: int.tryParse(json["sharedClicks"] as String) ?? -1,
-    websiteClicks: int.tryParse(json["websiteClicks"] as String) ?? -1,
-  );
+        storeUuid: json["storeUuid"] as String,
+        followers: int.tryParse(json["followers"] as String) ?? -1,
+        impressions: int.tryParse(json["impressions"] as String) ?? -1,
+        clicks: int.tryParse(json["clicks"] as String) ?? -1,
+        phoneClicks: int.tryParse(json["phoneClicks"] as String) ?? -1,
+        savedClicks: int.tryParse(json["savedClicks"] as String) ?? -1,
+        sharedClicks: int.tryParse(json["sharedClicks"] as String) ?? -1,
+        websiteClicks: int.tryParse(json["websiteClicks"] as String) ?? -1,
+      );
 
   Map<String, dynamic> toJson() => {
-    "storeUuid": storeUuid,
-    "followers": followers,
-    "impressions": impressions,
-    "clicks": clicks,
-    "phoneClicks": phoneClicks,
-    "savedClicks": savedClicks,
-    "sharedClicks": sharedClicks,
-    "websiteClicks": websiteClicks,
-  };
+        "storeUuid": storeUuid,
+        "followers": followers,
+        "impressions": impressions,
+        "clicks": clicks,
+        "phoneClicks": phoneClicks,
+        "savedClicks": savedClicks,
+        "sharedClicks": sharedClicks,
+        "websiteClicks": websiteClicks,
+      };
 }
+

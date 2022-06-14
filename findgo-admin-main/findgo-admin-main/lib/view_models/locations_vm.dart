@@ -1,11 +1,10 @@
 import 'dart:developer';
 
+import 'package:findgo_admin/core/failure.dart';
+import 'package:findgo_admin/data_models/location.dart';
+import 'package:findgo_admin/repositories/specials_repo.dart';
+import 'package:findgo_admin/widgets/snackbar.dart';
 import 'package:flutter/material.dart';
-
-import '../core/failure.dart';
-import '../data_models/location.dart';
-import '../repositories/specials_repo.dart';
-import '../widgets/snackbar.dart';
 
 enum LocationsViewState {
   idle,
@@ -56,8 +55,10 @@ class LocationsViewModel extends ChangeNotifier {
     setState(LocationsViewState.uploading);
     int newLocationId = 0;
 
-    final failureOrLocationId = await specialsRepository.createLocation(location);
-    failureOrLocationId.fold((failure) => _handleFailure(failure), (newLocation) {
+    final failureOrLocationId =
+        await specialsRepository.createLocation(location);
+    failureOrLocationId.fold((failure) => _handleFailure(failure),
+        (newLocation) {
       _locationsList.add(newLocation as Location);
       _locationsList.sort(_nameComparator);
       newLocationId = newLocation.id;
@@ -72,7 +73,8 @@ class LocationsViewModel extends ChangeNotifier {
     setState(LocationsViewState.busy);
 
     final failureOrLocationsList = await specialsRepository.getAllLocations();
-    failureOrLocationsList.fold((failure) => _handleFailure(failure), (locationList) {
+    failureOrLocationsList.fold((failure) => _handleFailure(failure),
+        (locationList) {
       // ignore: prefer_function_declarations_over_variables
       final Comparator<Location> nameComparator =
           (a, b) => a.name.compareTo(b.name);
@@ -93,7 +95,8 @@ class LocationsViewModel extends ChangeNotifier {
     bool updateSuccess = false;
 
     final failureOrSuccess = await specialsRepository.updateLocation(location);
-    failureOrSuccess.fold((failure) => _handleFailure(failure), (updatedLocation) {
+    failureOrSuccess.fold((failure) => _handleFailure(failure),
+        (updatedLocation) {
       _locationsList[(_locationsList
               .indexWhere((tempLocation) => tempLocation.id == location.id))] =
           updatedLocation as Location;

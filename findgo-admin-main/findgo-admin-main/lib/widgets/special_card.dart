@@ -1,7 +1,7 @@
+import 'package:findgo_admin/core/constants.dart';
+import 'package:findgo_admin/data_models/special.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../core/constants.dart';
-import '../data_models/special.dart';
 
 class SpecialCard extends StatelessWidget {
   final Special special;
@@ -22,21 +22,37 @@ class SpecialCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    const SizedBox(width: 16.0,),
+                    const SizedBox(
+                      width: 16.0,
+                    ),
                     CircleAvatar(
                       backgroundColor: Colors.transparent,
                       // backgroundImage: NetworkImage(special.storeImageUrl)),
                       backgroundImage: NetworkImage(special.storeImageUrl),
                     ),
 
-                    const SizedBox(width: 16.0,),
+                    const SizedBox(
+                      width: 16.0,
+                    ),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(special.storeName, style: const TextStyle(fontWeight: FontWeight.bold), overflow: TextOverflow.ellipsis,),
-                          if (special.storeCategory != "") Text(special.storeCategory, style: const TextStyle(fontSize: 12, fontStyle: FontStyle.italic), overflow: TextOverflow.ellipsis,),
+                          Text(
+                            special.storeName,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          if (special.storeCategory != "")
+                            Text(
+                              special.storeCategory,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontStyle: FontStyle.italic,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
                         ],
                       ),
                     ),
@@ -46,55 +62,82 @@ class SpecialCard extends StatelessWidget {
                     //     onTap: () async => Routes.push(context, SpecialPage(special: special)),
                     //     child: const Icon(Icons.qr_code)
                     // ),
-                    if (special.typeSet.contains(SpecialType.featured)) Container(
-                      color: kColorAccent,
-                      // decoration: BoxDecoration(
-                      //   border: Border.all(color: kColorAccent),
-                      //   borderRadius: BorderRadius.circular(10.0),
-                      // ),
-                      padding: const EdgeInsets.all(6.0),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.star, size: 16,color: Colors.white),
-                          const SizedBox(width: 4.0,),
-                          const Text("Featured", style: TextStyle(color: Colors.white)),
-                        ],
+                    if (special.typeSet.contains(SpecialType.featured))
+                      Container(
+                        color: kColorAccent,
+                        // decoration: BoxDecoration(
+                        //   border: Border.all(color: kColorAccent),
+                        //   borderRadius: BorderRadius.circular(10.0),
+                        // ),
+                        padding: const EdgeInsets.all(6.0),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.star,
+                              size: 16,
+                              color: Colors.white,
+                            ),
+                            const SizedBox(
+                              width: 4.0,
+                            ),
+                            const Text(
+                              "Featured",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ],
+                        ),
+                      )
+                    else if (special.validFrom.isAfter(DateTime.now()))
+                      Container(
+                        color: kColorError,
+                        // decoration: BoxDecoration(
+                        //   border: Border.all(color: kColorAccent),
+                        //   borderRadius: BorderRadius.circular(10.0),
+                        // ),
+                        padding: const EdgeInsets.all(6.0),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.error_outline,
+                              size: 16,
+                              color: Colors.white,
+                            ),
+                            const SizedBox(
+                              width: 4.0,
+                            ),
+                            const Text(
+                              "Coming Soon",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ],
+                        ),
                       ),
-                    ) else if (special.validFrom.isAfter(DateTime.now())) Container(
-                      color: kColorError,
-                      // decoration: BoxDecoration(
-                      //   border: Border.all(color: kColorAccent),
-                      //   borderRadius: BorderRadius.circular(10.0),
-                      // ),
-                      padding: const EdgeInsets.all(6.0),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.error_outline, size: 16,color: Colors.white),
-                          const SizedBox(width: 4.0,),
-                          const Text("Coming Soon", style: TextStyle(color: Colors.white)),
-                        ],
-                      ),
-                    ),
                   ],
                 ),
-                if (special.imageUrl != "" || special.image != null) const SizedBox(height: 16.0),
-                if (special.image != null) SizedBox(
-                  // height: constraints.maxWidth * 0.8,
-                  width: constraints.maxWidth,
-                  child: Image.memory(
-                    special.image!,
-                    fit: BoxFit.fitWidth,
+                if (special.imageUrl != "" || special.image != null)
+                  const SizedBox(height: 16.0),
+                if (special.image != null)
+                  SizedBox(
+                    // height: constraints.maxWidth * 0.8,
+                    width: constraints.maxWidth,
+                    child: Image.memory(
+                      special.image!,
+                      fit: BoxFit.fitWidth,
+                    ),
+                  )
+                else if (special.imageUrl != "")
+                  SizedBox(
+                    // height: constraints.maxWidth * 0.8,
+                    width: constraints.maxWidth,
+                    child: Image.network(
+                      special.imageUrl,
+                      fit: BoxFit.fitWidth,
+                      alignment: Alignment.topCenter,
+                    ),
                   ),
-                ) else if (special.imageUrl != "") SizedBox(
-                  // height: constraints.maxWidth * 0.8,
-                  width: constraints.maxWidth,
-                  child: Image.network(
-                    special.imageUrl,
-                    fit: BoxFit.fitWidth,
-                    alignment: Alignment.topCenter,
-                  ),
+                const SizedBox(
+                  height: 16.0,
                 ),
-                const SizedBox(height: 16.0,),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 12.0),
                   child: Column(
@@ -103,30 +146,55 @@ class SpecialCard extends StatelessWidget {
                       _actionRow(),
                       const SizedBox(height: 8.0),
                       SizedBox(
-                        child: Text(special.name.toUpperCase(),
-                            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)
+                        child: Text(
+                          special.name.toUpperCase(),
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
-                      const SizedBox(height: 16.0,),
+                      const SizedBox(
+                        height: 16.0,
+                      ),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          if (special.price > 0) Text("R ${(special.price / 100).toStringAsFixed(2)}", style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                          if (special.price > 0) const SizedBox(height: 16.0,),
+                          if (special.price > 0)
+                            Text(
+                              "R ${(special.price / 100).toStringAsFixed(2)}",
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          if (special.price > 0)
+                            const SizedBox(
+                              height: 16.0,
+                            ),
                           Text(
-                              DateFormat.E().add_yMMMd().add_jm().format(special.validFrom),
-                              style: const TextStyle(fontSize: 10)
+                            DateFormat.E()
+                                .add_yMMMd()
+                                .add_jm()
+                                .format(special.validFrom),
+                            style: const TextStyle(fontSize: 10),
                           ),
-                          if (special.validUntil.year > 2020) Text(
+                          if (special.validUntil.year > 2020)
+                            Text(
                               "Until  ${DateFormat.E().add_yMMMd().add_jm().format(special.validUntil)}",
-                              style: const TextStyle(fontSize: 10)
-                          ),
+                              style: const TextStyle(fontSize: 10),
+                            ),
                         ],
                       ),
-                      const SizedBox(height: 16.0,),
+                      const SizedBox(
+                        height: 16.0,
+                      ),
                       Align(
-                          alignment: Alignment.topLeft,
-                          child: Text(special.description, style: const TextStyle(fontSize: 12),)
+                        alignment: Alignment.topLeft,
+                        child: Text(
+                          special.description,
+                          style: const TextStyle(fontSize: 12),
+                        ),
                       ),
                       // const SizedBox(height: 32.0,),
                     ],
@@ -141,7 +209,7 @@ class SpecialCard extends StatelessWidget {
               ],
             ),
           );
-        }
+        },
       ),
     );
   }

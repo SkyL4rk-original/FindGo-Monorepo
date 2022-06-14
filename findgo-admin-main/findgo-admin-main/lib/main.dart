@@ -1,20 +1,19 @@
+import 'package:findgo_admin/core/constants.dart';
+import 'package:findgo_admin/service_locator.dart';
+import 'package:findgo_admin/view_models/auth_vm.dart';
+import 'package:findgo_admin/view_models/locations_vm.dart';
+import 'package:findgo_admin/view_models/specials_vm.dart';
+import 'package:findgo_admin/view_models/stores_vm.dart';
+import 'package:findgo_admin/view_models/users_vm.dart';
+import 'package:findgo_admin/view_pages/download_pg.dart';
+import 'package:findgo_admin/view_pages/error_pg.dart';
+import 'package:findgo_admin/view_pages/home_pg.dart';
+import 'package:findgo_admin/view_pages/login_pg.dart';
+import 'package:findgo_admin/view_pages/password_reset_pg.dart';
+import 'package:findgo_admin/view_pages/user_pg.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vrouter/vrouter.dart';
-
-import '../view_pages/download_pg.dart';
-import '../view_pages/user_pg.dart';
-import 'core/constants.dart';
-import 'service_locator.dart';
-import 'view_models/auth_vm.dart';
-import 'view_models/specials_vm.dart';
-import 'view_models/stores_vm.dart';
-import 'view_models/locations_vm.dart';
-import 'view_models/users_vm.dart';
-import 'view_pages/error_pg.dart';
-import 'view_pages/home_pg.dart';
-import 'view_pages/login_pg.dart';
-import 'view_pages/password_reset_pg.dart';
 
 final authVMProvider =
     ChangeNotifierProvider<AuthViewModel>((ref) => sl<AuthViewModel>());
@@ -22,8 +21,9 @@ final specialsVMProvider =
     ChangeNotifierProvider<SpecialsViewModel>((ref) => sl<SpecialsViewModel>());
 final storesVMProvider =
     ChangeNotifierProvider<StoresViewModel>((ref) => sl<StoresViewModel>());
-final locationsVMProvider =
-    ChangeNotifierProvider<LocationsViewModel>((ref) => sl<LocationsViewModel>());
+final locationsVMProvider = ChangeNotifierProvider<LocationsViewModel>(
+  (ref) => sl<LocationsViewModel>(),
+);
 final usersVMProvider =
     ChangeNotifierProvider<UsersViewModel>((ref) => sl<UsersViewModel>());
 
@@ -34,10 +34,10 @@ Future<void> main() async {
   runApp(ProviderScope(child: App()));
 }
 
-class App extends StatelessWidget {
+class App extends ConsumerWidget {
   @override
-  Widget build(BuildContext context) {
-    final authVM = context.read(authVMProvider);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authVM = ref.read(authVMProvider);
     authVM.context = context;
     authVM.getCurrentUser();
 
@@ -46,27 +46,25 @@ class App extends StatelessWidget {
       logs: VLogs.none,
       debugShowCheckedModeBanner: false,
       theme: ThemeData.dark().copyWith(
-          // primaryColor: Colors.green,
-          backgroundColor: kColorBackground,
-          accentColor: kColorAccent,
-          // primaryIconTheme: IconThemeData(color: Colors.white),
-          // accentIconTheme: IconThemeData(color: Colors.white),
-          colorScheme: const ColorScheme.dark(
-            primary: kColorAccent,
-          ),
-          // cardColor: CARD_COLOR,
-          // buttonColor: ACCENT_COLOR,
-          // elevatedButtonTheme: ElevatedButtonThemeData(
-          //   style: ElevatedButton.styleFrom(
-          //     primary: kColorBackground,
-          //     onPrimary: Colors.white,
-          //     side: const BorderSide(
-          //       color: kColorAccent,
-          //     ),
-          //   ),
-          // ),
-          focusColor: kColorAccent,
-          visualDensity: VisualDensity.adaptivePlatformDensity),
+        // primaryColor: Colors.green,
+        backgroundColor: kColorBackground,
+        // cardColor: CARD_COLOR,
+        // buttonColor: ACCENT_COLOR,
+        // elevatedButtonTheme: ElevatedButtonThemeData(
+        //   style: ElevatedButton.styleFrom(
+        //     primary: kColorBackground,
+        //     onPrimary: Colors.white,
+        //     side: const BorderSide(
+        //       color: kColorAccent,
+        //     ),
+        //   ),
+        // ),
+        focusColor: kColorAccent,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+        colorScheme: const ColorScheme.dark(
+          primary: kColorAccent,
+        ).copyWith(secondary: kColorAccent),
+      ),
       routes: [
         // VWidget(path: '/', widget: const Test(),
         VWidget(

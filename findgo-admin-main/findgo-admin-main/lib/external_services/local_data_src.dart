@@ -3,9 +3,9 @@ import 'dart:convert';
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:html' as html;
 
-import '../core/exception.dart';
-import '../core/success.dart';
-import '../data_models/user.dart';
+import 'package:findgo_admin/core/exception.dart';
+import 'package:findgo_admin/core/success.dart';
+import 'package:findgo_admin/data_models/user.dart';
 
 const jwtKey = 'jwt';
 const refreshTokenKey = 'refreshToken';
@@ -27,14 +27,16 @@ class LocalDataSource {
       //final jwt = await secureStorage.read(key: jwtKey); // Mobile
 
       // Check jwt not null
-      if (jwt == null || jwt == 'null') { throw CacheException('No token stored'); }
+      if (jwt == null || jwt == 'null') {
+        throw CacheException('No token stored');
+      }
 
       if (jwt[0] == "'") jwt = jwt.substring(1, jwt.length);
-      if (jwt[jwt.length-1] == "'") jwt = jwt.substring(0, jwt.length-1);
+      if (jwt[jwt.length - 1] == "'") jwt = jwt.substring(0, jwt.length - 1);
 
       // log("[FETCHED JWT] : $jwt");
       return jwt;
-    } catch(e) {
+    } catch (e) {
       throw CacheException(e.toString());
     }
   }
@@ -47,14 +49,20 @@ class LocalDataSource {
       //final refreshToken = await secureStorage.read(key: refreshTokenKey); // Mobile
 
       // Check jwt not null
-      if (refreshToken == null || refreshToken == 'null') { throw CacheException('No token stored'); }
+      if (refreshToken == null || refreshToken == 'null') {
+        throw CacheException('No token stored');
+      }
 
-      if (refreshToken[0] == "'") refreshToken = refreshToken.substring(1, refreshToken.length);
-      if (refreshToken[refreshToken.length-1] == "'") refreshToken = refreshToken.substring(0, refreshToken.length-1);
+      if (refreshToken[0] == "'") {
+        refreshToken = refreshToken.substring(1, refreshToken.length);
+      }
+      if (refreshToken[refreshToken.length - 1] == "'") {
+        refreshToken = refreshToken.substring(0, refreshToken.length - 1);
+      }
 
       //print("[FETCHED REFRESH TOKEN] : $refreshToken");
       return refreshToken;
-    } catch(e) {
+    } catch (e) {
       throw CacheException(e.toString());
     }
   }
@@ -62,7 +70,9 @@ class LocalDataSource {
   Future<User> get currentUser async {
     try {
       final response = html.window.localStorage[currentUserKey];
-      if (response == null || response == 'null') { throw CacheException('No token stored'); }
+      if (response == null || response == 'null') {
+        throw CacheException('No token stored');
+      }
       // if (response == null || response == 'null') { return kUnauthorizedUser; }
 
       final jsonUser = jsonDecode(response); // Web
@@ -70,11 +80,13 @@ class LocalDataSource {
       final currentUser = User.fromJson(jsonUser as Map<String, dynamic>);
       //log("currentUser $currentUser");
 
-      if (currentUser.uuid == "-1") { throw CacheException('No token stored');  }
+      if (currentUser.uuid == "-1") {
+        throw CacheException('No token stored');
+      }
 
       //log("[FETCHED CURRENT USER] : $currentUser");
       return currentUser;
-    } catch(e) {
+    } catch (e) {
       throw CacheException(e.toString());
     }
   }
@@ -88,7 +100,7 @@ class LocalDataSource {
       //await secureStorage.write(key: jwtKey, value: jwt); // Mobile
 
       return CacheSuccess();
-    } catch(e) {
+    } catch (e) {
       throw CacheException(e.toString());
     }
   }
@@ -101,7 +113,7 @@ class LocalDataSource {
       //await secureStorage.write(key: refreshTokenKey, value: refreshToken); // Mobile
 
       return CacheSuccess();
-    } catch(e) {
+    } catch (e) {
       throw CacheException(e.toString());
     }
   }
@@ -113,9 +125,8 @@ class LocalDataSource {
       html.window.localStorage[currentUserKey] = userJson; // Web
 
       return CacheSuccess();
-    } catch(e) {
+    } catch (e) {
       throw CacheException(e.toString());
     }
   }
-
 }

@@ -1,12 +1,12 @@
 import 'dart:developer';
 
+import 'package:findgo_admin/core/constants.dart';
+import 'package:findgo_admin/core/failure.dart';
+import 'package:findgo_admin/data_models/user.dart';
+import 'package:findgo_admin/repositories/auth_repo.dart';
+import 'package:findgo_admin/widgets/snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:vrouter/vrouter.dart';
-import '../core/constants.dart';
-import '../core/failure.dart';
-import '../data_models/user.dart';
-import '../repositories/auth_repo.dart';
-import '../widgets/snackbar.dart';
 
 enum AuthViewState { idle, busy, error, fetchingUser }
 
@@ -36,12 +36,17 @@ class AuthViewModel extends ChangeNotifier {
     log("Auth VM: $failure");
     if (failure.toString() == "XMLHttpRequest error." ||
         failure.toString().contains("TimeoutException")) {
-      InfoSnackBar.show(context,
-          "Remote Server Connection Error! : Please check internet connection.",
-          color: SnackBarColor.error);
+      InfoSnackBar.show(
+        context,
+        "Remote Server Connection Error! : Please check internet connection.",
+        color: SnackBarColor.error,
+      );
     } else if (failure.toString() != kMessageAuthError) {
-      InfoSnackBar.show(context, failure.toString(),
-          color: SnackBarColor.error);
+      InfoSnackBar.show(
+        context,
+        failure.toString(),
+        color: SnackBarColor.error,
+      );
     }
     //if (!failure.toString().contains("auth repo: getCurrentUser: NoSuchMethodError: invalid member on null: 'getString'"))
     // Failure.handleFailure(failure, logout, context);
@@ -52,8 +57,9 @@ class AuthViewModel extends ChangeNotifier {
     bool foundUser = false;
     final failureOrUser = await authRepository.getCurrentUser();
     await failureOrUser.fold((failure) async {
-      if (!failure.toString().contains("No token stored"))
+      if (!failure.toString().contains("No token stored")) {
         _handleFailure(failure);
+      }
       context.vRouter.to("/login", isReplacement: true);
       _state = AuthViewState.error;
       return;
@@ -110,10 +116,11 @@ class AuthViewModel extends ChangeNotifier {
   Future<void> updateEmail(String newEmail, String password) async {
     setState(AuthViewState.busy);
     final updatedUser = User(
-        uuid: currentUser.uuid,
-        email: newEmail,
-        password: password,
-        updatedAt: DateTime.parse("2020-01-01T00:00:00.000Z"));
+      uuid: currentUser.uuid,
+      email: newEmail,
+      password: password,
+      updatedAt: DateTime.parse("2020-01-01T00:00:00.000Z"),
+    );
 
     final failureOrUser = await authRepository.updateEmail(updatedUser);
     failureOrUser.fold((failure) async => _handleFailure(failure), (_) {
@@ -131,9 +138,10 @@ class AuthViewModel extends ChangeNotifier {
     setState(AuthViewState.busy);
 
     final updatedUser = User(
-        uuid: currentUser.uuid,
-        password: password,
-        updatedAt: currentUser.updatedAt);
+      uuid: currentUser.uuid,
+      password: password,
+      updatedAt: currentUser.updatedAt,
+    );
 
     final failureOrUser =
         await authRepository.updatePassword(updatedUser, newPassword);
@@ -143,23 +151,28 @@ class AuthViewModel extends ChangeNotifier {
     });
   }
 
-  Future<void> updateUsername(
-      {required String firstName,
-      required String lastName,
-      required String password}) async {
+  Future<void> updateUsername({
+    required String firstName,
+    required String lastName,
+    required String password,
+  }) async {
     setState(AuthViewState.busy);
 
     final updatedUser = User(
-        uuid: currentUser.uuid,
-        firstName: firstName,
-        lastName: lastName,
-        password: password,
-        updatedAt: currentUser.updatedAt);
+      uuid: currentUser.uuid,
+      firstName: firstName,
+      lastName: lastName,
+      password: password,
+      updatedAt: currentUser.updatedAt,
+    );
 
     final failureOrUser = await authRepository.updateUsername(updatedUser);
     failureOrUser.fold((failure) async => _handleFailure(failure), (_) {
       currentUser = currentUser.copyWith(
-          firstName: firstName, lastName: lastName, updatedAt: DateTime.now());
+        firstName: firstName,
+        lastName: lastName,
+        updatedAt: DateTime.now(),
+      );
       // TODO store user
       //authRepository.storeCurrentUser(currentUser);
       InfoSnackBar.show(context, kMessageUsernameUpdateSuccess);
@@ -173,8 +186,11 @@ class AuthViewModel extends ChangeNotifier {
 
     if (email.length < 2) {
       log("[ERROR] passwordResetRequest: email.length to short");
-      InfoSnackBar.show(context, kMessagePasswordResetRequestEmailError,
-          color: SnackBarColor.error);
+      InfoSnackBar.show(
+        context,
+        kMessagePasswordResetRequestEmailError,
+        color: SnackBarColor.error,
+      );
       setState(AuthViewState.error);
       return _hasCode;
     }
@@ -185,9 +201,10 @@ class AuthViewModel extends ChangeNotifier {
     }, (success) async {
       InfoSnackBar.show(context, kMessagePasswordResetUpdateSuccess);
       currentUser = User(
-          email: email,
-          uuid: "-1",
-          updatedAt: DateTime.parse("2020-01-01T00:00:00.000Z"));
+        email: email,
+        uuid: "-1",
+        updatedAt: DateTime.parse("2020-01-01T00:00:00.000Z"),
+      );
       setState(AuthViewState.idle);
       _hasCode = true;
     });
@@ -200,9 +217,11 @@ class AuthViewModel extends ChangeNotifier {
 
     if (passwordResetCode.length < 6) {
       log("PW RESET ERROR: NO CURRENT USER EMAIL");
-      InfoSnackBar.show(context,
-          "Unexpected error for password reset, please try send another email",
-          color: SnackBarColor.error);
+      InfoSnackBar.show(
+        context,
+        "Unexpected error for password reset, please try send another email",
+        color: SnackBarColor.error,
+      );
       setState(AuthViewState.error);
       return;
     }
@@ -220,7 +239,10 @@ class AuthViewModel extends ChangeNotifier {
     setState(AuthViewState.busy);
 
     final deleteUser = User(
-        uuid: currentUser.uuid, email: currentUser.email, password: password);
+      uuid: currentUser.uuid,
+      email: currentUser.email,
+      password: password,
+    );
 
     final failureOrUser = await authRepository.deleteAccount(deleteUser);
     await failureOrUser.fold((failure) async => _handleFailure(failure),
@@ -262,4 +284,3 @@ class AuthViewModel extends ChangeNotifier {
     return password == confirmPassword;
   }
 }
-

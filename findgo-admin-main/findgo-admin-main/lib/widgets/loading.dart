@@ -1,5 +1,5 @@
+import 'package:findgo_admin/core/constants.dart';
 import 'package:flutter/material.dart';
-import '../core/constants.dart';
 
 class LoadWidget extends StatefulWidget {
   @override
@@ -10,7 +10,9 @@ class _LoadWidget extends State<LoadWidget> {
   @override
   Widget build(BuildContext context) {
     return const Center(
-      child: CircularProgressIndicator(color: kColorAccent,),
+      child: CircularProgressIndicator(
+        color: kColorAccent,
+      ),
     );
   }
 
@@ -30,4 +32,3 @@ class _LoadWidget extends State<LoadWidget> {
 //     );
 //   }
 }
-

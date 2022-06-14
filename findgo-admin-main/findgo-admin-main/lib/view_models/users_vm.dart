@@ -1,22 +1,23 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:findgo_admin/core/constants.dart';
+import 'package:findgo_admin/core/failure.dart';
+import 'package:findgo_admin/data_models/managed_user.dart';
+import 'package:findgo_admin/data_models/store.dart';
+import 'package:findgo_admin/repositories/specials_repo.dart';
+import 'package:findgo_admin/widgets/snackbar.dart';
 import 'package:flutter/material.dart';
 
-import '../core/constants.dart';
-import '../core/failure.dart';
-import '../data_models/managed_user.dart';
-import '../data_models/store.dart';
-import '../repositories/specials_repo.dart';
-import '../widgets/snackbar.dart';
-
-enum UsersViewState { idle, busy, error, fetchingUser, updatingUser}
+enum UsersViewState { idle, busy, error, fetchingUser, updatingUser }
 
 class UsersViewModel extends ChangeNotifier {
   final SpecialsRepository specialsRepository;
 
   // Constructor
-  UsersViewModel({required this.specialsRepository,});
+  UsersViewModel({
+    required this.specialsRepository,
+  });
 
   late BuildContext context;
 
@@ -32,24 +33,24 @@ class UsersViewModel extends ChangeNotifier {
 
   void _handleFailure(Failure failure) {
     log("Users VM: $failure");
-    if (failure.toString() == "XMLHttpRequest error." || failure.toString().contains("TimeoutException")) {
+    if (failure.toString() == "XMLHttpRequest error." ||
+        failure.toString().contains("TimeoutException")) {
       InfoSnackBar.show(
         context,
         "Remote Server Connection Error! : Please check internet connection.",
-        color: SnackBarColor.error
+        color: SnackBarColor.error,
       );
     } else if (failure.toString() != kMessageAuthError) {
       InfoSnackBar.show(
-          context,
-          failure.toString(),
-          color: SnackBarColor.error
+        context,
+        failure.toString(),
+        color: SnackBarColor.error,
       );
     }
     //if (!failure.toString().contains("auth repo: getCurrentUser: NoSuchMethodError: invalid member on null: 'getString'"))
-      // Failure.handleFailure(failure, logout, context);
+    // Failure.handleFailure(failure, logout, context);
     setState(UsersViewState.error);
   }
-
 
   Future<void> getAllStoreUsers(Store store) async {
     setState(UsersViewState.busy);
@@ -70,7 +71,9 @@ class UsersViewModel extends ChangeNotifier {
     //         }
     // );
 
-    final jsonUserList = jsonDecode("""[
+    final jsonUserList = jsonDecode(
+      """
+[
       {
         "userUuid" : "user1",
         "email" : "d@e.com",
@@ -92,9 +95,12 @@ class UsersViewModel extends ChangeNotifier {
         "lastName" : "Cathkey",
         "role": "3"
       }
-    ]""") as List;
+    ]""",
+    ) as List;
 
-    _storeUsersList = jsonUserList.map((user) => ManagedUser.fromJson(user as Map<String, dynamic>)).toList();
+    _storeUsersList = jsonUserList
+        .map((user) => ManagedUser.fromJson(user as Map<String, dynamic>))
+        .toList();
     await _sortUserList();
 
     await Future.delayed(const Duration(seconds: 1));
@@ -121,18 +127,19 @@ class UsersViewModel extends ChangeNotifier {
     //         }
     // );
 
-    final jsonUser = jsonDecode("""{
+    final jsonUser = jsonDecode(
+      """
+{
         "userUuid" : "user4",
         "email" : "g@e.com",
         "firstName" : "Garth",
         "lastName" : "Garland"
-      }""");
+      }""",
+    );
 
     user = ManagedUser.fromJson(jsonUser as Map<String, dynamic>);
-    if (user != null) {
-      _storeUsersList.add(user);
-      await _sortUserList();
-    }
+    _storeUsersList.add(user);
+    await _sortUserList();
     await Future.delayed(const Duration(seconds: 1));
     setState(UsersViewState.idle);
     return user;
@@ -161,14 +168,14 @@ class UsersViewModel extends ChangeNotifier {
     _storeUsersList.add(user);
     await _sortUserList();
     await Future.delayed(const Duration(seconds: 1));
+    // ignore: use_build_context_synchronously
     InfoSnackBar.show(
-        context,
-        "Updated user role",
+      context,
+      "Updated user role",
     );
     setState(UsersViewState.idle);
     return user;
   }
-
 
   Future<void> _sortUserList() async {
     _storeUsersList.sort((a, b) {
@@ -178,3 +185,4 @@ class UsersViewModel extends ChangeNotifier {
     });
   }
 }
+

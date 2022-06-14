@@ -74,7 +74,8 @@ class SelectedPlace {
         streetAddress:
             json["formatted_address"] as String? ?? "error-description",
         latLon: LatLng.fromJson(
-          json["geometry"]["location"] as Map<String, dynamic>,
+          (json["geometry"] as Map<String, dynamic>)["location"]
+              as Map<String, dynamic>,
         ),
       );
 }

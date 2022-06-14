@@ -2,10 +2,8 @@ import 'dart:html' as html;
 import 'dart:typed_data';
 
 import 'package:crop_your_image/crop_your_image.dart';
-import 'package:flutter/foundation.dart';
+import 'package:findgo_admin/core/constants.dart';
 import 'package:flutter/material.dart';
-
-import '../core/constants.dart';
 
 class ImageCropper extends StatefulWidget {
   final Uint8List image;
@@ -23,8 +21,10 @@ class _ImageCropperState extends State<ImageCropper> {
 
   @override
   void initState() {
-    final blob = html.Blob(["onmessage = self.postMessage('msg from worker')"],
-        '{ type: "text/javascript" }');
+    final blob = html.Blob(
+      ["onmessage = self.postMessage('msg from worker')"],
+      '{ type: "text/javascript" }',
+    );
     worker = html.Worker(html.Url.createObjectUrlFromBlob(blob));
 
     super.initState();
@@ -61,8 +61,10 @@ class _ImageCropperState extends State<ImageCropper> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text("Processing... may take a while",
-                          style: TextStyle(fontSize: 12)),
+                      const Text(
+                        "Processing... may take a while",
+                        style: TextStyle(fontSize: 12),
+                      ),
                       const SizedBox(height: 8.0),
                       const CircularProgressIndicator(),
                     ],
@@ -73,28 +75,31 @@ class _ImageCropperState extends State<ImageCropper> {
         ),
         actions: [
           TextButton(
-              onPressed: () async => Navigator.of(context).pop(),
-              child: const Text("Cancel")),
+            onPressed: () async => Navigator.of(context).pop(),
+            child: const Text("Cancel"),
+          ),
           TextButton(
-              onPressed: () async {
-                cropping = true;
-                setState(() {});
-                await Future.delayed(const Duration(milliseconds: 300));
+            onPressed: () async {
+              cropping = true;
+              setState(() {});
+              await Future.delayed(const Duration(milliseconds: 300));
 
-                final blob = html.Blob(
-                    ["onmessage = self.postMessage('msg from worker')"],
-                    '{ type: "text/javascript" }');
-                worker = html.Worker(html.Url.createObjectUrlFromBlob(blob));
-                worker.onMessage.listen((event) {
-                  // print("main:receive: ${event.data}");
-                  controller.crop();
-                });
-                // worker.postMessage("start");
+              final blob = html.Blob(
+                ["onmessage = self.postMessage('msg from worker')"],
+                '{ type: "text/javascript" }',
+              );
+              worker = html.Worker(html.Url.createObjectUrlFromBlob(blob));
+              worker.onMessage.listen((event) {
+                // print("main:receive: ${event.data}");
+                controller.crop();
+              });
+              // worker.postMessage("start");
 
-                // controller.crop();
-              },
-              // onPressed: () async => Executor().execute(arg1: "done", fun1: cropImage),
-              child: const Text("Crop")),
+              // controller.crop();
+            },
+            // onPressed: () async => Executor().execute(arg1: "done", fun1: cropImage),
+            child: const Text("Crop"),
+          ),
         ],
       ),
     );
