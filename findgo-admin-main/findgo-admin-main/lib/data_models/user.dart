@@ -25,7 +25,7 @@ class User {
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
-  bool get isSuperUser => role == "superAdmin" && storeUuid.isEmpty;
+  bool get isSuperUser => role == "superAdmin";
 
   /// ENCODE / DECODE ///
   factory User.fromJson(Map<String, dynamic> json) => User(

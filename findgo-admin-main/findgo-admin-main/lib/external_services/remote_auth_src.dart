@@ -191,10 +191,11 @@ class RemoteAuthSource {
 
   Future<ServerSuccess<User>> register(User user) async {
     final uri = Uri.parse("$serverUrl/registerUser.php");
-    log(uri.toString());
+    print(uri.toString());
 
     final userMap = user.toJson();
-    // log(json.encode(userMap));
+    userMap["firebaseToken"] = "";
+    print(json.encode(userMap));
 
     try {
       // Send get request
@@ -214,9 +215,10 @@ class RemoteAuthSource {
       // );
 
       // Log status code
-      log('[REGISTER] Response Code: ${response.statusCode}');
+      print('[REGISTER] Response Code: ${response.statusCode}');
 
       if (response.statusCode == 201) {
+        print(response.body);
         final jsonResp = json.decode(response.body);
         final user = User.fromJson(jsonResp as Map<String, dynamic>);
 

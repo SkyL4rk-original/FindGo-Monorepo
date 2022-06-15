@@ -173,7 +173,7 @@ class _EmailUpdateFormState extends State<EmailUpdateForm> {
 
                 TextFormField(
                   validator: (email) {
-                    if (authVM.isEmail(email)) {
+                    if (authVM.isNotEmail(email)) {
                       return "please enter a valid email";
                     }
                     return email == null || email.isEmpty

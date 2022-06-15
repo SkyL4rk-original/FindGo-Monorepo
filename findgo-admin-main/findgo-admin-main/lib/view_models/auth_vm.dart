@@ -83,19 +83,20 @@ class AuthViewModel extends ChangeNotifier {
       currentUser = user;
       // log('[USER] : $currentUser');
       // InfoSnackBar.show(context, "Login Success");
-      context.vRouter.to("/", isReplacement: true);
       // Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (ctx) => const HomePage()));
       _state = AuthViewState.idle;
+      context.vRouter.to("/", isReplacement: true);
     });
   }
 
-  Future<void> signUpUser(User user) async {
+  Future<void> registerUser(User user) async {
     setState(AuthViewState.busy);
 
     final failureOrUser = await authRepository.register(user);
     failureOrUser.fold((failure) async => _handleFailure(failure), (newUser) {
       currentUser = newUser;
-      setState(AuthViewState.idle);
+      _state = AuthViewState.idle;
+      context.vRouter.to("/", isReplacement: true);
     });
   }
 
@@ -261,7 +262,7 @@ class AuthViewModel extends ChangeNotifier {
   }
 
   // Helper
-  bool isEmail(String? string) {
+  bool isNotEmail(String? string) {
     // Null or empty string is invalid
     if (string == null || string.isEmpty) {
       return false;

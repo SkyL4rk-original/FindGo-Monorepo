@@ -10,6 +10,7 @@ import 'package:findgo_admin/view_pages/error_pg.dart';
 import 'package:findgo_admin/view_pages/home_pg.dart';
 import 'package:findgo_admin/view_pages/login_pg.dart';
 import 'package:findgo_admin/view_pages/password_reset_pg.dart';
+import 'package:findgo_admin/view_pages/register_pg.dart';
 import 'package:findgo_admin/view_pages/user_pg.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -70,6 +71,14 @@ class App extends ConsumerWidget {
         VWidget(
           path: '/',
           widget: const HomePage(),
+          buildTransition: (animation1, _, child) {
+            return FadeTransition(opacity: animation1, child: child);
+          },
+        ),
+
+        VWidget(
+          path: '/register',
+          widget: const RegisterPage(),
           buildTransition: (animation1, _, child) {
             return FadeTransition(opacity: animation1, child: child);
           },

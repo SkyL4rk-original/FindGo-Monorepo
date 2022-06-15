@@ -61,8 +61,8 @@
 	$userUuid = $user["userUuid"];
 	$resultRoles = $db->query("
 		SELECT storeUuid, role
-		FROM storeUserRoleLink
-		WHERE userUuid='$userUuid' AND role>0
+		FROM userAdmin
+		WHERE userUuid='$userUuid' AND status>0
 	");
 	if (!$result) {
 		http_response_code(500);
@@ -110,4 +110,3 @@
 	//setcookie("token", $token, 20000);
 	//$user["token"] = $token;
 	echo json_encode($user);
-?>

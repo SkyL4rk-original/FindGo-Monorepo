@@ -14,6 +14,7 @@ import 'package:findgo_admin/view_models/stores_vm.dart';
 import 'package:findgo_admin/view_pages/location_pg.dart';
 import 'package:findgo_admin/view_pages/store_pg.dart';
 import 'package:findgo_admin/view_pages/store_stats_pg.dart';
+import 'package:findgo_admin/view_pages/users_pg.dart';
 import 'package:findgo_admin/widgets/image_cropper.dart';
 import 'package:findgo_admin/widgets/loading.dart';
 import 'package:findgo_admin/widgets/notificaion_timer.dart';
@@ -71,10 +72,8 @@ class _HomePageState extends ConsumerState<HomePage> {
       if (await _authViewModel.getCurrentUser()) {
         _specialsViewModel.getAllSpecials();
         _storesViewModel.getAllStoreCategories();
-        // _storesViewModel.getAllStoreLocations();
         await _storesViewModel.getAllStores();
         await _locationsViewModel.getAllLocations();
-        // _storesViewModel.locationList = _locationsViewModel.locationsList;
 
         if (_authViewModel.currentUser.storeUuid != "") {
           _selectedStore = _storesViewModel.storesList.firstWhere(
@@ -123,34 +122,33 @@ class _HomePageState extends ConsumerState<HomePage> {
               icon: const Icon(Icons.account_circle_outlined),
             ),
           ),
-          title: _authViewModel.currentUser.storeUuid != "" &&
-                  _selectedStore != null
+          title: _selectedStore != null
               ? Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   // crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(_selectedStore!.name),
-                    // const SizedBox(width: 12.0),
-                    // InkWell(
-                    //   canRequestFocus: false,
-                    //   onTap: () async {
-                    //     if (!await _removeSpecialChanges()) return;
-                    //
-                    //     await Navigator.of(context).push(
-                    //       MaterialPageRoute(
-                    //         builder: (ctx) => UsersPage(store: _selectedStore!),
-                    //       ),
-                    //     );
-                    //   },
-                    //   hoverColor: kColorAccent.withAlpha(60),
-                    //   child: const Padding(
-                    //     padding: EdgeInsets.all(8.0),
-                    //     child: Text(
-                    //       "Users", // Navbar
-                    //       style: kTextStyleSmallSecondary,
-                    //     ),
-                    //   ),
-                    // ),
+                    const SizedBox(width: 12.0),
+                    InkWell(
+                      canRequestFocus: false,
+                      onTap: () async {
+                        if (!await _removeSpecialChanges()) return;
+
+                        await Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (ctx) => UsersPage(store: _selectedStore!),
+                          ),
+                        );
+                      },
+                      hoverColor: kColorAccent.withAlpha(60),
+                      child: const Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text(
+                          "Users", // Navbar
+                          style: kTextStyleSmallSecondary,
+                        ),
+                      ),
+                    ),
                     const SizedBox(width: 12.0),
                     InkWell(
                       canRequestFocus: false,
@@ -322,8 +320,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                 // mainAxisAlignment: MainAxisAlignment.start,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  if (_authViewModel.currentUser.storeUuid ==
-                                      "")
+                                  if (_authViewModel.currentUser.isSuperUser)
                                     _locationSearchSection(),
                                   if (_showStores) const SizedBox(width: 20.0),
                                   if (_authViewModel.currentUser.storeUuid ==
