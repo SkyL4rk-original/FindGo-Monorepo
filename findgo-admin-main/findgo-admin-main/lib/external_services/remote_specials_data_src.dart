@@ -124,7 +124,7 @@ class RemoteSpecialsDataSource {
   }
 
   Future<Set<Store>> getAllStores(String jwt) async {
-    final uri = Uri.parse("$serverUrl/getAllStores.php");
+    final uri = Uri.parse("$serverUrl/getAllStoresV2.php");
     print(uri.toString());
     //print("jwt req: " + jwt);
 
