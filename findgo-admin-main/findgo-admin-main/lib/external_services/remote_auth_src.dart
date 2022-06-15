@@ -580,4 +580,113 @@ class RemoteAuthSource {
       throw RemoteDataSourceException(error.toString());
     }
   }
+
+  Future<ManagedUser?> getUserByEmail(String jwt, String email) async {
+    final uri = Uri.parse("$serverUrl/getUserByEmail.php?email=$email");
+    print(uri.toString());
+    //print("jwt req: " + jwt);
+
+    try {
+      // Send get request
+      final response = await http.get(
+        uri,
+        headers: {"jwt": jwt},
+      ).timeout(kTimeOutDuration);
+
+      // Log status code
+      print('[GET USER BY EMAIL] Response Code: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        //print(response.body.toString());
+
+        final jsonResp = json.decode(response.body) as Map<String, dynamic>;
+        if ((jsonResp["userUuid"] as String?) == null) return null;
+        return ManagedUser.fromJson(jsonResp);
+      } else {
+        _handleError(response: response);
+      }
+
+      throw RemoteDataSourceException(response.body);
+    } catch (error) {
+      throw RemoteDataSourceException(error.toString());
+    }
+  }
+
+  Future<ServerSuccess> addUserToStore(
+    String jwt,
+    ManagedUser user,
+    Store store,
+  ) async {
+    final uri = Uri.parse("$serverUrl/addUserToStore.php");
+    print(uri.toString());
+    //print("jwt req: " + jwt);
+
+    try {
+      final map = {
+        "userUuid": user.uuid,
+        "storeUuid": store.uuid,
+      };
+
+      // Send get request
+      final response = await http
+          .post(
+            uri,
+            headers: {"jwt": jwt},
+            body: jsonEncode(map),
+          )
+          .timeout(kTimeOutDuration);
+
+      // Log status code
+      print('[ADD USER TO STORE] Response Code: ${response.statusCode}');
+
+      if (response.statusCode == 201) {
+        return ServerSuccess();
+      } else {
+        _handleError(response: response);
+      }
+
+      throw RemoteDataSourceException(response.body);
+    } catch (error) {
+      throw RemoteDataSourceException(error.toString());
+    }
+  }
+
+  Future<ServerSuccess> removeUserFromStore(
+    String jwt,
+    ManagedUser user,
+    Store store,
+  ) async {
+    final uri = Uri.parse("$serverUrl/removeUserFromStore.php");
+    print(uri.toString());
+    //print("jwt req: " + jwt);
+
+    try {
+      final map = {
+        "userUuid": user.uuid,
+        "storeUuid": store.uuid,
+      };
+
+      // Send get request
+      final response = await http
+          .post(
+            uri,
+            headers: {"jwt": jwt},
+            body: jsonEncode(map),
+          )
+          .timeout(kTimeOutDuration);
+
+      // Log status code
+      print('[REMOVE USER FROM STORE] Response Code: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        return ServerSuccess();
+      } else {
+        _handleError(response: response);
+      }
+
+      throw RemoteDataSourceException(response.body);
+    } catch (error) {
+      throw RemoteDataSourceException(error.toString());
+    }
+  }
 }

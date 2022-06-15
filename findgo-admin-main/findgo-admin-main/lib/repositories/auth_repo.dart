@@ -304,7 +304,68 @@ class AuthRepository {
       final userSet = await remoteAuthSource.getStoreUsers(jwt, store);
       return right(userSet);
     } on RemoteDataSourceException catch (e) {
+      log('auth repo: getStoreUsers: remote error ${e.message}');
+      return left(ServerFailure(e.message));
+    }
+  }
+
+  Future<Either<Failure, ManagedUser?>> getUserByEmail(String email) async {
+    try {
+      // Check if online
+      if (!await networkInfo.isConnected) {
+        return left(OfflineFailure());
+      }
+
+      // Get jwt
+      final jwt = await getJwt();
+
+      final user = await remoteAuthSource.getUserByEmail(jwt, email);
+      return right(user);
+    } on RemoteDataSourceException catch (e) {
       log('auth repo: broadcastMessage: remote error ${e.message}');
+      return left(ServerFailure(e.message));
+    }
+  }
+
+  Future<Either<Failure, Success>> addUserToStore(
+    ManagedUser user,
+    Store store,
+  ) async {
+    try {
+      // Check if online
+      if (!await networkInfo.isConnected) {
+        return left(OfflineFailure());
+      }
+
+      // Get jwt
+      final jwt = await getJwt();
+
+      final success = await remoteAuthSource.addUserToStore(jwt, user, store);
+      return right(success);
+    } on RemoteDataSourceException catch (e) {
+      log('auth repo: addUserToStore: remote error ${e.message}');
+      return left(ServerFailure(e.message));
+    }
+  }
+
+  Future<Either<Failure, Success>> removeUserFromStore(
+    ManagedUser user,
+    Store store,
+  ) async {
+    try {
+      // Check if online
+      if (!await networkInfo.isConnected) {
+        return left(OfflineFailure());
+      }
+
+      // Get jwt
+      final jwt = await getJwt();
+
+      final success =
+          await remoteAuthSource.removeUserFromStore(jwt, user, store);
+      return right(success);
+    } on RemoteDataSourceException catch (e) {
+      log('auth repo: removeUserFromStore: remote error ${e.message}');
       return left(ServerFailure(e.message));
     }
   }

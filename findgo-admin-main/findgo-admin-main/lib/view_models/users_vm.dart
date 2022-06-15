@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:developer';
 
 import 'package:findgo_admin/core/constants.dart';
@@ -69,70 +68,58 @@ class UsersViewModel extends ChangeNotifier {
     ManagedUser? user;
     setState(UsersViewState.fetchingUser);
 
-    // final failureOrUser = await authRepository.getCurrentUser();
-    // await failureOrUser.fold(
-    //     (failure) async {
-    //       if (!failure.toString().contains("No token stored")) _handleFailure(failure);
-    //       context.vRouter.to("/login", isReplacement: true);
-    //       _state = AuthViewState.error;
-    //       return;
-    //       // Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (ctx) => const LoginPage()));
-    //     },
-    //     (user) async {
-    //           currentUser = user;
-    //           foundUser = true;
-    //           //navigationService.homePage(context);
-    //         }
-    // );
-
-    final jsonUser = jsonDecode(
-      """
-{
-        "userUuid" : "user4",
-        "email" : "g@e.com",
-        "firstName" : "Garth",
-        "lastName" : "Garland"
-      }""",
+    final failureOrUser = await authRepo.getUserByEmail(email);
+    await failureOrUser.fold(
+      (failure) async => _handleFailure(failure),
+      (u) async => user = u,
     );
 
-    user = ManagedUser.fromJson(jsonUser as Map<String, dynamic>);
-    _storeUsersList.add(user);
-    await _sortUserList();
-    await Future.delayed(const Duration(seconds: 1));
+    // user = ManagedUser.fromJson(jsonUser as Map<String, dynamic>);
+    // await _sortUserList();
+    // await Future.delayed(const Duration(seconds: 1));
     setState(UsersViewState.idle);
     return user;
   }
 
-  Future<ManagedUser?> updateUser(ManagedUser user) async {
+  Future<bool> addUserToStore(
+    ManagedUser user,
+    Store store,
+  ) async {
+    bool success = false;
     setState(UsersViewState.updatingUser);
 
-    // final failureOrUser = await authRepository.getCurrentUser();
-    // await failureOrUser.fold(
-    //     (failure) async {
-    //       if (!failure.toString().contains("No token stored")) _handleFailure(failure);
-    //       context.vRouter.to("/login", isReplacement: true);
-    //       _state = AuthViewState.error;
-    //       return;
-    //       // Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (ctx) => const LoginPage()));
-    //     },
-    //     (user) async {
-    //           currentUser = user;
-    //           foundUser = true;
-    //           //navigationService.homePage(context);
-    //         }
-    // );
-
-    _storeUsersList.remove(user);
-    _storeUsersList.add(user);
-    await _sortUserList();
-    await Future.delayed(const Duration(seconds: 1));
-    // ignore: use_build_context_synchronously
-    InfoSnackBar.show(
-      context,
-      "Updated user role",
+    final failureOrSuccess = await authRepo.addUserToStore(user, store);
+    await failureOrSuccess.fold(
+      (failure) async => _handleFailure(failure),
+      (_) async {
+        _storeUsersList.add(user);
+        await _sortUserList();
+        success = true;
+      },
     );
+
     setState(UsersViewState.idle);
-    return user;
+    return success;
+  }
+
+  Future<bool> removeUserFromStore(
+    ManagedUser user,
+    Store store,
+  ) async {
+    bool success = false;
+    setState(UsersViewState.updatingUser);
+
+    final failureOrSuccess = await authRepo.removeUserFromStore(user, store);
+    await failureOrSuccess.fold(
+      (failure) async => _handleFailure(failure),
+      (_) async {
+        _storeUsersList.remove(user);
+        success = true;
+      },
+    );
+
+    setState(UsersViewState.idle);
+    return success;
   }
 
   Future<void> _sortUserList() async {

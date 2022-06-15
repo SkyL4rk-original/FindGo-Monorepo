@@ -1,8 +1,11 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:findgo_admin/core/constants.dart';
 import 'package:findgo_admin/data_models/managed_user.dart';
 import 'package:findgo_admin/data_models/store.dart';
 import 'package:findgo_admin/main.dart';
 import 'package:findgo_admin/view_models/users_vm.dart';
+import 'package:findgo_admin/widgets/snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vrouter/vrouter.dart';
@@ -28,7 +31,7 @@ class _UsersPageState extends ConsumerState<UsersPage> {
     _usersViewModel.context = context;
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      _usersViewModel.getAllStoreUsers(widget.store);
+      await _usersViewModel.getAllStoreUsers(widget.store);
     });
     super.initState();
   }
@@ -82,26 +85,26 @@ class _UsersPageState extends ConsumerState<UsersPage> {
     );
   }
 
-  // USERS STORE SECTION
-  bool _addingUser = false;
-  Widget _addUserButton() {
-    return _usersViewModel.state == UsersViewState.fetchingUser
-        ? const CircularProgressIndicator()
-        : SizedBox(
-            height: 40.0,
-            width: 130.0,
-            child: Center(
-              child: TextButton.icon(
-                onPressed: () async {
-                  _addingUser = true;
-                  setState(() {});
-                },
-                icon: const Icon(Icons.add),
-                label: const Text("Add User"),
-              ),
-            ),
-          );
-  }
+  // // USERS STORE SECTION
+  // bool _addingUser = false;
+  // Widget _addUserButton() {
+  //   return _usersViewModel.state == UsersViewState.fetchingUser
+  //       ? const CircularProgressIndicator()
+  //       : SizedBox(
+  //           height: 40.0,
+  //           width: 130.0,
+  //           child: Center(
+  //             child: TextButton.icon(
+  //               onPressed: () async {
+  //                 _addingUser = true;
+  //                 setState(() {});
+  //               },
+  //               icon: const Icon(Icons.add),
+  //               label: const Text("Add User"),
+  //             ),
+  //           ),
+  //         );
+  // }
 
   Widget _userListSection() {
     return SizedBox(
@@ -112,27 +115,28 @@ class _UsersPageState extends ConsumerState<UsersPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text("Users List"),
-              _addUserButton(),
+              // _addUserButton(),
             ],
           ),
           const SizedBox(height: 16.0),
-          if (_addingUser)
-            TextField(
-              decoration: InputDecoration(
-                hintText: 'Search User Email',
-                icon: InkWell(
-                  onTap: () {
-                    _getUserFromEmail();
-                  },
-                  child: const Icon(Icons.search),
-                ),
+          // if (_addingUser)
+          TextField(
+            decoration: InputDecoration(
+              hintText: 'Search User Email To Add',
+              icon: InkWell(
+                onTap: () {
+                  _getUserFromEmail();
+                },
+                child: const Icon(Icons.search),
               ),
-              controller: _emailAddressTextEditingController,
-              onSubmitted: (_) {
-                _getUserFromEmail();
-              },
             ),
-          if (_addingUser) const SizedBox(height: 20.0),
+            controller: _emailAddressTextEditingController,
+            onSubmitted: (_) {
+              _getUserFromEmail();
+            },
+          ),
+          // if (_addingUser) const SizedBox(height: 20.0),
+          const SizedBox(height: 20.0),
           SizedBox(height: 500, child: _usersListView()),
         ],
       ),
@@ -192,8 +196,13 @@ class _UsersPageState extends ConsumerState<UsersPage> {
       _tempUser = _selectedUser!.copyWith();
     } else {
       _tempUser = null;
+      // ignore: use_build_context_synchronously
+      InfoSnackBar.show(
+        context,
+        "No admin user found with matching email",
+        color: SnackBarColor.warning,
+      );
     }
-    // TODO search for user to add
   }
 
   // USER PROFILE SECTION
@@ -275,49 +284,94 @@ class _UsersPageState extends ConsumerState<UsersPage> {
               ),
             ),
           ),
+          Align(
+            alignment: AlignmentDirectional.bottomEnd,
+            child: _actionButton(),
+          ),
         ],
       ),
     );
   }
 
-  final _specialsStatusUpdateButtonStyle = ElevatedButton.styleFrom(
-    primary: kColorUpdate,
-    // side: BorderSide(color: color),
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
-  );
-  Widget _updateUserButton() {
+  Widget _actionButton() {
     Widget buttonContent;
+    // INFO: Loading Indicator
     if (_usersViewModel.state == UsersViewState.updatingUser) {
       buttonContent = const SizedBox(
         height: 30.0,
         width: 30.0,
-        child: Center(child: CircularProgressIndicator()),
+        child: Center(
+          child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(kColorAccent),
+            strokeWidth: 2,
+          ),
+        ),
       );
-    } else {
-      buttonContent = ElevatedButton.icon(
+      // INFO: Add Button
+    } else if (!_usersViewModel.storeUsersList.contains(_tempUser)) {
+      buttonContent = TextButton.icon(
         onPressed: () async {
-          final usr = await _usersViewModel.updateUser(_tempUser!);
-          if (usr != null) {
-            _selectedUser = usr;
-            _tempUser = usr.copyWith();
+          final confirm = await showDialog(
+            context: context,
+            builder: (tontext) => ConfirmDialog(
+              message:
+                  "Are you sure you wanto add ${_tempUser!.email} as an Admin  for this restaurant?",
+            ),
+          ) as bool?;
+
+          if (confirm != null) {
+            final success =
+                await _usersViewModel.addUserToStore(_tempUser!, widget.store);
+
+            if (success) {
+              InfoSnackBar.show(context, "User added to restaurant.");
+            }
           }
         },
-        style: _specialsStatusUpdateButtonStyle,
         icon: const Icon(
           Icons.check,
-          color: Colors.white,
+          color: kColorAccent,
         ),
         label: const Text(
-          "Save",
-          style: TextStyle(color: Colors.white),
+          "Add User",
+          style: TextStyle(color: kColorAccent),
+        ),
+      );
+    } else {
+      // INFO: Remove Button
+      buttonContent = TextButton.icon(
+        onPressed: () async {
+          final confirm = await showDialog(
+            context: context,
+            builder: (tontext) => ConfirmDialog(
+              message:
+                  "Are you sure you wanto remove ${_tempUser!.email} as an Admin for this restaurant?",
+            ),
+          ) as bool?;
+
+          if (confirm != null) {
+            final success = await _usersViewModel.removeUserFromStore(
+                _tempUser!, widget.store);
+            if (success) {
+              InfoSnackBar.show(context, "User removed from restaurant.");
+            }
+          }
+        },
+        icon: const Icon(
+          Icons.close,
+          color: Colors.red,
+        ),
+        label: const Text(
+          "Remove",
+          style: TextStyle(color: Colors.red),
         ),
       );
     }
 
     return SizedBox(
       height: 40.0,
-      width: 100,
-      child: Center(child: buttonContent),
+      width: 140.0,
+      child: buttonContent,
     );
   }
 
@@ -325,5 +379,39 @@ class _UsersPageState extends ConsumerState<UsersPage> {
   void dispose() {
     _emailAddressTextEditingController.dispose();
     super.dispose();
+  }
+}
+
+class ConfirmDialog extends StatelessWidget {
+  final String message;
+  const ConfirmDialog({
+    Key? key,
+    required this.message,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text("Confirm"),
+      content: Text(message),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text(
+            "Cancel",
+            style: TextStyle(color: kColorSecondaryText),
+          ),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(context, true),
+          child: const Text(
+            "Confirm",
+            style: TextStyle(
+              color: kColorAccent,
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }
