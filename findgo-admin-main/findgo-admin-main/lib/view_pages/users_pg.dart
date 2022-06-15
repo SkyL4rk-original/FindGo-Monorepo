@@ -201,27 +201,27 @@ class _UsersPageState extends ConsumerState<UsersPage> {
     fontSize: 12.0,
     color: kColorSecondaryText,
   );
-  List<DropdownMenuItem<ManagedUserRole>> _userRoleList() {
-    final List<DropdownMenuItem<ManagedUserRole>> items = [
-      const DropdownMenuItem(
-        value: ManagedUserRole.none,
-        child: Text("None"),
-      ),
-      const DropdownMenuItem(
-        value: ManagedUserRole.superAdmin,
-        child: Text("Super Admin"),
-      ),
-      const DropdownMenuItem(
-        value: ManagedUserRole.admin,
-        child: Text("Admin"),
-      ),
-      const DropdownMenuItem(
-        value: ManagedUserRole.designer,
-        child: Text("Designer"),
-      ),
-    ];
-    return items;
-  }
+  // List<DropdownMenuItem<ManagedUserRole>> _userRoleList() {
+  //   final List<DropdownMenuItem<ManagedUserRole>> items = [
+  //     const DropdownMenuItem(
+  //       value: ManagedUserRole.none,
+  //       child: Text("None"),
+  //     ),
+  //     const DropdownMenuItem(
+  //       value: ManagedUserRole.superAdmin,
+  //       child: Text("Super Admin"),
+  //     ),
+  //     const DropdownMenuItem(
+  //       value: ManagedUserRole.admin,
+  //       child: Text("Admin"),
+  //     ),
+  //     const DropdownMenuItem(
+  //       value: ManagedUserRole.designer,
+  //       child: Text("Designer"),
+  //     ),
+  //   ];
+  //   return items;
+  // }
 
   Widget _updateUserSection(ManagedUser user) {
     return SizedBox(
@@ -238,37 +238,40 @@ class _UsersPageState extends ConsumerState<UsersPage> {
             color: kColorSelected,
             child: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("Email", style: _formHeadingTextStyle),
-                  const SizedBox(height: 16.0),
-                  Text(user.email),
-                  const SizedBox(height: 24.0),
-                  Text("Name", style: _formHeadingTextStyle),
-                  const SizedBox(height: 16.0),
-                  Text("${user.firstName} ${user.lastName}"),
-                  const SizedBox(height: 24.0),
-                  Text("Role", style: _formHeadingTextStyle),
-                  DropdownButtonFormField(
-                    value: user.role,
-                    items: _userRoleList(),
-                    onChanged: (role) {
-                      if (role != null || role != _selectedUser!.role) {
-                        _tempUser =
-                            user.copyWith(role: role as ManagedUserRole?);
-                        setState(() {});
-                      }
-                    },
-                  ),
-                  if (_selectedUser!.role != user.role)
+              child: SizedBox(
+                width: 300.0,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Email", style: _formHeadingTextStyle),
                     const SizedBox(height: 16.0),
-                  if (_selectedUser!.role != user.role)
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: _updateUserButton(),
-                    ),
-                ],
+                    Text(user.email),
+                    const SizedBox(height: 24.0),
+                    Text("Name", style: _formHeadingTextStyle),
+                    const SizedBox(height: 16.0),
+                    Text("${user.firstName} ${user.lastName}"),
+                    // const SizedBox(height: 24.0),
+                    //     Text("Role", style: _formHeadingTextStyle),
+                    //     DropdownButtonFormField(
+                    //       value: user.role,
+                    //       items: _userRoleList(),
+                    //       onChanged: (role) {
+                    //         if (role != null || role != _selectedUser!.role) {
+                    //           _tempUser =
+                    //               user.copyWith(role: role as ManagedUserRole?);
+                    //           setState(() {});
+                    //         }
+                    //       },
+                    //     ),
+                    //     if (_selectedUser!.role != user.role)
+                    //       const SizedBox(height: 16.0),
+                    //     if (_selectedUser!.role != user.role)
+                    //       Align(
+                    //         alignment: Alignment.centerRight,
+                    //         child: _updateUserButton(),
+                    //       ),
+                  ],
+                ),
               ),
             ),
           ),

@@ -4,6 +4,8 @@ import 'package:dartz/dartz.dart';
 import 'package:findgo_admin/core/exception.dart';
 import 'package:findgo_admin/core/failure.dart';
 import 'package:findgo_admin/core/success.dart';
+import 'package:findgo_admin/data_models/managed_user.dart';
+import 'package:findgo_admin/data_models/store.dart';
 import 'package:findgo_admin/data_models/user.dart';
 import 'package:findgo_admin/external_services/local_data_src.dart';
 import 'package:findgo_admin/external_services/network_info.dart';
@@ -283,6 +285,24 @@ class AuthRepository {
 
       await remoteAuthSource.broadcastMessage(jwt, message);
       return right(ServerSuccess());
+    } on RemoteDataSourceException catch (e) {
+      log('auth repo: broadcastMessage: remote error ${e.message}');
+      return left(ServerFailure(e.message));
+    }
+  }
+
+  Future<Either<Failure, Set<ManagedUser>>> getStoreUsers(Store store) async {
+    try {
+      // Check if online
+      if (!await networkInfo.isConnected) {
+        return left(OfflineFailure());
+      }
+
+      // Get jwt
+      final jwt = await getJwt();
+
+      final userSet = await remoteAuthSource.getStoreUsers(jwt, store);
+      return right(userSet);
     } on RemoteDataSourceException catch (e) {
       log('auth repo: broadcastMessage: remote error ${e.message}');
       return left(ServerFailure(e.message));

@@ -5,18 +5,18 @@ import 'package:findgo_admin/core/constants.dart';
 import 'package:findgo_admin/core/failure.dart';
 import 'package:findgo_admin/data_models/managed_user.dart';
 import 'package:findgo_admin/data_models/store.dart';
-import 'package:findgo_admin/repositories/specials_repo.dart';
+import 'package:findgo_admin/repositories/auth_repo.dart';
 import 'package:findgo_admin/widgets/snackbar.dart';
 import 'package:flutter/material.dart';
 
 enum UsersViewState { idle, busy, error, fetchingUser, updatingUser }
 
 class UsersViewModel extends ChangeNotifier {
-  final SpecialsRepository specialsRepository;
+  final AuthRepository authRepo;
 
   // Constructor
   UsersViewModel({
-    required this.specialsRepository,
+    required this.authRepo,
   });
 
   late BuildContext context;
@@ -55,55 +55,13 @@ class UsersViewModel extends ChangeNotifier {
   Future<void> getAllStoreUsers(Store store) async {
     setState(UsersViewState.busy);
 
-    // final failureOrUser = await authRepository.getCurrentUser();
-    // await failureOrUser.fold(
-    //     (failure) async {
-    //       if (!failure.toString().contains("No token stored")) _handleFailure(failure);
-    //       context.vRouter.to("/login", isReplacement: true);
-    //       _state = AuthViewState.error;
-    //       return;
-    //       // Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (ctx) => const LoginPage()));
-    //     },
-    //     (user) async {
-    //           currentUser = user;
-    //           foundUser = true;
-    //           //navigationService.homePage(context);
-    //         }
-    // );
+    final failureOrUserSet = await authRepo.getStoreUsers(store);
+    await failureOrUserSet.fold((failure) async => _handleFailure(failure),
+        (userSet) async {
+      _storeUsersList = userSet.toList();
+      await _sortUserList();
+    });
 
-    final jsonUserList = jsonDecode(
-      """
-[
-      {
-        "userUuid" : "user1",
-        "email" : "d@e.com",
-        "firstName" : "david",
-        "lastName" : "gericke",
-        "role": "1"
-      },
-      {
-        "userUuid" : "user2",
-        "email" : "b@e.com",
-        "firstName" : "Bob",
-        "lastName" : "Bobson",
-        "role": "2"
-      },
-      {
-        "userUuid" : "user3",
-        "email" : "c@e.com",
-        "firstName" : "Cathy",
-        "lastName" : "Cathkey",
-        "role": "3"
-      }
-    ]""",
-    ) as List;
-
-    _storeUsersList = jsonUserList
-        .map((user) => ManagedUser.fromJson(user as Map<String, dynamic>))
-        .toList();
-    await _sortUserList();
-
-    await Future.delayed(const Duration(seconds: 1));
     setState(UsersViewState.idle);
   }
 
@@ -185,4 +143,3 @@ class UsersViewModel extends ChangeNotifier {
     });
   }
 }
-

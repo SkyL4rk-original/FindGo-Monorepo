@@ -42,7 +42,7 @@ Future<void> initInjector() async {
   );
   sl.registerLazySingleton(
     () => UsersViewModel(
-      specialsRepository: sl(),
+      authRepo: sl(),
     ),
   );
   // sl.registerLazySingleton(() => HomeViewModel(authRepository: sl(),));

@@ -61,7 +61,8 @@ class ManagedUser {
         email: json["email"] as String,
         firstName: json["firstName"] as String,
         lastName: json["lastName"] as String,
-        role: _parseManagedUserRole(json["role"] as String? ?? "0"),
+        // role: _parseManagedUserRole(json["role"] as String? ?? "0"),
+        role: ManagedUserRole.admin,
       );
 
   Map<String, dynamic> toJson() => {

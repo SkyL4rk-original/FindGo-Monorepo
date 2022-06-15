@@ -5,6 +5,8 @@ import 'dart:developer';
 import 'package:findgo_admin/core/constants.dart';
 import 'package:findgo_admin/core/exception.dart';
 import 'package:findgo_admin/core/success.dart';
+import 'package:findgo_admin/data_models/managed_user.dart';
+import 'package:findgo_admin/data_models/store.dart';
 import 'package:findgo_admin/data_models/user.dart';
 import 'package:http/http.dart';
 
@@ -532,6 +534,48 @@ class RemoteAuthSource {
       }
 
       throw RemoteDataSourceException("Unexpected Error");
+    } catch (error) {
+      throw RemoteDataSourceException(error.toString());
+    }
+  }
+
+  Future<Set<ManagedUser>> getStoreUsers(String jwt, Store store) async {
+    final uri =
+        Uri.parse("$serverUrl/getAllStoreUsers.php?store=${store.uuid}");
+    print(uri.toString());
+    //print("jwt req: " + jwt);
+
+    try {
+      // Send get request
+      final response = await http.get(
+        uri,
+        headers: {"jwt": jwt},
+      ).timeout(kTimeOutDuration);
+
+      // MOCK RESPONSE
+      // await Future.delayed(const Duration(seconds: 1));
+      // final response = Response(jsonEncode(mockStoreList), 200,);
+      //print(json.decode(response.body).toString());
+
+      // Log status code
+      print('[GET ALL STORE USERS] Response Code: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        //print(response.body.toString());
+
+        final jsonList = json.decode(response.body) as List;
+        final userList = jsonList
+            .map(
+              (json) => ManagedUser.fromJson(json as Map<String, dynamic>),
+            )
+            .toSet();
+
+        return userList;
+      } else {
+        _handleError(response: response);
+      }
+
+      throw RemoteDataSourceException(response.body);
     } catch (error) {
       throw RemoteDataSourceException(error.toString());
     }
