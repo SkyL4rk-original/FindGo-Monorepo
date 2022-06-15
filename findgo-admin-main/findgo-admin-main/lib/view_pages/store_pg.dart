@@ -31,7 +31,7 @@ class _StorePageState extends ConsumerState<StorePage> {
   final _picker = ImagePicker();
 
   int _selectedCategory = 13;
-  int _selectedLocation = 0;
+  int? _selectedLocation;
 
   final _formKey = GlobalKey<FormState>();
   final _nameTextEditingController = TextEditingController();
@@ -160,7 +160,7 @@ class _StorePageState extends ConsumerState<StorePage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
-                    "Store Profile",
+                    "Restaurant Profile",
                     style: TextStyle(fontSize: 18.0),
                     textAlign: TextAlign.center,
                   ),
@@ -187,7 +187,7 @@ class _StorePageState extends ConsumerState<StorePage> {
                             onTap: () async {
                               InfoSnackBar.show(
                                 context,
-                                "Store id added to clipboard",
+                                "Restaurant id added to clipboard",
                               );
                               await Clipboard.setData(
                                 ClipboardData(text: _store.uuid),
@@ -203,13 +203,13 @@ class _StorePageState extends ConsumerState<StorePage> {
                           splashColor: Colors.transparent,
                           hoverColor: Colors.transparent,
                           onTap: () => _nameFocusNode.requestFocus(),
-                          child:
-                              Text("Store Name", style: _formHeadingTextStyle),
+                          child: Text("Restaurant Name",
+                              style: _formHeadingTextStyle),
                         ),
                         TextFormField(
                           validator: (description) {
                             if (description == null || description.isEmpty) {
-                              return "please enter your store name";
+                              return "please enter your restaurant name";
                             }
                             return null;
                           },
@@ -222,24 +222,24 @@ class _StorePageState extends ConsumerState<StorePage> {
                         const SizedBox(height: 16.0),
                         // Text("Store Image", style: _formHeadingTextStyle),
                         // const SizedBox(height: 4.0),
-                        Text("Category", style: _formHeadingTextStyle),
-                        DropdownButtonFormField(
-                          value: _selectedCategory,
-                          items: _storeCategoryList(),
-                          onChanged: (value) {
-                            if (value != null) {
-                              setState(() {
-                                _tempStore.category = storeVM.categoryList
-                                    .firstWhere(
-                                      (category) => category.id == value as int,
-                                    )
-                                    .name;
-                                _tempStore.categoryId = value as int;
-                                _selectedCategory = value;
-                              });
-                            }
-                          },
-                        ),
+                        // Text("Category", style: _formHeadingTextStyle),
+                        // DropdownButtonFormField(
+                        //   value: _selectedCategory,
+                        //   items: _storeCategoryList(),
+                        //   onChanged: (value) {
+                        //     if (value != null) {
+                        //       setState(() {
+                        //         _tempStore.category = storeVM.categoryList
+                        //             .firstWhere(
+                        //               (category) => category.id == value as int,
+                        //             )
+                        //             .name;
+                        //         _tempStore.categoryId = value as int;
+                        //         _selectedCategory = value;
+                        //       });
+                        //     }
+                        //   },
+                        // ),
                         const SizedBox(height: 16.0),
                         // Text("Store Image", style: _formHeadingTextStyle),
                         // const SizedBox(height: 4.0),
@@ -385,7 +385,7 @@ class _StorePageState extends ConsumerState<StorePage> {
                               validator: (description) {
                                 if (description == null ||
                                     description.isEmpty) {
-                                  return "please enter a store description";
+                                  return "please enter a resaurant description";
                                 }
                                 return null;
                               },
@@ -660,7 +660,8 @@ class _StorePageState extends ConsumerState<StorePage> {
                                     child: _toggleActivateStoreButton(),
                                   ),
                                 ),
-                              if (_store.isUpdated(_tempStore))
+                              if (_store.isUpdated(_tempStore) ||
+                                  widget.store == null)
                                 Expanded(
                                   child: Align(
                                     alignment: Alignment.centerRight,
@@ -729,7 +730,7 @@ class _StorePageState extends ConsumerState<StorePage> {
             if (_store.isUpdated(_tempStore)) {
               InfoSnackBar.show(
                 context,
-                "Please save store updates before activating",
+                "Please save resaurant updates before activating",
                 color: SnackBarColor.error,
               );
               return;
@@ -973,13 +974,6 @@ class _StorePageState extends ConsumerState<StorePage> {
 
   List<DropdownMenuItem<int>>? _storeLocationList() {
     final List<DropdownMenuItem<int>> items = [];
-
-    // items.add(
-    //   DropdownMenuItem(
-    //       value: 0,
-    //       child: Text("Select a Location"),
-    //     ),
-    // );
 
     for (final location in _locationsViewModel.locationsList) {
       items.add(

@@ -37,7 +37,7 @@ class RemoteSpecialsDataSource {
   // STORES
 
   Future<Store> createStore(String jwt, Store store) async {
-    final uri = Uri.parse("$serverUrl/createStore.php");
+    final uri = Uri.parse("$serverUrl/createStoreV2.php");
     // print(uri.toString());
     //print("jwt req: " + jwt);
 
