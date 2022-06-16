@@ -82,7 +82,7 @@ class _StoreStatsPageState extends ConsumerState<StoreStatsPage> {
                     color: Colors.white,
                   ),
                 ),
-                const Expanded(child: Center(child: Text("Store Stats"))),
+                const Expanded(child: Center(child: Text("Restaurant Stats"))),
                 const SizedBox(width: 40.0)
               ],
             ),

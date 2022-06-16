@@ -60,6 +60,8 @@ class _HomePageState extends ConsumerState<HomePage> {
   // States
   bool _isBroadcastingMessage = false;
 
+  bool isInit = false;
+
   @override
   void initState() {
     _authViewModel = ref.read(authVMProvider);
@@ -72,7 +74,6 @@ class _HomePageState extends ConsumerState<HomePage> {
       if (await _authViewModel.getCurrentUser()) {
         if (!_authViewModel.currentUser.isSuperUser) {
           _showStores = true;
-          setState(() {});
         }
 
         _specialsViewModel.getAllSpecials();
@@ -80,6 +81,7 @@ class _HomePageState extends ConsumerState<HomePage> {
         await _storesViewModel.getAllStores();
         await _locationsViewModel.getAllLocations();
 
+        isInit = true;
         setState(() {});
       }
     });
@@ -308,63 +310,79 @@ class _HomePageState extends ConsumerState<HomePage> {
                   specialsVM.context = context;
                   storesVM.context = context;
 
-                  return authVM.state == AuthViewState.fetchingUser
+                  return !isInit
                       ? Center(child: LoadWidget())
-                      : SingleChildScrollView(
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: Padding(
-                              padding: const EdgeInsets.all(20.0),
-                              child: Row(
-                                // mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                      : Builder(builder: (context) {
+                          if (storesVM.storesList.isEmpty) {
+                            return Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  if (_authViewModel.currentUser.isSuperUser)
-                                    _locationSearchSection(),
-                                  if (_showStores) const SizedBox(width: 20.0),
-                                  _storeSearchSection(),
-                                  if (_showActivity)
-                                    const SizedBox(width: 20.0),
-                                  if (_selectedStore != null)
-                                    _activitySection(),
-                                  const SizedBox(width: 20.0),
-                                  if (_selectedSpecial != null)
-                                    _selectedSpecialSection(),
-                                  const SizedBox(width: 20.0),
-                                  if (_selectedStore != null &&
-                                      _selectedSpecial != null)
-                                    SizedBox(
-                                      width: 300.0,
-                                      child: Column(
-                                        children: [
-                                          const SizedBox(height: 10.0),
-                                          const SizedBox(
-                                            height: 22.0,
-                                            width: double.infinity,
-                                            child: Center(
-                                              child: Text(
-                                                "Special Preview",
-                                                textAlign: TextAlign.center,
-                                              ),
-                                            ),
-                                          ),
-                                          const SizedBox(height: 16.0),
-                                          SpecialCard(special: _tempSpecial!),
-                                          const SizedBox(height: 16.0),
-                                          if (_tempSpecial!.uuid != "" &&
-                                              _tempSpecial!.status !=
-                                                  SpecialStatus.pending)
-                                            SpecialStatsCard(
-                                              special: _tempSpecial!,
-                                            ),
-                                        ],
-                                      ),
-                                    ),
+                                  const Text(
+                                      "You dont have any restaurants attached to your account."),
+                                  const SizedBox(height: 24.0),
+                                  _addStoreButton(),
                                 ],
                               ),
+                            );
+                          }
+                          return SingleChildScrollView(
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: Padding(
+                                padding: const EdgeInsets.all(20.0),
+                                child: Row(
+                                  // mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    if (_authViewModel.currentUser.isSuperUser)
+                                      _locationSearchSection(),
+                                    if (_showStores)
+                                      const SizedBox(width: 20.0),
+                                    _storeSearchSection(),
+                                    if (_showActivity)
+                                      const SizedBox(width: 20.0),
+                                    if (_selectedStore != null)
+                                      _activitySection(),
+                                    const SizedBox(width: 20.0),
+                                    if (_selectedSpecial != null)
+                                      _selectedSpecialSection(),
+                                    const SizedBox(width: 20.0),
+                                    if (_selectedStore != null &&
+                                        _selectedSpecial != null)
+                                      SizedBox(
+                                        width: 300.0,
+                                        child: Column(
+                                          children: [
+                                            const SizedBox(height: 10.0),
+                                            const SizedBox(
+                                              height: 22.0,
+                                              width: double.infinity,
+                                              child: Center(
+                                                child: Text(
+                                                  "Special Preview",
+                                                  textAlign: TextAlign.center,
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(height: 16.0),
+                                            SpecialCard(special: _tempSpecial!),
+                                            const SizedBox(height: 16.0),
+                                            if (_tempSpecial!.uuid != "" &&
+                                                _tempSpecial!.status !=
+                                                    SpecialStatus.pending)
+                                              SpecialStatsCard(
+                                                special: _tempSpecial!,
+                                              ),
+                                          ],
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
                             ),
-                          ),
-                        );
+                          );
+                        });
                 },
               ),
               Positioned(
@@ -404,7 +422,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               RotatedBox(
                 quarterTurns: 3,
                 child: Text(
-                  _selectedStore != null ? _selectedStore!.name : "Stores",
+                  _selectedStore != null ? _selectedStore!.name : "Restaurant",
                 ),
               ),
               const SizedBox(
@@ -429,7 +447,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                     padding: const EdgeInsets.all(8.0),
                     child: Row(
                       children: [
-                        const Text("Stores"),
+                        const Text("Restaurant"),
                         const SizedBox(
                           width: 12.0,
                         ),
@@ -448,7 +466,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             // ),
             TextField(
               decoration: const InputDecoration(
-                hintText: 'Search Store',
+                hintText: 'Search Restaurant',
                 icon: Icon(Icons.search),
               ),
               onChanged: (query) => setState(() => _storeFilter = query),
@@ -681,7 +699,7 @@ class _HomePageState extends ConsumerState<HomePage> {
         locationVM.context = context;
 
         final List<Location> tmpList = locationVM.locationsList;
-        final Location tmpLocation = Location(id: 0, name: "All Stores");
+        final Location tmpLocation = Location(id: 0, name: "All Restaurant");
         if (tmpList.contains(tmpLocation)) {
           tmpList.remove(tmpLocation);
         }
@@ -770,7 +788,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   Widget _addStoreButton() {
     return SizedBox(
       height: 40.0,
-      width: 130.0,
+      width: 150.0,
       child: Center(
         child: ExcludeFocus(
           child: TextButton.icon(
@@ -790,7 +808,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               }
             },
             icon: const Icon(Icons.add),
-            label: const Text("Add Store"),
+            label: const Text("Add Restaurant"),
           ),
         ),
       ),
@@ -800,7 +818,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   Widget _addLocationButton() {
     return SizedBox(
       height: 40.0,
-      width: 130.0,
+      width: 150.0,
       child: Center(
         child: ExcludeFocus(
           child: TextButton.icon(
@@ -1119,7 +1137,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             if (_selectedStore == null) {
               InfoSnackBar.show(
                 context,
-                "No Store Selected",
+                "No Restaurant Selected",
                 color: SnackBarColor.error,
               );
               return;

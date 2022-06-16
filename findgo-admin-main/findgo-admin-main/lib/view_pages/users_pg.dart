@@ -4,6 +4,7 @@ import 'package:findgo_admin/core/constants.dart';
 import 'package:findgo_admin/data_models/managed_user.dart';
 import 'package:findgo_admin/data_models/store.dart';
 import 'package:findgo_admin/main.dart';
+import 'package:findgo_admin/view_models/stores_vm.dart';
 import 'package:findgo_admin/view_models/users_vm.dart';
 import 'package:findgo_admin/view_pages/register_pg.dart';
 import 'package:findgo_admin/widgets/snackbar.dart';
@@ -21,6 +22,7 @@ class UsersPage extends ConsumerStatefulWidget {
 
 class _UsersPageState extends ConsumerState<UsersPage> {
   late UsersViewModel _usersViewModel;
+  late StoresViewModel _storesViewModel;
   ManagedUser? _selectedUser;
   ManagedUser? _tempUser;
 
@@ -28,6 +30,7 @@ class _UsersPageState extends ConsumerState<UsersPage> {
 
   @override
   void initState() {
+    _storesViewModel = ref.read(storesVMProvider);
     _usersViewModel = ref.read(usersVMProvider);
     _usersViewModel.context = context;
 
@@ -360,6 +363,7 @@ class _UsersPageState extends ConsumerState<UsersPage> {
               widget.store,
             );
             if (success) {
+              _storesViewModel.getAllStores();
               InfoSnackBar.show(context, "User removed from restaurant.");
             }
           }
