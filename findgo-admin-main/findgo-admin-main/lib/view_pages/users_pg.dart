@@ -5,6 +5,7 @@ import 'package:findgo_admin/data_models/managed_user.dart';
 import 'package:findgo_admin/data_models/store.dart';
 import 'package:findgo_admin/main.dart';
 import 'package:findgo_admin/view_models/users_vm.dart';
+import 'package:findgo_admin/view_pages/register_pg.dart';
 import 'package:findgo_admin/widgets/snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -85,26 +86,31 @@ class _UsersPageState extends ConsumerState<UsersPage> {
     );
   }
 
-  // // USERS STORE SECTION
-  // bool _addingUser = false;
-  // Widget _addUserButton() {
-  //   return _usersViewModel.state == UsersViewState.fetchingUser
-  //       ? const CircularProgressIndicator()
-  //       : SizedBox(
-  //           height: 40.0,
-  //           width: 130.0,
-  //           child: Center(
-  //             child: TextButton.icon(
-  //               onPressed: () async {
-  //                 _addingUser = true;
-  //                 setState(() {});
-  //               },
-  //               icon: const Icon(Icons.add),
-  //               label: const Text("Add User"),
-  //             ),
-  //           ),
-  //         );
-  // }
+  // USERS STORE SECTION
+  Widget _addUserButton() {
+    return _usersViewModel.state == UsersViewState.fetchingUser
+        ? const CircularProgressIndicator()
+        : SizedBox(
+            height: 40.0,
+            width: 130.0,
+            child: Center(
+              child: TextButton.icon(
+                onPressed: () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const RegisterPage(fromAdmin: true),
+                    ),
+                  );
+
+                  await _usersViewModel.getAllStoreUsers(widget.store);
+                },
+                icon: const Icon(Icons.add),
+                label: const Text("Create User"),
+              ),
+            ),
+          );
+  }
 
   Widget _userListSection() {
     return SizedBox(
@@ -115,7 +121,7 @@ class _UsersPageState extends ConsumerState<UsersPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text("Users List"),
-              // _addUserButton(),
+              _addUserButton(),
             ],
           ),
           const SizedBox(height: 16.0),
@@ -196,7 +202,6 @@ class _UsersPageState extends ConsumerState<UsersPage> {
       _tempUser = _selectedUser!.copyWith();
     } else {
       _tempUser = null;
-      // ignore: use_build_context_synchronously
       InfoSnackBar.show(
         context,
         "No admin user found with matching email",
@@ -351,7 +356,9 @@ class _UsersPageState extends ConsumerState<UsersPage> {
 
           if (confirm != null) {
             final success = await _usersViewModel.removeUserFromStore(
-                _tempUser!, widget.store);
+              _tempUser!,
+              widget.store,
+            );
             if (success) {
               InfoSnackBar.show(context, "User removed from restaurant.");
             }

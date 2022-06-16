@@ -3,13 +3,12 @@ import 'package:findgo_admin/data_models/user.dart';
 import 'package:findgo_admin/main.dart';
 import 'package:findgo_admin/view_models/auth_vm.dart';
 import 'package:findgo_admin/widgets/loading.dart';
-import 'package:findgo_admin/widgets/snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:vrouter/vrouter.dart';
 
 class RegisterPage extends ConsumerWidget {
-  const RegisterPage();
+  final bool fromAdmin;
+  const RegisterPage({this.fromAdmin = false});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -18,6 +17,13 @@ class RegisterPage extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: kColorBackground,
+      appBar: fromAdmin
+          ? AppBar(
+              leading: BackButton(
+                onPressed: () => Navigator.pop(context),
+              ),
+            )
+          : null,
       body: Scrollbar(
         child: Center(
           child: SingleChildScrollView(
@@ -75,6 +81,8 @@ class _RegisterFormControllerState extends State<RegisterFormController> {
   bool _hidePassword = true;
   bool _hideConfirmPassword = true;
 
+  bool _showConfirmEmailMessage = false;
+
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -84,6 +92,15 @@ class _RegisterFormControllerState extends State<RegisterFormController> {
           // Watch Providers
           final authVM = ref.watch(authVMProvider);
           authVM.context = context;
+
+          if (_showConfirmEmailMessage) {
+            return const Center(
+              child: Text(
+                "Please check your email to verify account before you can use the admin console.",
+                textAlign: TextAlign.center,
+              ),
+            );
+          }
 
           return Column(
             children: <Widget>[
@@ -255,10 +272,13 @@ class _RegisterFormControllerState extends State<RegisterFormController> {
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       );
-      await authVM.registerUser(user);
+      final success = await authVM.registerUser(user);
       _passwordController.clear();
       _confirmPasswordController.clear();
       _focusNodeEmail.requestFocus();
+
+      if (success) _showConfirmEmailMessage = true;
+      setState(() {});
     }
   }
 

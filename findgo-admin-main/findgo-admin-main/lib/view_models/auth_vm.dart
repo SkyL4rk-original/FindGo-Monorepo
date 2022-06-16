@@ -89,15 +89,18 @@ class AuthViewModel extends ChangeNotifier {
     });
   }
 
-  Future<void> registerUser(User user) async {
+  Future<bool> registerUser(User user) async {
+    bool success = false;
     setState(AuthViewState.busy);
 
     final failureOrUser = await authRepository.register(user);
     failureOrUser.fold((failure) async => _handleFailure(failure), (newUser) {
       currentUser = newUser;
+      success = true;
       _state = AuthViewState.idle;
-      context.vRouter.to("/", isReplacement: true);
+      // context.vRouter.to("/", isReplacement: true);
     });
+    return success;
   }
 
   Future<void> logout() async {

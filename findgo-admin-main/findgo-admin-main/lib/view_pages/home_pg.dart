@@ -70,17 +70,16 @@ class _HomePageState extends ConsumerState<HomePage> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       // print("CHECKING CURRENT USER HOME PG");
       if (await _authViewModel.getCurrentUser()) {
+        if (!_authViewModel.currentUser.isSuperUser) {
+          _showStores = true;
+          setState(() {});
+        }
+
         _specialsViewModel.getAllSpecials();
         _storesViewModel.getAllStoreCategories();
         await _storesViewModel.getAllStores();
         await _locationsViewModel.getAllLocations();
 
-        if (_authViewModel.currentUser.storeUuid != "") {
-          _selectedStore = _storesViewModel.storesList.firstWhere(
-            (store) => store.uuid == _authViewModel.currentUser.storeUuid,
-          );
-          _showActivity = true;
-        }
         setState(() {});
       }
     });
@@ -323,9 +322,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                   if (_authViewModel.currentUser.isSuperUser)
                                     _locationSearchSection(),
                                   if (_showStores) const SizedBox(width: 20.0),
-                                  if (_authViewModel.currentUser.storeUuid ==
-                                      "")
-                                    _storeSearchSection(),
+                                  _storeSearchSection(),
                                   if (_showActivity)
                                     const SizedBox(width: 20.0),
                                   if (_selectedStore != null)
@@ -419,7 +416,7 @@ class _HomePageState extends ConsumerState<HomePage> {
       );
     } else {
       return SizedBox(
-        width: 300.0,
+        width: 400.0,
         child: Column(
           children: [
             Row(
@@ -595,31 +592,32 @@ class _HomePageState extends ConsumerState<HomePage> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(store.name),
+                            Expanded(child: Text(store.name)),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
-                                // InkWell(
-                                //   canRequestFocus: false,
-                                //   onTap: () async {
-                                //     if (!await _removeSpecialChanges()) return;
-                                //
-                                //     await Navigator.of(context).push(
-                                //       MaterialPageRoute(
-                                //         builder: (ctx) => UsersPage(store: store),
-                                //       ),
-                                //     );
-                                //   },
-                                //   hoverColor: kColorAccent.withAlpha(60),
-                                //   child: const Padding(
-                                //     padding: EdgeInsets.all(8.0),
-                                //     child: Text(
-                                //       "Users", // Navbar
-                                //       style: kTextStyleSmallSecondary,
-                                //     ),
-                                //   ),
-                                // ),
-                                // const SizedBox(width: 8.0),
+                                InkWell(
+                                  canRequestFocus: false,
+                                  onTap: () async {
+                                    if (!await _removeSpecialChanges()) return;
+
+                                    await Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (ctx) =>
+                                            UsersPage(store: store),
+                                      ),
+                                    );
+                                  },
+                                  hoverColor: kColorAccent.withAlpha(60),
+                                  child: const Padding(
+                                    padding: EdgeInsets.all(8.0),
+                                    child: Text(
+                                      "Users", // Navbar
+                                      style: kTextStyleSmallSecondary,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 12.0),
                                 InkWell(
                                   canRequestFocus: false,
                                   onTap: () async {
