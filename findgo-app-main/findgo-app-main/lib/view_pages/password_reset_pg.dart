@@ -5,7 +5,7 @@ import 'package:findgo/widgets/loading.dart';
 import 'package:findgo/widgets/snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:pinput/pin_put/pin_put.dart';
+import 'package:pinput/pinput.dart';
 import 'package:vrouter/vrouter.dart';
 
 class PasswordResetPage extends StatefulWidget {
@@ -213,15 +213,21 @@ class _PasswordResetPasswordFormControllerState
   final _passwordController = TextEditingController();
   final _passwordConfirmController = TextEditingController();
   final _pinPutController = TextEditingController();
-  final FocusNode _pinPutFocusNode = FocusNode();
+  final _pinPutFocusNode = FocusNode();
+  final _passwordFocusNode = FocusNode();
+  final _retypePwFocusNode = FocusNode();
 
   bool _hidePassword = true;
   bool _hideCheckPassword = true;
 
-  BoxDecoration get _pinPutDecoration {
-    return BoxDecoration(
-      border: Border.all(color: kColorAccent),
-      borderRadius: BorderRadius.circular(15.0),
+  PinTheme _pinPutTheme(double radius) {
+    return PinTheme(
+      height: 60.0,
+      width: 60.0,
+      decoration: BoxDecoration(
+        border: Border.all(color: kColorAccent),
+        borderRadius: BorderRadius.circular(radius),
+      ),
     );
   }
 
@@ -241,20 +247,21 @@ class _PasswordResetPasswordFormControllerState
                 style: kTextStyleSubHeading,
               ),
               const SizedBox(height: 24.0),
-              PinPut(
-                fieldsCount: 6,
-                // onSubmit: (String pin) => _showSnackBar(pin, context),
-                focusNode: _pinPutFocusNode,
-                controller: _pinPutController,
-                submittedFieldDecoration: _pinPutDecoration.copyWith(
-                  borderRadius: BorderRadius.circular(20.0),
-                ),
-                selectedFieldDecoration: _pinPutDecoration,
-                followingFieldDecoration: _pinPutDecoration.copyWith(
-                  borderRadius: BorderRadius.circular(5.0),
-                  border: Border.all(
-                    color: kColorAccent.withOpacity(.5),
-                  ),
+              SizedBox(
+                height: 60.0,
+                child: Pinput(
+                  length: 6,
+                  // onSubmit: (String pin) => _showSnackBar(pin, context),
+                  focusNode: _pinPutFocusNode,
+                  controller: _pinPutController,
+                  submittedPinTheme: _pinPutTheme(40.0),
+                  errorPinTheme: _pinPutTheme(0.0),
+                  disabledPinTheme: _pinPutTheme(0.0),
+                  defaultPinTheme: _pinPutTheme(10.0),
+                  followingPinTheme: _pinPutTheme(10.0),
+                  focusedPinTheme: _pinPutTheme(10.0),
+                  onSubmitted: (_) => _passwordFocusNode.requestFocus(),
+                  autofocus: true,
                 ),
               ),
               const SizedBox(height: 16.0),
@@ -283,7 +290,9 @@ class _PasswordResetPasswordFormControllerState
                     ),
                   ),
                 ),
+                onFieldSubmitted: (_) => _retypePwFocusNode.requestFocus(),
                 obscureText: _hidePassword,
+                focusNode: _passwordFocusNode,
                 controller: _passwordController,
               ),
               const SizedBox(height: 16.0),
@@ -322,30 +331,15 @@ class _PasswordResetPasswordFormControllerState
                     ),
                   ),
                 ),
+                onFieldSubmitted: (_) => resetPassword(authVM),
                 obscureText: _hideCheckPassword,
+                focusNode: _retypePwFocusNode,
                 controller: _passwordConfirmController,
               ),
               const SizedBox(height: 30.0),
               Builder(
                 builder: (context) => ElevatedButton(
-                  onPressed: () async {
-                    final code = _pinPutController.text.trim();
-                    if (code.isEmpty || code.length < 6) {
-                      InfoSnackBar.show(
-                        context,
-                        "Please enter the code sent to your email",
-                        color: SnackBarColor.error,
-                      );
-                    }
-                    if (_formKey.currentState!.validate()) {
-                      await authVM.passwordReset(
-                        _passwordController.text.trim(),
-                        _pinPutController.text.trim(),
-                      );
-                    }
-                    // _passwordController.clear();
-                    // _passwordConfirmController.clear();
-                  },
+                  onPressed: () => resetPassword(authVM),
                   style: ElevatedButton.styleFrom(primary: kColorAccent),
                   child: const Text(
                     'RESET PASSWORD',
@@ -360,11 +354,33 @@ class _PasswordResetPasswordFormControllerState
     );
   }
 
+  Future<void> resetPassword(AuthViewModel authVM) async {
+    final code = _pinPutController.text.trim();
+    if (code.isEmpty || code.length < 6) {
+      InfoSnackBar.show(
+        context,
+        "Please enter the code sent to your email",
+        color: SnackBarColor.error,
+      );
+    }
+    if (_formKey.currentState!.validate()) {
+      await authVM.passwordReset(
+        _passwordController.text.trim(),
+        _pinPutController.text.trim(),
+      );
+    }
+    // _passwordController.clear();
+    // _passwordConfirmController.clear();
+  }
+
   @override
   void dispose() {
     _passwordController.dispose();
     _passwordConfirmController.dispose();
+    _pinPutController.dispose();
+    _pinPutFocusNode.dispose();
+    _passwordFocusNode.dispose();
+    _retypePwFocusNode.dispose();
     super.dispose();
   }
 }
-
