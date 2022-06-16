@@ -32,7 +32,6 @@ $role = $data['role'];
 
 $refreshToken = "";
 $false = 0;
-$active = 1;
 
 // Check if user already created
 $userHasDeletedAccount = false;
@@ -89,7 +88,7 @@ if ($userHasDeletedAccount) {
 		$refreshToken,
 		$dateTimeNow,
 		$dateTimeNow,
-		$active,
+		$false,
 		$false
 	);
 	if ($st === false) {
@@ -158,15 +157,26 @@ $user = $result->fetch_assoc();
 $userUuid = $user["userUuid"];
 
 // Add verification code
-$result = $db->query("
+$resultV = $db->query("
 	INSERT INTO userVerifyLink (userUuid, code, createdAt)
 	VALUES ('$userUuid', UUID(), '$dateTimeNow')
 ");
-if (!$result) {
+if (!$resultV) {
 	http_response_code(500);
 	echo '{"Message": "Database insert admin verification error ' . mysqli_error($db) . '"}';
 	return;
 }
+
+// Get verification code
+$resultV = $db->query("SELECT code FROM userVerifyLink WHERE userUuid='$userUuid' LIMIT 1");
+if ($resultV->num_rows == 0) {
+	http_response_code(500);
+	echo '"Message":"Database select code error: ' . mysqli_error($db) . '"}';
+	return;
+}
+
+$verification =  $resultV->fetch_assoc();
+$code = $verification["code"];
 
 
 // Remove ID & password
@@ -177,15 +187,8 @@ unset($user["ID"]);
 unset($user["password"]);
 unset($user["refreshToken"]);
 
-// Get time now in UTC
-$dateTimeNow = gmdate('Y-m-d H:i:s', time());
-
 http_response_code(201);
-
-// Return json user object
 echo json_encode($user);
-
-return;
 
 //SEND EMAIL
 $htmlContent = '
@@ -356,7 +359,6 @@ $htmlContent = '
 								font-weight: 400;
 								font-size: 15px;
 								line-height: 1.8;
-								color: rgba(0,0,0,.4);
 							}
 
 							a{
@@ -701,6 +703,19 @@ $htmlContent = '
 
 							}
 
+      .button {
+        background-color: black;
+        border: none;
+        color: white;
+        padding: 20px 34px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 20px;
+        margin: 4px 2px;
+        cursor: pointer;
+      }
+
 
 			</style>
 
@@ -752,9 +767,7 @@ $htmlContent = '
 										<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
 											<tr>
 												<td class="text" style="text-align: center; padding: 20px 30px;">
-													<h2 style="color: white;">Welcome to FindGo</h2>
-													</br>
-													<h4 style="color: white;">' . $email . '</h4>
+													<h2 style="color: white;">Welcome to FindGo Admin</h2>
 												</td>
 											</tr>
 										</table>
@@ -769,7 +782,12 @@ $htmlContent = '
 								<tr>
 									<td class="bg_white email-section">
 										<div class="heading-section" style="text-align: center; padding: 0 30px;">
-											<p>This email was sent to confirm you have signed up to FindGo with the recieving email.</p>
+											<p>Thanks for joining FindGo. Please click the button below to verify your account.</p>
+											<!-- <button onclick= class="button"> -->
+												<a href="https://findgo.co.za/admin/#/verify/' . $code . '">
+											<button class="button">Verify Me</button>
+
+												</a>
 									</td>
 								</tr>
 								<tr>
@@ -799,7 +817,7 @@ $to = $email;
 $from = 'support@findgo.co.za';
 
 $fromName = 'FindGo Support';
-$subject = "FindGo Sign Up";
+$subject = "FindGo Admin  Sign Up";
 
 // Set content-type header for sending HTML email
 $headers = "MIME-Version: 1.0" . "\r\n";

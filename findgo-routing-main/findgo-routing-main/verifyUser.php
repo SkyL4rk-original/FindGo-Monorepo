@@ -60,6 +60,7 @@ $result = $db->query("
 		UPDATE userAdmin
 		SET
 			refreshToken='$refreshToken',
+			status=1,
 			verified=1
 		WHERE userUuid='$userUuid'
 	");
