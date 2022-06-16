@@ -150,3 +150,69 @@ if ($result->num_rows == 1) {
 // Return json user object
 http_response_code(201);
 echo  json_encode($store);
+
+
+// Fetch user info for email
+$result = $db->query("
+		SELECT email
+		FROM userAdmin
+		WHERE userUuid='$userUuid'
+		LIMIT 1
+	");
+if ($result->num_rows != 1) return;
+$user = $result->fetch_assoc();
+$email = $user["email"];
+$dateTimeNow = gmdate('Y-m-d H:i:s', time());
+
+//SEND EMAIL
+$htmlContent = '
+		<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+	<head>
+			<meta charset="utf-8">
+			<meta name="viewport" content="width=device-width">
+			<meta http-equiv="X-UA-Compatible" content="IE=edge">
+			<meta name="x-apple-disable-message-reformatting">
+			<title>FindGo-New Restaurant</title>
+
+
+			<style>
+			</style>
+
+	</head>
+
+	<body width="100%" style="margin: 0; padding: 0 !important; mso-line-height-rule: exactly;">
+		<center style="width: 100%;">
+				<h3>New Restaurant Created.</h3>
+				<p>Name:	' . $storeName . '<p>
+				<p>By:	' . $email . '<p>
+				<p>date(gmt): ' . $dateTimeNow . '</p>
+		</center>
+	</body>
+</html>
+';
+
+
+// Send Register Email
+$to = 'davidtgericke@gmail.com';
+$from = 'support@findgo.co.za';
+
+$fromName = 'FindGo Support';
+$subject = "FindGo New Restaurant";
+
+// Set content-type header for sending HTML email
+$headers = "MIME-Version: 1.0" . "\r\n";
+$headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
+
+// Additional headers
+$headers .= 'From: ' . $fromName . '<' . $from . '>' . "\r\n";
+//$headers .= 'Cc: '. $from . "\r\n";
+//$headers .= 'Bcc: mike@skylarkdigital.co.za' . "\r\n";
+
+// Send email
+if (mail($to, $subject, $htmlContent, $headers)) {
+	// echo 'Email has sent successfully.';
+	//			echo '{"error":"false","Message":"Thank you, your gift has been emailed" }';
+} else {
+	// echo 'Email sending failed.';
+	//		 echo '{"error":"true","Message":"Thank you, user was sent, but an error occured. Please look out for your email. '. mysqli_error($db).' }';
+}
