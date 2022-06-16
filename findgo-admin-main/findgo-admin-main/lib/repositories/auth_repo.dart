@@ -145,6 +145,31 @@ class AuthRepository {
     }
   }
 
+  Future<Either<Failure, User>> verifyUser(String code) async {
+    try {
+      // Check if online
+      if (!await networkInfo.isConnected) {
+        return left(OfflineFailure());
+      }
+      // Run function
+      final success = await remoteAuthSource.verifyUser(code);
+      // Success -> object == <User>
+      if (success.object == null) {
+        return left(ExternalServiceFailure("No user returned with verify"));
+      }
+
+      // Store jwt & user
+      await localDataSource.storeJwt(success.jwt);
+      await localDataSource.storeRefreshToken(success.refreshToken);
+      // await localDataSource.storeCurrentUser(success.object!);
+
+      return right(success.object!);
+    } on Exception catch (e) {
+      log('auth repo: verifyUser: ${e.toString()}');
+      return left(ExternalServiceFailure(e.toString()));
+    }
+  }
+
   // AUTH FUNCTIONS TO REMOTE SERVER WITH JWT
   Future<Either<Failure, User>> getCurrentUser() async {
     try {

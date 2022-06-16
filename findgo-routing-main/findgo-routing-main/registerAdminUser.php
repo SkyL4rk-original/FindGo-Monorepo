@@ -29,17 +29,14 @@ $lastName = $data['lastName'];
 $firebaseToken = $data['firebaseToken'];
 // superAdmin, storeAdmin
 $role = $data['role'];
-$type = $data["type"]; // admin / general
 
 $refreshToken = "";
-
-// Set type database table name for user type
-$dbTableNameUser = "user";
-if ($type == "admin") $dbTableNameUser = "userAdmin";
+$false = 0;
+$active = 1;
 
 // Check if user already created
 $userHasDeletedAccount = false;
-$result = $db->query("SELECT email, status FROM $dbTableNameUser WHERE email='$email' LIMIT 1");
+$result = $db->query("SELECT email, status FROM userAdmin WHERE email='$email' LIMIT 1");
 if ($result->num_rows > 0) {
 
 	$user = $result->fetch_assoc();
@@ -60,9 +57,7 @@ $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 // Check if update "deleted" account or create new
 if ($userHasDeletedAccount) {
 	// Update old account
-	if ($dbTableNameUser == "userAdmin") {
-		// Update userAdmin into database
-		$stmt = $db->prepare("
+	$stmt = $db->prepare("
 				UPDATE userAdmin
 				SET
 					password=?,
@@ -73,167 +68,85 @@ if ($userHasDeletedAccount) {
 				  firebaseToken=?,
 					refreshToken=?,
 				  createdAt=?,
-					updatedAt=?
+					updatedAt=?,
+					status=?,
+					verified=?
 				WHERE email='$email' LIMIT 1
 			");
-
-		$stmt->bind_param(
-			"sssssssss",
-			$hashedPassword,
-			$firstName,
-			$lastName,
-			$storeUuid,
-			$role,
-			$firebaseToken,
-			$refreshToken,
-			$dateTimeNow,
-			$dateTimeNow
-		);
-		$stmt->execute();
-		$stmt->close();
-
-		if ($stmt === false) {
-			http_response_code(500);
-			echo '{"Message": "Database update admin error ' . mysqli_error($db) . '"}';
-			return;
-		}
-	} else {
-		// Update user into database
-		$stmt = $db->prepare("
-				UPDATE user
-				SET
-					password=?,
-					firstName=?,
-				  lastName=?,
-				  firebaseToken=?,
-					refreshToken=?,
-				  createdAt=?,
-					updatedAt=?
-				WHERE email='$email' LIMIT 1
-			");
-
-		$stmt->bind_param(
-			"sssssss",
-			$hashedPassword,
-			$firstName,
-			$lastName,
-			$firebaseToken,
-			$refreshToken,
-			$dateTimeNow,
-			$dateTimeNow
-		);
-		$stmt->execute();
-		$stmt->close();
-
-		if ($stmt === false) {
-			http_response_code(500);
-			echo '{"Message": "Database update user error ' . mysqli_error($db) . '"}';
-			return;
-		}
+	if ($stmt === false) {
+		http_response_code(500);
+		echo '{"Message": "Database prepare insert admin error ' . mysqli_error($db) . '"}';
+		return;
 	}
+	$st = $stmt->bind_param(
+		"sssssssssss",
+		$hashedPassword,
+		$firstName,
+		$lastName,
+		$storeUuid,
+		$role,
+		$firebaseToken,
+		$refreshToken,
+		$dateTimeNow,
+		$dateTimeNow,
+		$active,
+		$false
+	);
+	if ($st === false) {
+		http_response_code(500);
+		echo '{"Message": "Database bind update admin error ' . htmlspecialchars($stmt->error) . '"}';
+		return;
+	}
+	$st = $stmt->execute();
+	if ($st === false) {
+		http_response_code(500);
+		echo '{"Message": "Database execute update admin error ' . htmlspecialchars($stmt->error) . '"}';
+		return;
+	}
+	$stmt->close();
 } else {
-
-	if ($dbTableNameUser == "userAdmin") {
-		// Insert userAdmin into database
-
-		$stmt = $db->prepare("
-				INSERT INTO userAdmin (userUuid, email, password, firstName, lastName, storeUuid, role, firebaseToken, refreshToken, createdAt, updatedAt)
-				VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+	// Insert userAdmin into database
+	$stmt = $db->prepare("
+				INSERT INTO userAdmin (userUuid, email, password, firstName, lastName, storeUuid, role, firebaseToken, refreshToken, createdAt, updatedAt, verified)
+				VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 			");
-		if ($stmt === false) {
-			http_response_code(500);
-			echo '{"Message": "Database insert admin error ' . mysqli_error($db) . '"}';
-			return;
-		}
-
-		$stmt->bind_param(
-			"ssssssssss",
-			$email,
-			$hashedPassword,
-			$firstName,
-			$lastName,
-			$storeUuid,
-			$role,
-			$firebaseToken,
-			$refreshToken,
-			$dateTimeNow,
-			$dateTimeNow
-		);
-		$stmt->execute();
-		$stmt->close();
-
-
-		//$result = $db->query("
-		//INSERT INTO userAdmin (userUuid, email, password, firstName, lastName, storeUuid, role, firebaseToken, createdAt, updatedAt)
-		//VALUES (
-		//UUID(),
-		//'$email',
-		//'$hashedPassword',
-		//'$firstName',
-		//'$lastName',
-		//'$storeUuid',
-		//'$role',
-		//'$firebaseToken',
-		//'$dateTimeNow',
-		//'$dateTimeNow'
-		//)
-		//");
-		//if(!$result) {
-		//http_response_code(500);
-		//echo '{"Message": Database insert error '.mysqli_error($db).'"}';
-		//return;
-		//}
-	} else {
-		// Insert user into database
-		$stmt = $db->prepare("
-				INSERT INTO user (userUuid, email, password, firstName, lastName, firebaseToken, refreshToken, createdAt, updatedAt)
-				VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?)
-			");
-		if ($stmt === false) {
-			http_response_code(500);
-			echo '{"Message": "Database insert user error ' . mysqli_error($db) . '"}';
-			return;
-		}
-
-		$stmt->bind_param(
-			"ssssssss",
-			$email,
-			$hashedPassword,
-			$firstName,
-			$lastName,
-			$firebaseToken,
-			$refreshToken,
-			$dateTimeNow,
-			$dateTimeNow
-		);
-		$stmt->execute();
-		$stmt->close();
-
-		//$result = $db->query("
-		//INSERT INTO user (userUuid, email, password, firstName, lastName, firebaseToken, createdAt, updatedAt)
-		//VALUES (
-		//UUID(),
-		//'$email',
-		//'$hashedPassword',
-		//'$firstName',
-		//'$lastName',
-		//'$firebaseToken',
-		//'$dateTimeNow',
-		//'$dateTimeNow'
-		//)
-		//");
-		//if(!$result) {
-		//http_response_code(500);
-		//echo '{"Message": Database insert error '.mysqli_error($db).'"}';
-		//return;
-		//}
+	if ($stmt === false) {
+		http_response_code(500);
+		echo '{"Message": "Database prepare insert admin error ' . mysqli_error($db) . '"}';
+		return;
 	}
+
+	$st = $stmt->bind_param(
+		"sssssssssss",
+		$email,
+		$hashedPassword,
+		$firstName,
+		$lastName,
+		$storeUuid,
+		$role,
+		$firebaseToken,
+		$refreshToken,
+		$dateTimeNow,
+		$dateTimeNow,
+		$false
+	);
+	if ($st === false) {
+		http_response_code(500);
+		echo '{"Message": "Database bind insert admin error ' . htmlspecialchars($stmt->error) . '"}';
+		return;
+	}
+	$st = $stmt->execute();
+	if ($st === false) {
+		http_response_code(500);
+		echo '{"Message": "Database execute insert admin error ' . htmlspecialchars($stmt->error) . '"}';
+		return;
+	}
+
+	$stmt->close();
 }
 
-
-
 // Get created user
-$result = $db->query("SELECT * FROM $dbTableNameUser WHERE `email` = '$email'");
+$result = $db->query("SELECT * FROM userAdmin WHERE `email` = '$email'");
 if ($result->num_rows == 0) {
 	http_response_code(500);
 	echo '"Message":"Database select error: ' . mysqli_error($db) . '"}';
@@ -242,6 +155,19 @@ if ($result->num_rows == 0) {
 
 // get user from created / found user
 $user = $result->fetch_assoc();
+$userUuid = $user["userUuid"];
+
+// Add verification code
+$result = $db->query("
+	INSERT INTO userVerifyLink (userUuid, code, createdAt)
+	VALUES ('$userUuid', UUID(), '$dateTimeNow')
+");
+if (!$result) {
+	http_response_code(500);
+	echo '{"Message": "Database insert admin verification error ' . mysqli_error($db) . '"}';
+	return;
+}
+
 
 // Remove ID & password
 $user["ID"] = "";
@@ -251,35 +177,15 @@ unset($user["ID"]);
 unset($user["password"]);
 unset($user["refreshToken"]);
 
-// Create jwt from clientUuid & add as header
-$token = createToken($user["userUuid"]);
-$refreshToken = createRefreshToken($user["userUuid"]);
-//setcookie("token", $token, 20000);
-//$user["token"] = $token;
-
 // Get time now in UTC
 $dateTimeNow = gmdate('Y-m-d H:i:s', time());
 
-// add refreshToken to db
-$result = $db->query("
-		UPDATE $dbTableNameUser
-		SET refreshToken='$refreshToken'
-		WHERE email='$email'
-	");
-//	if (!$result) {
-//		http_response_code(200);
-//		//echo mysqli_error($db);
-//		echo '{"Message":"Store"}';
-//		return;
-//	}
-
-header("jwt: " . $token);
-header("refresh-token: " . $refreshToken);
 http_response_code(201);
 
 // Return json user object
-echo  json_encode($user);
+echo json_encode($user);
 
+return;
 
 //SEND EMAIL
 $htmlContent = '

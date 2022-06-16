@@ -103,6 +103,16 @@ class AuthViewModel extends ChangeNotifier {
     return success;
   }
 
+  Future<void> verifyUser(String code) async {
+    final failureOrUser = await authRepository.verifyUser(code);
+    await failureOrUser.fold((failure) async => _handleFailure(failure),
+        (user) async {
+      currentUser = user;
+      InfoSnackBar.show(context, "Verification Successful");
+      context.vRouter.to("/", isReplacement: true);
+    });
+  }
+
   Future<void> logout() async {
     log("LOGGING OUT");
     final failureOrString = await authRepository.logout(currentUser.email);

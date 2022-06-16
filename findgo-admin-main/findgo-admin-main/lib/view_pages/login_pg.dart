@@ -22,15 +22,37 @@ class LoginPage extends ConsumerWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                const Text(
-                  'Login',
-                  style: TextStyle(
-                    fontSize: 40.0,
-                  ), //color: TEXT_COLOR
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Image.asset('assets/icons/logo.png', height: 40.0),
+                    ),
+                    const SizedBox(width: 8.0),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Login',
+                          style: TextStyle(
+                            fontSize: 30.0,
+                          ), //color: TEXT_COLOR
+                        ),
+                        const SizedBox(height: 8.0),
+                        const Text(
+                          'FindGo Admin',
+                          style: TextStyle(
+                            fontSize: 16.0,
+                            color: kColorSecondaryText,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-                const SizedBox(
-                  height: 40.0,
-                ),
+                const SizedBox(height: 40.0),
                 const Center(
                   child: SizedBox(
                     width: 300.0,

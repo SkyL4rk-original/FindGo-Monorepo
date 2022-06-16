@@ -26,7 +26,7 @@ class RemoteAuthSource {
     } else if (response.statusCode >= 400 && response.statusCode < 500) {
       throw RemoteDataSourceException(message);
     } else if (response.statusCode >= 500) {
-      log("remote server error: $message");
+      print("remote server error: $message");
       throw RemoteDataSourceException("Unexpected Remote Server Error");
     }
   }
@@ -141,6 +141,45 @@ class RemoteAuthSource {
     }
   }
 
+  Future<ServerSuccess<User>> verifyUser(String code) async {
+    final uri = Uri.parse("$serverUrl/verifyUser.php?code=$code");
+
+    try {
+      // Send get request
+      final response = await http.get(
+        uri,
+        headers: {"Content-Type": "application/json"},
+      ).timeout(kTimeOutDuration);
+      // MOCK RESPONSE
+      // final response = Response(jsonEncode(mockUser), 200, headers: {"jwt": jwt});
+      // print(json.decode(response.body).toString());
+
+      // Log status code
+      log('[VERIFY USER] Response Code: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        final jsonResp = json.decode(response.body);
+        final user = User.fromJson(jsonResp as Map<String, dynamic>);
+
+        final jwt = response.headers['jwt'] ?? "";
+        final refreshToken = response.headers['refresh-token'] ?? "";
+        // print("jwt: $jwt");
+        // print("refresh-token: $refreshToken");
+        return ServerSuccess(
+          jwt: jwt,
+          refreshToken: refreshToken,
+          object: user,
+        );
+      } else {
+        _handleError(response: response);
+      }
+
+      throw RemoteDataSourceException(response.body);
+    } catch (error) {
+      throw RemoteDataSourceException(error.toString());
+    }
+  }
+
   Future<ServerSuccess<User>> login(String email, String password) async {
     final uri = Uri.parse("$serverUrl/loginUser.php");
     log(uri.toString());
@@ -192,12 +231,12 @@ class RemoteAuthSource {
   }
 
   Future<ServerSuccess<User>> register(User user) async {
-    final uri = Uri.parse("$serverUrl/registerUser.php");
+    final uri = Uri.parse("$serverUrl/registerAdminUser.php");
     print(uri.toString());
 
     final userMap = user.toJson();
     userMap["firebaseToken"] = "";
-    print(json.encode(userMap));
+    // print(json.encode(userMap));
 
     try {
       // Send get request
@@ -243,7 +282,7 @@ class RemoteAuthSource {
 
       throw RemoteDataSourceException("Unexpected Error");
     } catch (error) {
-      log(error.toString());
+      print(error.toString());
       throw RemoteDataSourceException(error.toString());
     }
   }

@@ -30,15 +30,37 @@ class RegisterPage extends ConsumerWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                const Text(
-                  'Register Admin',
-                  style: TextStyle(
-                    fontSize: 40.0,
-                  ), //color: TEXT_COLOR
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Image.asset('assets/icons/logo.png', height: 40.0),
+                    ),
+                    const SizedBox(width: 8.0),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Register',
+                          style: TextStyle(
+                            fontSize: 30.0,
+                          ), //color: TEXT_COLOR
+                        ),
+                        const SizedBox(height: 8.0),
+                        const Text(
+                          'FindGo Admin',
+                          style: TextStyle(
+                            fontSize: 16.0,
+                            color: kColorSecondaryText,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-                const SizedBox(
-                  height: 40.0,
-                ),
+                const SizedBox(height: 40.0),
                 const Center(
                   child: SizedBox(
                     width: 300.0,
@@ -96,7 +118,7 @@ class _RegisterFormControllerState extends State<RegisterFormController> {
           if (_showConfirmEmailMessage) {
             return const Center(
               child: Text(
-                "Please check your email to verify account before you can use the admin console.",
+                "Please check your email to verify the new account.",
                 textAlign: TextAlign.center,
               ),
             );
@@ -273,8 +295,8 @@ class _RegisterFormControllerState extends State<RegisterFormController> {
         updatedAt: DateTime.now(),
       );
       final success = await authVM.registerUser(user);
-      _passwordController.clear();
-      _confirmPasswordController.clear();
+      // _passwordController.clear();
+      // _confirmPasswordController.clear();
       _focusNodeEmail.requestFocus();
 
       if (success) _showConfirmEmailMessage = true;

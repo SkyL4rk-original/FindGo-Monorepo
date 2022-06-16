@@ -1,10 +1,10 @@
 import 'package:findgo_admin/data_models/user.dart';
 import 'package:flutter/material.dart';
 
-const kVersion = "v 0.1.3"; // 15:30 22 Oct 2021
+const kVersion = "v 0.2.0"; // 15:30 16 June 2022
 
 // NETWORKING
-const kTimeOutDuration = Duration(seconds: 30);
+const kTimeOutDuration = Duration(minutes: 1);
 
 const kMaxImageByteSize = 2000000;
 

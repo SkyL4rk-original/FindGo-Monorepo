@@ -12,6 +12,7 @@ import 'package:findgo_admin/view_pages/login_pg.dart';
 import 'package:findgo_admin/view_pages/password_reset_pg.dart';
 import 'package:findgo_admin/view_pages/register_pg.dart';
 import 'package:findgo_admin/view_pages/user_pg.dart';
+import 'package:findgo_admin/view_pages/verify_pg.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vrouter/vrouter.dart';
@@ -81,6 +82,15 @@ class App extends ConsumerWidget {
           widget: const RegisterPage(),
           buildTransition: (animation1, _, child) {
             return FadeTransition(opacity: animation1, child: child);
+          },
+        ),
+
+        VWidget.builder(
+          path: '/verify/:code',
+          builder: (ctx, state) {
+            final code = state.pathParameters['code'];
+            if (code == null) return ErrorPage();
+            return VerifyPage(code: code);
           },
         ),
 
