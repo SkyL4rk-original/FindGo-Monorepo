@@ -36,7 +36,7 @@ class RegisterPage extends ConsumerWidget {
                   children: [
                     Padding(
                       padding: const EdgeInsets.only(top: 8.0),
-                      child: Image.asset('assets/icons/logo.png', height: 40.0),
+                      child: Image.asset('assets/logo.png', height: 40.0),
                     ),
                     const SizedBox(width: 8.0),
                     Column(
