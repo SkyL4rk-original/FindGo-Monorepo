@@ -38,7 +38,7 @@ dependencies:
   flutter_riverpod: ^1.0.4
 
   # UI
-  pinput: ^1.2.0
+  pinput: ^2.2.11
 
   # Util
   cupertino_icons: ^1.0.5

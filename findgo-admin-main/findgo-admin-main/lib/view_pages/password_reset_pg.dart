@@ -5,7 +5,7 @@ import 'package:findgo_admin/widgets/loading.dart';
 import 'package:findgo_admin/widgets/snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:pinput/pin_put/pin_put.dart';
+import 'package:pinput/pinput.dart';
 import 'package:vrouter/vrouter.dart';
 
 class PasswordResetPage extends StatefulWidget {
@@ -220,10 +220,14 @@ class _PasswordResetPasswordFormControllerState
   bool _hidePassword = true;
   bool _hideCheckPassword = true;
 
-  BoxDecoration get _pinPutDecoration {
-    return BoxDecoration(
-      border: Border.all(color: kColorAccent),
-      borderRadius: BorderRadius.circular(15.0),
+  PinTheme _pinPutTheme(double radius) {
+    return PinTheme(
+      height: 60.0,
+      width: 60.0,
+      decoration: BoxDecoration(
+        border: Border.all(color: kColorAccent),
+        borderRadius: BorderRadius.circular(radius),
+      ),
     );
   }
 
@@ -244,23 +248,22 @@ class _PasswordResetPasswordFormControllerState
                   style: kTextStyleSubHeading,
                 ),
                 const SizedBox(height: 24.0),
-                PinPut(
-                  fieldsCount: 6,
-                  // onSubmit: (String pin) => _showSnackBar(pin, context),
-                  focusNode: _pinPutFocusNode,
-                  controller: _pinPutController,
-                  submittedFieldDecoration: _pinPutDecoration.copyWith(
-                    borderRadius: BorderRadius.circular(20.0),
+                SizedBox(
+                  height: 60.0,
+                  child: Pinput(
+                    length: 6,
+                    // onSubmit: (String pin) => _showSnackBar(pin, context),
+                    focusNode: _pinPutFocusNode,
+                    controller: _pinPutController,
+                    submittedPinTheme: _pinPutTheme(40.0),
+                    errorPinTheme: _pinPutTheme(0.0),
+                    disabledPinTheme: _pinPutTheme(0.0),
+                    defaultPinTheme: _pinPutTheme(10.0),
+                    followingPinTheme: _pinPutTheme(10.0),
+                    focusedPinTheme: _pinPutTheme(10.0),
+                    onSubmitted: (_) => passwordFocusNode.requestFocus(),
+                    autofocus: true,
                   ),
-                  selectedFieldDecoration: _pinPutDecoration,
-                  followingFieldDecoration: _pinPutDecoration.copyWith(
-                    borderRadius: BorderRadius.circular(5.0),
-                    border: Border.all(
-                      color: kColorAccent.withOpacity(.5),
-                    ),
-                  ),
-                  onSubmit: (_) => passwordFocusNode.requestFocus(),
-                  autofocus: true,
                 ),
                 const SizedBox(height: 16.0),
                 TextFormField(
