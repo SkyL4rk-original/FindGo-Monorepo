@@ -193,7 +193,8 @@ $htmlContent = '
 
 
 // Send Register Email
-$to = 'davidtgericke@gmail.com';
+// $to = 'davidtgericke@gmail.com';
+$to = 'support@findgo.co.za';
 $from = 'support@findgo.co.za';
 
 $fromName = 'FindGo Support';
@@ -206,7 +207,7 @@ $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
 // Additional headers
 $headers .= 'From: ' . $fromName . '<' . $from . '>' . "\r\n";
 //$headers .= 'Cc: '. $from . "\r\n";
-//$headers .= 'Bcc: mike@skylarkdigital.co.za' . "\r\n";
+$headers .= 'Bcc: mike@skylarkdigital.co.za' . "\r\n";
 
 // Send email
 if (mail($to, $subject, $htmlContent, $headers)) {
