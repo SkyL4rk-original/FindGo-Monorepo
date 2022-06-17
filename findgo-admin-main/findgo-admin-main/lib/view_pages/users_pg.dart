@@ -116,8 +116,11 @@ class _UsersPageState extends ConsumerState<UsersPage> {
   }
 
   Widget _userListSection() {
+    final txtColor = _emailAddressTextEditingController.text.trim().isNotEmpty
+        ? Colors.white
+        : kColorSecondaryText;
     return SizedBox(
-      width: 300.0,
+      width: 400.0,
       child: Column(
         children: [
           Row(
@@ -129,20 +132,37 @@ class _UsersPageState extends ConsumerState<UsersPage> {
           ),
           const SizedBox(height: 16.0),
           // if (_addingUser)
-          TextField(
-            decoration: InputDecoration(
-              hintText: 'Search User Email To Add',
-              icon: InkWell(
-                onTap: () {
-                  _getUserFromEmail();
-                },
-                child: const Icon(Icons.search),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  decoration: const InputDecoration(
+                    hintText: 'Search User Email To Add',
+                  ),
+                  controller: _emailAddressTextEditingController,
+                  onChanged: (_) => setState(() {}),
+                  onSubmitted: (_) {
+                    if (_emailAddressTextEditingController.text
+                        .trim()
+                        .isNotEmpty) _getUserFromEmail();
+                  },
+                ),
               ),
-            ),
-            controller: _emailAddressTextEditingController,
-            onSubmitted: (_) {
-              _getUserFromEmail();
-            },
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ElevatedButton.icon(
+                  onPressed:
+                      _emailAddressTextEditingController.text.trim().isNotEmpty
+                          ? () async => _getUserFromEmail()
+                          : null,
+                  icon: Icon(Icons.search, color: txtColor),
+                  label: Text(
+                    "Search",
+                    style: TextStyle(color: txtColor),
+                  ),
+                ),
+              ),
+            ],
           ),
           // if (_addingUser) const SizedBox(height: 20.0),
           const SizedBox(height: 20.0),

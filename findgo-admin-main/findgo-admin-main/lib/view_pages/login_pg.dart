@@ -83,6 +83,29 @@ class LoginPage extends ConsumerWidget {
                     ),
                   ],
                 ),
+                const SizedBox(height: 10.0),
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: <Widget>[
+                    const Text(
+                      "Don't have an account?  ",
+                      textAlign: TextAlign.center,
+                    ),
+                    TextButton(
+                      onPressed: () async => context.vRouter.to("/register"),
+                      // Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (ctx) => const PasswordResetPage())),
+                      child: const Text(
+                        'Register',
+                        style: TextStyle(
+                          color: kColorAccent,
+                          fontStyle: FontStyle.italic,
+                          // decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),

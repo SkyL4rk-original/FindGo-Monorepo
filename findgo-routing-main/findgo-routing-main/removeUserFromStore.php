@@ -51,14 +51,14 @@ $userIsAdmin = $result->num_rows == 1;
 if ($userIsSuperAdmin || $userIsAdmin) {
 	$result = $db->query("
 			DELETE FROM storeUserLink
-			WHERE userUuid='$userUuid' AND storeUuid='$storeUuid'
+			WHERE userUuid='$storeUserUuid' AND storeUuid='$storeUuid'
 		");
 } else {
 	http_response_code(401);
-	echo json_encode('"Message", "Access Denied"');
+	echo json_encode('"Message": "Access Denied"');
 	return;
 }
 
 // Return json user object
 http_response_code(200);
-echo json_encode('"Message", "Success"');
+echo json_encode('"Message": "Success"');

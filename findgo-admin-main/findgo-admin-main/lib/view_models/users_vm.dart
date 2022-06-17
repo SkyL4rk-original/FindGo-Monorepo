@@ -70,7 +70,7 @@ class UsersViewModel extends ChangeNotifier {
 
     final failureOrUser = await authRepo.getUserByEmail(email);
     await failureOrUser.fold(
-      (failure) async => _handleFailure(failure),
+      (failure) async {},
       (u) async => user = u,
     );
 
