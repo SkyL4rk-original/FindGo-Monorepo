@@ -1,0 +1,11 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "app.specials.findgo",
+      "sha256_cert_fingerprints":
+        ["74:D1:08:2D:C5:79:9C:CE:28:62:ED:DA:0C:46:33:37:49:11:19:21:80:75:BE:5C:3E:27:5D:00:5A:DE:12:68"]
+    }
+  }
+]
