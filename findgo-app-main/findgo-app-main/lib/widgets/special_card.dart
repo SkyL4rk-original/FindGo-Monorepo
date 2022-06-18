@@ -154,31 +154,6 @@ class _SpecialCardState extends ConsumerState<SpecialCard> {
                                   ],
                                 ),
                               )
-                            else if (_special.validFrom.isAfter(DateTime.now()))
-                              Container(
-                                color: kColorError,
-                                // decoration: BoxDecoration(
-                                //   border: Border.all(color: kColorAccent),
-                                //   borderRadius: BorderRadius.circular(10.0),
-                                // ),
-                                padding: const EdgeInsets.all(6.0),
-                                child: Row(
-                                  children: [
-                                    const Icon(
-                                      Icons.error_outline,
-                                      size: 16,
-                                      color: Colors.white,
-                                    ),
-                                    const SizedBox(
-                                      width: 4.0,
-                                    ),
-                                    const Text(
-                                      "Coming Soon",
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                  ],
-                                ),
-                              )
                             else if (_special.activatedAt.isAfter(
                               DateTime.now().subtract(const Duration(days: 1)),
                             ))
@@ -205,7 +180,33 @@ class _SpecialCardState extends ConsumerState<SpecialCard> {
                                     ),
                                   ],
                                 ),
+                              )
+                            else if (_special.validFrom.isAfter(DateTime.now()))
+                              Container(
+                                color: kColorError,
+                                // decoration: BoxDecoration(
+                                //   border: Border.all(color: kColorAccent),
+                                //   borderRadius: BorderRadius.circular(10.0),
+                                // ),
+                                padding: const EdgeInsets.all(6.0),
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.error_outline,
+                                      size: 16,
+                                      color: Colors.white,
+                                    ),
+                                    const SizedBox(
+                                      width: 4.0,
+                                    ),
+                                    const Text(
+                                      "Coming Soon",
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                  ],
+                                ),
                               ),
+
                             // TODO put back for reporting
                             // PopupMenuButton(
                             //   itemBuilder: (BuildContext bc) => [

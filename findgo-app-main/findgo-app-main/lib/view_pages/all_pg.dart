@@ -210,13 +210,20 @@ class _AllPageState extends ConsumerState<AllPage> with WidgetsBindingObserver {
 
     final newSpecials = _specialsList
         .where(
-          (special) => special.activatedAt
-              .isAfter(DateTime.now().subtract(const Duration(days: 1))),
+          (special) =>
+              special.activatedAt
+                  .isAfter(DateTime.now().subtract(const Duration(days: 1))) &&
+              !special.typeSet.contains(SpecialType.featured),
         )
         .toList();
 
     final commingSoonSpecials = _specialsList
-        .where((special) => special.validFrom.isAfter(DateTime.now()))
+        .where(
+          (special) =>
+              special.validFrom.isAfter(DateTime.now()) &&
+              !newSpecials.contains(special) &&
+              !special.typeSet.contains(SpecialType.featured),
+        )
         .toList();
 
     final shuffledSpecials = _specialsList
@@ -231,10 +238,10 @@ class _AllPageState extends ConsumerState<AllPage> with WidgetsBindingObserver {
       ..shuffle();
 
     _shuffledList = [
-      ...featuredSpecials,
-      ...newSpecials,
+      ...featuredSpecials.reversed,
+      ...newSpecials.reversed,
       ...shuffledSpecials,
-      ...commingSoonSpecials,
+      ...commingSoonSpecials.reversed,
     ];
 
 //     print(
