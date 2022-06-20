@@ -2353,6 +2353,8 @@ class _HomePageState extends ConsumerState<HomePage> {
           }
           if (_formKey.currentState != null &&
               _formKey.currentState!.validate()) {
+            // Check if adding image from memory
+            if (_tempSpecial!.image != null) _tempSpecial!.imageUrl = "";
             final tempSpecial =
                 await _specialsViewModel.createSpecial(_tempSpecial!);
             if (tempSpecial != null) {
