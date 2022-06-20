@@ -55,7 +55,7 @@
 			return;
 		}
 		//$imageUrl = 'https://skylarktraining.co.za/specials/php/'.$filename;
-		$imageUrl = 'https://findgo.co.za/php/'.$filename;
+		$imageUrl = 'https://www.findgo.co.za/php/'.$filename;
 	}
 
 		//UPDATE special
@@ -99,4 +99,3 @@
 
 	http_response_code(200);
 	echo '{"imageUrl" : "'.$imageUrl.'"}';
-?>

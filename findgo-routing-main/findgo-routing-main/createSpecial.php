@@ -208,7 +208,7 @@
 		}
 
 		//$imageUrl = 'https://skylarktraining.co.za/specials/php/'.$filename;
-		$imageUrl = 'https://findgo.co.za/php/'.$filename;
+		$imageUrl = 'https://www.findgo.co.za/php/'.$filename;
 
 		// Update created special imageUrl
 		$result = $db->query("
@@ -246,4 +246,3 @@
 	// Return json user object
 	http_response_code(201);
 	echo  json_encode($special);
-?>

@@ -63,7 +63,7 @@ if ($image != null) {
 		return;
 	}
 	//$imageUrl = 'https://skylarktraining.co.za/specials/php/'.$filename;
-	$imageUrl = 'https://findgo.co.za/php/' . $filename;
+	$imageUrl = 'https://www.findgo.co.za/php/' . $filename;
 
 	// Sanity check image file was created correctly
 	if (!file_exists($filename)) {

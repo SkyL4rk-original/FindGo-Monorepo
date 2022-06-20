@@ -858,8 +858,8 @@ class _StorePageState extends ConsumerState<StorePage> {
               }
               // await Future.delayed(const Duration(milliseconds: 300), () {});
               // Navigator.of(context).pop(newStoreUuid);
+              setState(() {});
             }
-            setState(() {});
           }
         },
         style: _storeStatusInactiveTextButtonStyle(kColorAccent),

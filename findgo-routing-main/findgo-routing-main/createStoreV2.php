@@ -95,8 +95,8 @@ if ($image != null) {
 		echo '{"Message": "image put file: ' . $e->getMessage() . '"}';
 		return;
 	}
-	$imageUrl = 'https://skylarktraining.co.za/findgo/php/' . $filename;
-	//$imageUrl = 'https://findgo.co.za/php/'.$filename;
+	//$imageUrl = 'https://skylarktraining.co.za/findgo/php/' . $filename;
+	$imageUrl = 'https://www.findgo.co.za/php/' . $filename;
 
 	// Update created store imageUrl
 	$result = $db->query("
