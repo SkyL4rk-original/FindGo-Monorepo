@@ -112,7 +112,9 @@ class _StorePageState extends ConsumerState<StorePage> {
         ),
         body: Padding(
           padding: const EdgeInsets.all(20.0),
-          child: SingleChildScrollView(child: _updateStoreSection()),
+          child: SingleChildScrollView(
+            child: Center(child: _updateStoreSection()),
+          ),
         ),
       ),
     );
@@ -152,123 +154,185 @@ class _StorePageState extends ConsumerState<StorePage> {
         storeVM.context = context;
         locationVM.context = context;
 
-        return SizedBox(
-          width: 360.0,
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              width: 360.0,
+              child: Column(
                 children: [
-                  const Text(
-                    "Restaurant Profile",
-                    style: TextStyle(fontSize: 18.0),
-                    textAlign: TextAlign.center,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        "Restaurant Profile",
+                        style: TextStyle(fontSize: 18.0),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(
+                        width: 40.0,
+                      )
+                    ],
                   ),
-                  const SizedBox(
-                    width: 40.0,
-                  )
-                ],
-              ),
-              const SizedBox(height: 16.0),
-              Card(
-                color: kColorSelected,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (_store.uuid.isNotEmpty)
-                          InkWell(
-                            highlightColor: Colors.transparent,
-                            splashColor: Colors.transparent,
-                            hoverColor: Colors.transparent,
-                            onTap: () async {
-                              InfoSnackBar.show(
-                                context,
-                                "Restaurant id added to clipboard",
-                              );
-                              await Clipboard.setData(
-                                ClipboardData(text: _store.uuid),
-                              );
-                            },
-                            child:
-                                Text(_store.uuid, style: _formHeadingTextStyle),
-                          ),
-                        if (_store.uuid.isNotEmpty)
-                          const SizedBox(height: 16.0),
-                        InkWell(
-                          highlightColor: Colors.transparent,
-                          splashColor: Colors.transparent,
-                          hoverColor: Colors.transparent,
-                          onTap: () => _nameFocusNode.requestFocus(),
-                          child: Text("Restaurant Name",
-                              style: _formHeadingTextStyle),
-                        ),
-                        TextFormField(
-                          validator: (description) {
-                            if (description == null || description.isEmpty) {
-                              return "please enter your restaurant name";
-                            }
-                            return null;
-                          },
-                          onChanged: (name) =>
-                              setState(() => _tempStore.name = name),
-                          // style: const TextStyle(height: 1.0),
-                          focusNode: _nameFocusNode,
-                          controller: _nameTextEditingController,
-                        ),
-                        const SizedBox(height: 16.0),
-                        // Text("Store Image", style: _formHeadingTextStyle),
-                        // const SizedBox(height: 4.0),
-                        // Text("Category", style: _formHeadingTextStyle),
-                        // DropdownButtonFormField(
-                        //   value: _selectedCategory,
-                        //   items: _storeCategoryList(),
-                        //   onChanged: (value) {
-                        //     if (value != null) {
-                        //       setState(() {
-                        //         _tempStore.category = storeVM.categoryList
-                        //             .firstWhere(
-                        //               (category) => category.id == value as int,
-                        //             )
-                        //             .name;
-                        //         _tempStore.categoryId = value as int;
-                        //         _selectedCategory = value;
-                        //       });
-                        //     }
-                        //   },
-                        // ),
-                        const SizedBox(height: 16.0),
-                        // Text("Store Image", style: _formHeadingTextStyle),
-                        // const SizedBox(height: 4.0),
-                        Text("Location", style: _formHeadingTextStyle),
-                        DropdownButtonFormField(
-                          value: _selectedLocation,
-                          items: _storeLocationList(),
-                          onChanged: (value) {
-                            if (value != null) {
-                              setState(() {
-                                _tempStore.location = locationVM.locationsList
-                                    .firstWhere(
-                                      (location) => location.id == value as int,
-                                    )
-                                    .name;
-                                _tempStore.locationId = value as int;
-                                _selectedLocation = value;
-                              });
-                            }
-                          },
-                        ),
-                        const SizedBox(height: 16.0),
-                        if (_getStoreImage() != null)
-                          Center(
-                            child: CircleAvatar(
-                              backgroundImage: _getStoreImage(),
-                              radius: 40,
-                              child: InkWell(
+                  const SizedBox(height: 16.0),
+                  Card(
+                    color: kColorSelected,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (_store.uuid.isNotEmpty)
+                              InkWell(
+                                highlightColor: Colors.transparent,
+                                splashColor: Colors.transparent,
+                                hoverColor: Colors.transparent,
                                 onTap: () async {
+                                  InfoSnackBar.show(
+                                    context,
+                                    "Restaurant id added to clipboard",
+                                  );
+                                  await Clipboard.setData(
+                                    ClipboardData(text: _store.uuid),
+                                  );
+                                },
+                                child: Text(
+                                  _store.uuid,
+                                  style: _formHeadingTextStyle,
+                                ),
+                              ),
+                            if (_store.uuid.isNotEmpty)
+                              const SizedBox(height: 16.0),
+                            InkWell(
+                              highlightColor: Colors.transparent,
+                              splashColor: Colors.transparent,
+                              hoverColor: Colors.transparent,
+                              onTap: () => _nameFocusNode.requestFocus(),
+                              child: Text(
+                                "Restaurant Name",
+                                style: _formHeadingTextStyle,
+                              ),
+                            ),
+                            TextFormField(
+                              validator: (description) {
+                                if (description == null ||
+                                    description.isEmpty) {
+                                  return "please enter your restaurant name";
+                                }
+                                return null;
+                              },
+                              onChanged: (name) =>
+                                  setState(() => _tempStore.name = name),
+                              // style: const TextStyle(height: 1.0),
+                              focusNode: _nameFocusNode,
+                              controller: _nameTextEditingController,
+                            ),
+                            const SizedBox(height: 16.0),
+                            // Text("Store Image", style: _formHeadingTextStyle),
+                            // const SizedBox(height: 4.0),
+                            // Text("Category", style: _formHeadingTextStyle),
+                            // DropdownButtonFormField(
+                            //   value: _selectedCategory,
+                            //   items: _storeCategoryList(),
+                            //   onChanged: (value) {
+                            //     if (value != null) {
+                            //       setState(() {
+                            //         _tempStore.category = storeVM.categoryList
+                            //             .firstWhere(
+                            //               (category) => category.id == value as int,
+                            //             )
+                            //             .name;
+                            //         _tempStore.categoryId = value as int;
+                            //         _selectedCategory = value;
+                            //       });
+                            //     }
+                            //   },
+                            // ),
+                            const SizedBox(height: 16.0),
+                            // Text("Store Image", style: _formHeadingTextStyle),
+                            // const SizedBox(height: 4.0),
+                            Text("Location", style: _formHeadingTextStyle),
+                            DropdownButtonFormField(
+                              value: _selectedLocation,
+                              items: _storeLocationList(),
+                              onChanged: (value) {
+                                if (value != null) {
+                                  setState(() {
+                                    _tempStore.location =
+                                        locationVM.locationsList
+                                            .firstWhere(
+                                              (location) =>
+                                                  location.id == value as int,
+                                            )
+                                            .name;
+                                    _tempStore.locationId = value as int;
+                                    _selectedLocation = value;
+                                  });
+                                }
+                              },
+                            ),
+                            const SizedBox(height: 16.0),
+                            if (_getStoreImage() != null)
+                              Center(
+                                child: CircleAvatar(
+                                  backgroundImage: _getStoreImage(),
+                                  radius: 40,
+                                  child: InkWell(
+                                    onTap: () async {
+                                      final pickedFile =
+                                          await _picker.pickImage(
+                                        source: ImageSource.gallery,
+                                      );
+                                      if (pickedFile != null) {
+                                        final file =
+                                            await pickedFile.readAsBytes();
+                                        // print("BYTES: ${file.lengthInBytes}");
+                                        if (file.lengthInBytes >
+                                            kMaxImageByteSize) {
+                                          InfoSnackBar.show(
+                                            context,
+                                            "Image too large",
+                                            color: SnackBarColor.error,
+                                          );
+                                          showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return const AlertDialog(
+                                                backgroundColor: Colors.red,
+                                                title: Center(
+                                                  child:
+                                                      Text("Image too large"),
+                                                ),
+                                                content: Text(
+                                                  "Max image upload size is 3MB",
+                                                ),
+                                                actions: [],
+                                                elevation: 4,
+                                              );
+                                            },
+                                          );
+                                          return;
+                                        }
+
+                                        _tempStore.image = file;
+                                        setState(() {});
+                                      } else {
+                                        print('No image selected.');
+                                      }
+                                    },
+                                    child: const SizedBox(
+                                      height: 50,
+                                      width: 50,
+                                    ),
+                                  ),
+                                ),
+                              )
+                            else
+                              TextButton.icon(
+                                onPressed: () async {
                                   final pickedFile = await _picker.pickImage(
                                     source: ImageSource.gallery,
                                   );
@@ -286,7 +350,7 @@ class _StorePageState extends ConsumerState<StorePage> {
                                         context: context,
                                         builder: (BuildContext context) {
                                           return const AlertDialog(
-                                            backgroundColor: Colors.red,
+                                            backgroundColor: kColorError,
                                             title: Center(
                                               child: Text("Image too large"),
                                             ),
@@ -307,265 +371,228 @@ class _StorePageState extends ConsumerState<StorePage> {
                                     print('No image selected.');
                                   }
                                 },
-                                child: const SizedBox(
-                                  height: 50,
-                                  width: 50,
+                                icon: const Icon(
+                                  Icons.image_outlined,
+                                  color: Colors.white,
                                 ),
+                                label: _tempStore.image == null &&
+                                        _tempStore.imageUrl == ""
+                                    ? const Text(
+                                        "Add Image (max 3MB)",
+                                        style: TextStyle(color: Colors.white),
+                                      )
+                                    : const Text(
+                                        "Update Image (max 3MB)",
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                              ),
+                            const SizedBox(height: 16.0),
+                            InkWell(
+                              highlightColor: Colors.transparent,
+                              splashColor: Colors.transparent,
+                              hoverColor: Colors.transparent,
+                              onTap: () => _descriptionFocusNode.requestFocus(),
+                              child: Text(
+                                "Description",
+                                style: _formHeadingTextStyle,
                               ),
                             ),
-                          )
-                        else
-                          TextButton.icon(
-                            onPressed: () async {
-                              final pickedFile = await _picker.pickImage(
-                                source: ImageSource.gallery,
-                              );
-                              if (pickedFile != null) {
-                                final file = await pickedFile.readAsBytes();
-                                // print("BYTES: ${file.lengthInBytes}");
-                                if (file.lengthInBytes > kMaxImageByteSize) {
-                                  InfoSnackBar.show(
-                                    context,
-                                    "Image too large",
-                                    color: SnackBarColor.error,
-                                  );
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return const AlertDialog(
-                                        backgroundColor: kColorError,
-                                        title: Center(
-                                          child: Text("Image too large"),
-                                        ),
-                                        content: Text(
-                                          "Max image upload size is 3MB",
-                                        ),
-                                        actions: [],
-                                        elevation: 4,
-                                      );
-                                    },
-                                  );
-                                  return;
-                                }
-
-                                _tempStore.image = file;
-                                setState(() {});
-                              } else {
-                                print('No image selected.');
-                              }
-                            },
-                            icon: const Icon(
-                              Icons.image_outlined,
-                              color: Colors.white,
-                            ),
-                            label: _tempStore.image == null &&
-                                    _tempStore.imageUrl == ""
-                                ? const Text(
-                                    "Add Image (max 3MB)",
-                                    style: TextStyle(color: Colors.white),
-                                  )
-                                : const Text(
-                                    "Update Image (max 3MB)",
-                                    style: TextStyle(color: Colors.white),
+                            const SizedBox(height: 4.0),
+                            Stack(
+                              children: [
+                                TextFormField(
+                                  validator: (description) {
+                                    if (description == null ||
+                                        description.isEmpty) {
+                                      return "Please enter a resaurant description";
+                                    }
+                                    return null;
+                                  },
+                                  onChanged: (description) => setState(
+                                    () => _tempStore.description = description,
                                   ),
-                          ),
-                        const SizedBox(height: 16.0),
-                        InkWell(
-                          highlightColor: Colors.transparent,
-                          splashColor: Colors.transparent,
-                          hoverColor: Colors.transparent,
-                          onTap: () => _descriptionFocusNode.requestFocus(),
-                          child:
-                              Text("Description", style: _formHeadingTextStyle),
-                        ),
-                        const SizedBox(height: 4.0),
-                        Stack(
-                          children: [
-                            TextFormField(
-                              validator: (description) {
-                                if (description == null ||
-                                    description.isEmpty) {
-                                  return "please enter a resaurant description";
-                                }
-                                return null;
-                              },
-                              onChanged: (description) => setState(
-                                () => _tempStore.description = description,
-                              ),
-                              decoration: const InputDecoration(
-                                border: OutlineInputBorder(),
-                                helperMaxLines: 4,
-                                hintMaxLines: 4,
-                              ),
-                              focusNode: _descriptionFocusNode,
-                              controller: _descriptionTextEditingController,
-                              style: const TextStyle(fontSize: 12.0),
-                              keyboardType: TextInputType.multiline,
-                              maxLength: 254,
-                              maxLines: 4,
-                            ),
-                            Positioned(
-                              right: 0,
-                              bottom: 34,
-                              child: TextButton(
-                                onPressed: () async => setState(
-                                  () => _descriptionFocusNode.unfocus(),
-                                ),
-                                child: Text(
-                                  "Save",
-                                  style: TextStyle(
-                                    color: _descriptionFocusNode.hasFocus
-                                        ? kColorAccent
-                                        : kColorSecondaryText,
+                                  decoration: const InputDecoration(
+                                    border: OutlineInputBorder(),
+                                    helperMaxLines: 4,
+                                    hintMaxLines: 4,
                                   ),
+                                  focusNode: _descriptionFocusNode,
+                                  controller: _descriptionTextEditingController,
+                                  style: const TextStyle(fontSize: 12.0),
+                                  keyboardType: TextInputType.multiline,
+                                  maxLength: 254,
+                                  maxLines: 4,
                                 ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        // INFO: Phone number inputs
-                        InkWell(
-                          highlightColor: Colors.transparent,
-                          splashColor: Colors.transparent,
-                          hoverColor: Colors.transparent,
-                          onTap: () => _phoneNumberFocusNode.requestFocus(),
-                          child: Text(
-                            "Phone Number",
-                            style: _formHeadingTextStyle,
-                          ),
-                        ),
-                        TextFormField(
-                          // validator: (phoneNumber) {
-                          //   if (phoneNumber == null || phoneNumber.isEmpty) {
-                          //     return "please enter your store phone number";
-                          //   }
-                          //
-                          //   return null;
-                          // },
-                          onFieldSubmitted: (phoneNumber) async {
-                            _tempStore.phoneNumber = phoneNumber.trim();
-                            _tempStore.phoneNumber =
-                                _tempStore.phoneNumber.replaceAll(' ', '');
-                            // print( _tempStore.phoneNumber);
-                            setState(() {});
-                          },
-                          onChanged: (phoneNumber) async {
-                            _tempStore.phoneNumber = phoneNumber.trim();
-                            _tempStore.phoneNumber =
-                                _tempStore.phoneNumber.replaceAll(' ', '');
-                            // print( _tempStore.phoneNumber);
-                            setState(() {});
-                          },
-                          // style: const TextStyle(height: 1.0),
-                          focusNode: _phoneNumberFocusNode,
-                          controller: _phoneNumberTextEditingController,
-                          keyboardType: TextInputType.number,
-                        ),
-                        const SizedBox(height: 16.0),
-                        // INFO: Website inputs
-                        InkWell(
-                          highlightColor: Colors.transparent,
-                          splashColor: Colors.transparent,
-                          hoverColor: Colors.transparent,
-                          onTap: () => _websiteFocusNode.requestFocus(),
-                          child: Text(
-                            "Full Website Url",
-                            style: _formHeadingTextStyle,
-                          ),
-                        ),
-                        TextFormField(
-                          decoration: const InputDecoration(
-                            hintText: "https://www.findgo.co.za",
-                          ),
-                          // validator: (website) {
-                          //   if (website == null || website.isEmpty) {
-                          //     return "please enter your website";
-                          //   }
-                          //   return null;
-                          // },
-                          onChanged: (website) => setState(
-                            () => _tempStore.website = website.trim(),
-                          ),
-                          onFieldSubmitted: (website) {
-                            setState(() => _tempStore.website = website.trim());
-                            _streetAddressFocusNode.requestFocus();
-                            // TODO Check url can be reached
-                          },
-                          // style: const TextStyle(height: 1.0),
-                          focusNode: _websiteFocusNode,
-                          controller: _websiteTextEditingController,
-                        ),
-                        const SizedBox(height: 16.0),
-                        // INFO: Street Address inputs
-                        Text("Street Address", style: _formHeadingTextStyle),
-                        const SizedBox(
-                          height: 12.0,
-                        ),
-                        TextButton(
-                          focusNode: _streetAddressFocusNode,
-                          onPressed: () async {
-                            final placeId = await showDialog(
-                              context: context,
-                              builder: (ctx) => const _AddressSearchDialog(),
-                            ) as String?;
-
-                            if (placeId != null) {
-                              final nameList = placeId.split(":");
-                              if (nameList.first == "name") {
-                                _tempStore.streetAddress = nameList.last;
-                                setState(() {});
-                                return;
-                              }
-
-                              final placeDetails = await _storesViewModel
-                                  .searchPlaceDetails(placeId);
-                              if (placeDetails != null) {
-                                _tempStore.latLng = placeDetails.latLon;
-                                _latTextController.text =
-                                    placeDetails.latLon.lat.toString();
-                                _lngTextController.text =
-                                    placeDetails.latLon.lng.toString();
-
-                                final addressStringSplit =
-                                    placeDetails.streetAddress.split(",");
-                                if (addressStringSplit.length > 1) {
-                                  _tempStore.streetAddress =
-                                      "${addressStringSplit.elementAt(0)}, ${addressStringSplit.elementAt(1)}";
-                                } else {
-                                  _tempStore.streetAddress =
-                                      addressStringSplit.elementAt(0);
-                                }
-                                setState(() {});
-                              }
-                            }
-                          },
-                          child: Text(
-                            _tempStore.streetAddress.isEmpty
-                                ? "+ Add Street Address"
-                                : _tempStore.streetAddress,
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                        ),
-                        const SizedBox(height: 16.0),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            // INFO: Latitude inputs
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  InkWell(
-                                    highlightColor: Colors.transparent,
-                                    splashColor: Colors.transparent,
-                                    hoverColor: Colors.transparent,
-                                    onTap: () => _latFocusNode.requestFocus(),
+                                Positioned(
+                                  right: 0,
+                                  bottom: 34,
+                                  child: TextButton(
+                                    onPressed: () async => setState(
+                                      () => _descriptionFocusNode.unfocus(),
+                                    ),
                                     child: Text(
-                                      "Latitiude",
-                                      style: _formHeadingTextStyle,
+                                      "Save",
+                                      style: TextStyle(
+                                        color: _descriptionFocusNode.hasFocus
+                                            ? kColorAccent
+                                            : kColorSecondaryText,
+                                      ),
                                     ),
                                   ),
-                                  TextFormField(
+                                ),
+                              ],
+                            ),
+                            // INFO: Phone number inputs
+                            InkWell(
+                              highlightColor: Colors.transparent,
+                              splashColor: Colors.transparent,
+                              hoverColor: Colors.transparent,
+                              onTap: () => _phoneNumberFocusNode.requestFocus(),
+                              child: Text(
+                                "Phone Number",
+                                style: _formHeadingTextStyle,
+                              ),
+                            ),
+                            TextFormField(
+                              // validator: (phoneNumber) {
+                              //   if (phoneNumber == null || phoneNumber.isEmpty) {
+                              //     return "please enter your store phone number";
+                              //   }
+                              //
+                              //   return null;
+                              // },
+                              onFieldSubmitted: (phoneNumber) async {
+                                _tempStore.phoneNumber = phoneNumber.trim();
+                                _tempStore.phoneNumber =
+                                    _tempStore.phoneNumber.replaceAll(' ', '');
+                                // print( _tempStore.phoneNumber);
+                                setState(() {});
+                              },
+                              onChanged: (phoneNumber) async {
+                                _tempStore.phoneNumber = phoneNumber.trim();
+                                _tempStore.phoneNumber =
+                                    _tempStore.phoneNumber.replaceAll(' ', '');
+                                // print( _tempStore.phoneNumber);
+                                setState(() {});
+                              },
+                              // style: const TextStyle(height: 1.0),
+                              focusNode: _phoneNumberFocusNode,
+                              controller: _phoneNumberTextEditingController,
+                              keyboardType: TextInputType.number,
+                            ),
+                            const SizedBox(height: 16.0),
+                            // INFO: Website inputs
+                            InkWell(
+                              highlightColor: Colors.transparent,
+                              splashColor: Colors.transparent,
+                              hoverColor: Colors.transparent,
+                              onTap: () => _websiteFocusNode.requestFocus(),
+                              child: Text(
+                                "Full Website Url",
+                                style: _formHeadingTextStyle,
+                              ),
+                            ),
+                            TextFormField(
+                              decoration: const InputDecoration(
+                                hintText: "https://www.findgo.co.za",
+                              ),
+                              // validator: (website) {
+                              //   if (website == null || website.isEmpty) {
+                              //     return "please enter your website";
+                              //   }
+                              //   return null;
+                              // },
+                              onChanged: (website) => setState(
+                                () => _tempStore.website = website.trim(),
+                              ),
+                              onFieldSubmitted: (website) {
+                                setState(
+                                  () => _tempStore.website = website.trim(),
+                                );
+                                _streetAddressFocusNode.requestFocus();
+                                // TODO Check url can be reached
+                              },
+                              // style: const TextStyle(height: 1.0),
+                              focusNode: _websiteFocusNode,
+                              controller: _websiteTextEditingController,
+                            ),
+                            const SizedBox(height: 16.0),
+                            // INFO: Street Address inputs
+                            Text(
+                              "Street Address",
+                              style: _formHeadingTextStyle,
+                            ),
+                            const SizedBox(
+                              height: 12.0,
+                            ),
+                            TextButton(
+                              focusNode: _streetAddressFocusNode,
+                              onPressed: () async {
+                                final placeId = await showDialog(
+                                  context: context,
+                                  builder: (ctx) =>
+                                      const _AddressSearchDialog(),
+                                ) as String?;
+
+                                if (placeId != null) {
+                                  final nameList = placeId.split(":");
+                                  if (nameList.first == "name") {
+                                    _tempStore.streetAddress = nameList.last;
+                                    setState(() {});
+                                    return;
+                                  }
+
+                                  final placeDetails = await _storesViewModel
+                                      .searchPlaceDetails(placeId);
+                                  if (placeDetails != null) {
+                                    _tempStore.latLng = placeDetails.latLon;
+                                    _latTextController.text =
+                                        placeDetails.latLon.lat.toString();
+                                    _lngTextController.text =
+                                        placeDetails.latLon.lng.toString();
+
+                                    final addressStringSplit =
+                                        placeDetails.streetAddress.split(",");
+                                    if (addressStringSplit.length > 1) {
+                                      _tempStore.streetAddress =
+                                          "${addressStringSplit.elementAt(0)}, ${addressStringSplit.elementAt(1)}";
+                                    } else {
+                                      _tempStore.streetAddress =
+                                          addressStringSplit.elementAt(0);
+                                    }
+                                    setState(() {});
+                                  }
+                                }
+                              },
+                              child: Text(
+                                _tempStore.streetAddress.isEmpty
+                                    ? "+ Add Street Address"
+                                    : _tempStore.streetAddress,
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                            ),
+                            const SizedBox(height: 16.0),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                // INFO: Latitude inputs
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      InkWell(
+                                        highlightColor: Colors.transparent,
+                                        splashColor: Colors.transparent,
+                                        hoverColor: Colors.transparent,
+                                        onTap: () =>
+                                            _latFocusNode.requestFocus(),
+                                        child: Text(
+                                          "Latitiude",
+                                          style: _formHeadingTextStyle,
+                                        ),
+                                      ),
+                                      TextFormField(
 //                                   decoration: const InputDecoration(
 //                                     hintText: "Latitude",
 //                                   ),
@@ -577,45 +604,49 @@ class _StorePageState extends ConsumerState<StorePage> {
 //                                 }
 //                                 setState(() {});
 //                               },
-                                    onChanged: (latitude) async {
-                                      final lat =
-                                          double.tryParse(latitude.trim());
-                                      if (lat != null) {
-                                        _tempStore.latLng = _tempStore.latLng
-                                            .copyWith(lat: lat);
-                                      } else {
-                                        _tempStore.latLng = const LatLng.nil();
-                                        _latTextController.text = "";
-                                      }
+                                        onChanged: (latitude) async {
+                                          final lat =
+                                              double.tryParse(latitude.trim());
+                                          if (lat != null) {
+                                            _tempStore.latLng = _tempStore
+                                                .latLng
+                                                .copyWith(lat: lat);
+                                          } else {
+                                            _tempStore.latLng =
+                                                const LatLng.nil();
+                                            _latTextController.text = "";
+                                          }
 
-                                      setState(() {});
-                                    },
-                                    // style: const TextStyle(height: 1.0),
-                                    controller: _latTextController,
-                                    focusNode: _latFocusNode,
+                                          setState(() {});
+                                        },
+                                        // style: const TextStyle(height: 1.0),
+                                        controller: _latTextController,
+                                        focusNode: _latFocusNode,
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(
-                              width: 16,
-                            ),
-                            // INFO: Lonitude inputs
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  InkWell(
-                                    highlightColor: Colors.transparent,
-                                    splashColor: Colors.transparent,
-                                    hoverColor: Colors.transparent,
-                                    onTap: () => _lngFocusNode.requestFocus(),
-                                    child: Text(
-                                      "Longitude",
-                                      style: _formHeadingTextStyle,
-                                    ),
-                                  ),
-                                  TextFormField(
+                                ),
+                                const SizedBox(
+                                  width: 16,
+                                ),
+                                // INFO: Lonitude inputs
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      InkWell(
+                                        highlightColor: Colors.transparent,
+                                        splashColor: Colors.transparent,
+                                        hoverColor: Colors.transparent,
+                                        onTap: () =>
+                                            _lngFocusNode.requestFocus(),
+                                        child: Text(
+                                          "Longitude",
+                                          style: _formHeadingTextStyle,
+                                        ),
+                                      ),
+                                      TextFormField(
 //                                   decoration: const InputDecoration(
 //                                     hintText: "Lonitude",
 //                                   ),
@@ -627,62 +658,108 @@ class _StorePageState extends ConsumerState<StorePage> {
 //                                 }
 //                                 setState(() {});
 //                               },
-                                    onChanged: (longitude) async {
-                                      final lon =
-                                          double.tryParse(longitude.trim());
-                                      if (lon != null) {
-                                        _tempStore.latLng = _tempStore.latLng
-                                            .copyWith(lng: lon);
-                                      } else {
-                                        _tempStore.latLng = const LatLng.nil();
-                                        _lngTextController.text = "";
-                                      }
-                                      setState(() {});
-                                    }, // style: const TextStyle(height: 1.0),
-                                    controller: _lngTextController,
-                                    focusNode: _lngFocusNode,
+                                        onChanged: (longitude) async {
+                                          final lon =
+                                              double.tryParse(longitude.trim());
+                                          if (lon != null) {
+                                            _tempStore.latLng = _tempStore
+                                                .latLng
+                                                .copyWith(lng: lon);
+                                          } else {
+                                            _tempStore.latLng =
+                                                const LatLng.nil();
+                                            _lngTextController.text = "";
+                                          }
+                                          setState(() {});
+                                        }, // style: const TextStyle(height: 1.0),
+                                        controller: _lngTextController,
+                                        focusNode: _lngFocusNode,
+                                      ),
+                                    ],
                                   ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16.0),
+                            SizedBox(
+                              height: 30.0,
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  if (_tempStore.uuid.isNotEmpty)
+                                    Expanded(
+                                      child: Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: _toggleActivateStoreButton(),
+                                      ),
+                                    ),
+                                  if (_store.isUpdated(_tempStore) ||
+                                      widget.store == null)
+                                    Expanded(
+                                      child: Align(
+                                        alignment: Alignment.centerRight,
+                                        child: _actionButton(),
+                                      ),
+                                    ),
                                 ],
                               ),
                             ),
                           ],
                         ),
+                      ),
+                    ),
+                  ),
+                  if (authVM.currentUser.isSuperUser)
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: _deleteStoreButton(),
+                    ),
+                ],
+              ),
+            ),
+            if (_store.status == StoreStatus.inactive)
+              const SizedBox(width: 20.0),
+            if (_store.status == StoreStatus.inactive)
+              Padding(
+                padding: const EdgeInsets.only(top: 36.0),
+                child: Card(
+                  color: kColorSelected,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Reqirements",
+                          style: TextStyle(fontSize: 16.0),
+                        ),
                         const SizedBox(height: 16.0),
-                        SizedBox(
-                          height: 30.0,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              if (_tempStore.uuid.isNotEmpty)
-                                Expanded(
-                                  child: Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: _toggleActivateStoreButton(),
-                                  ),
-                                ),
-                              if (_store.isUpdated(_tempStore) ||
-                                  widget.store == null)
-                                Expanded(
-                                  child: Align(
-                                    alignment: Alignment.centerRight,
-                                    child: _actionButton(),
-                                  ),
-                                ),
-                            ],
-                          ),
+                        const Text(
+                          "- Restaurant Name",
+                          style: TextStyle(color: kColorSecondaryText),
+                        ),
+                        const SizedBox(height: 8.0),
+                        const Text(
+                          "- Restaurant Location",
+                          style: TextStyle(color: kColorSecondaryText),
+                        ),
+                        const SizedBox(height: 8.0),
+                        const Text(
+                          "- Restaurant Image",
+                          style: TextStyle(color: kColorSecondaryText),
+                        ),
+                        const SizedBox(height: 8.0),
+                        const Text(
+                          "- Restaurant Description",
+                          style: TextStyle(color: kColorSecondaryText),
                         ),
                       ],
                     ),
                   ),
                 ),
               ),
-              if (authVM.currentUser.isSuperUser)
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: _deleteStoreButton(),
-                ),
-            ],
-          ),
+          ],
         );
       },
     );
@@ -721,7 +798,7 @@ class _StorePageState extends ConsumerState<StorePage> {
             if (_tempStore.imageUrl == "" && _tempStore.image == null) {
               InfoSnackBar.show(
                 context,
-                "Please add an image for current store",
+                "Please add an image for current restaurant",
                 color: SnackBarColor.error,
               );
               return;
