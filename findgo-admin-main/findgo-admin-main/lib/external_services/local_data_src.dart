@@ -22,12 +22,12 @@ class LocalDataSource {
   Future<String> get jwt async {
     try {
       // Get jwt
-      var jwt = html.window.localStorage[jwtKey]; // Web
+      String jwt = html.window.localStorage[jwtKey] ?? "null"; // Web
       // var jwt = prefs.getString(jwtKey); // Web - shared prefs
       //final jwt = await secureStorage.read(key: jwtKey); // Mobile
 
       // Check jwt not null
-      if (jwt == null || jwt == 'null') {
+      if (jwt.isEmpty || jwt == 'null') {
         throw CacheException('No token stored');
       }
 
@@ -37,19 +37,20 @@ class LocalDataSource {
       // log("[FETCHED JWT] : $jwt");
       return jwt;
     } catch (e) {
-      throw CacheException(e.toString());
+      throw CacheException("Cache Jwt $e");
     }
   }
 
   Future<String> get refreshToken async {
     try {
       // Get jwt
-      var refreshToken = html.window.localStorage[refreshTokenKey]; // Web
+      String refreshToken =
+          html.window.localStorage[refreshTokenKey] ?? "null"; // Web
       // var refreshToken = prefs.getString(refreshTokenKey); // Web - shared prefs
       //final refreshToken = await secureStorage.read(key: refreshTokenKey); // Mobile
 
       // Check jwt not null
-      if (refreshToken == null || refreshToken == 'null') {
+      if (refreshToken.isEmpty || refreshToken == 'null') {
         throw CacheException('No token stored');
       }
 
@@ -63,7 +64,7 @@ class LocalDataSource {
       //print("[FETCHED REFRESH TOKEN] : $refreshToken");
       return refreshToken;
     } catch (e) {
-      throw CacheException(e.toString());
+      throw CacheException("Cache refreshToken $e");
     }
   }
 

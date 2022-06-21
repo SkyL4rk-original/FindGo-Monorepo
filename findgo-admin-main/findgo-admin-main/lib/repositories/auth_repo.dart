@@ -187,7 +187,7 @@ class AuthRepository {
       if (e is AuthorizationException || e.toString() == 'No token stored') {
         return left(AuthFailure());
       }
-      log('auth repo: getCurrentUser: ${e.toString()}');
+      print('auth repo: getCurrentUser: ${e.toString()}');
       return left(ExternalServiceFailure(e.toString()));
     }
   }

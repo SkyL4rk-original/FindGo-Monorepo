@@ -115,302 +115,322 @@ class _HomePageState extends ConsumerState<HomePage> {
 
     return GestureDetector(
       onTap: () async => FocusScope.of(context).unfocus(),
-      child: Scaffold(
-        appBar: AppBar(
-          leading: ExcludeFocus(
-            child: IconButton(
-              onPressed: () async {
-                if (!await _removeSpecialChanges()) return;
-                context.vRouter.to("/user", isReplacement: true);
-              },
-              icon: const Icon(Icons.account_circle_outlined),
-            ),
-          ),
-          title: _selectedStore != null
-              ? Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  // crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(_selectedStore!.name),
-                    const SizedBox(width: 12.0),
-                    InkWell(
-                      canRequestFocus: false,
-                      onTap: () async {
-                        if (!await _removeSpecialChanges()) return;
+      child: Consumer(
+        builder: (context, ref, _) {
+          final authVM = ref.watch(authVMProvider);
+          authVM.context = context;
 
-                        await Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (ctx) => UsersPage(store: _selectedStore!),
-                          ),
-                        );
-                      },
-                      hoverColor: kColorAccent.withAlpha(60),
-                      child: const Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Text(
-                          "Users", // Navbar
-                          style: kTextStyleSmallSecondary,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12.0),
-                    InkWell(
-                      canRequestFocus: false,
-                      onTap: () async {
-                        if (!await _removeSpecialChanges()) return;
+          if (authVM.currentUser.uuid == "-1") {
+            return const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            );
+          }
 
-                        await Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (ctx) =>
-                                StoreStatsPage(store: _selectedStore!),
-                          ),
-                        );
-                      },
-                      hoverColor: kColorAccent.withAlpha(60),
-                      child: const Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Text(
-                          "Stats", // Navbar
-                          style: kTextStyleSmallSecondary,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12.0),
-                    InkWell(
-                      canRequestFocus: false,
-                      onTap: () async {
-                        if (!await _removeSpecialChanges()) return;
-
-                        await Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (ctx) => StorePage(store: _selectedStore),
-                          ),
-                        );
-                      },
-                      hoverColor: kColorAccent.withAlpha(60),
-                      child: const Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Text(
-                          "Edit", // Navbar
-                          style: kTextStyleSmallSecondary,
-                        ),
-                      ),
-                    ),
-                  ],
-                )
-              : null,
-          actions: [
-            if (_authViewModel.currentUser.isSuperUser)
-              ExcludeFocus(
-                child: StatefulBuilder(
-                  builder: (context, setBroadCastState) {
-                    if (_isBroadcastingMessage) {
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 30.0),
-                        child: Center(
-                          child: SizedBox(
-                            height: 20.0,
-                            width: 20.0,
-                            child: LoadWidget(),
-                          ),
-                        ),
-                      );
-                    }
-                    return TextButton(
-                      onPressed: () async {
-                        final message = await showDialog(
-                          context: context,
-                          builder: (ctx) => const BroadcastMessageDialog(),
-                        ) as String?;
-
-                        if (message != null && message.isNotEmpty) {
-                          final confirmSend = await showDialog(
-                            context: context,
-                            builder: (ctx) => AlertDialog(
-                              title: Row(
-                                children: [
-                                  const Icon(Icons.error_outline),
-                                  const SizedBox(width: 16.0),
-                                  const Text("Confirm Broadcast"),
-                                ],
-                              ),
-                              content: SizedBox(
-                                width: 260.0,
-                                child: Text(message),
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.of(ctx).pop(false),
-                                  child: const Text(
-                                    "Cancel",
-                                    style:
-                                        TextStyle(color: kColorSecondaryText),
-                                  ),
-                                ),
-                                TextButton(
-                                  onPressed: () => Navigator.of(ctx).pop(true),
-                                  child: const Text(
-                                    "Send",
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ) as bool?;
-
-                          setBroadCastState(
-                            () => _isBroadcastingMessage = true,
-                          );
-                          if (confirmSend != null && confirmSend) {
-                            await _authViewModel.broadcastMessage(message);
-                          }
-                          setBroadCastState(
-                            () => _isBroadcastingMessage = false,
-                          );
-                        }
-                      },
-                      child: const Text(
-                        "Broadcast",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    );
+          return Scaffold(
+            appBar: AppBar(
+              leading: ExcludeFocus(
+                child: IconButton(
+                  onPressed: () async {
+                    if (!await _removeSpecialChanges()) return;
+                    context.vRouter.to("/user", isReplacement: true);
                   },
+                  icon: const Icon(Icons.account_circle_outlined),
                 ),
               ),
-            const SizedBox(
-              width: 16.0,
-            ),
-            ExcludeFocus(
-              child: TextButton(
-                onPressed: () async {
-                  if (!await _removeSpecialChanges()) return;
+              title: _selectedStore != null
+                  ? Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      // crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(_selectedStore!.name),
+                        const SizedBox(width: 12.0),
+                        InkWell(
+                          canRequestFocus: false,
+                          onTap: () async {
+                            if (!await _removeSpecialChanges()) return;
 
-                  _authViewModel.logout();
-                },
-                child: const Text(
-                  "Logout",
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-            ),
-            const SizedBox(
-              width: 16.0,
-            )
-          ],
-        ),
-        body: SizedBox(
-          height: MediaQuery.of(context).size.height,
-          width: MediaQuery.of(context).size.width,
-          child: Stack(
-            children: [
-              Consumer(
-                builder: (context, ref, _) {
-                  final authVM = ref.watch(authVMProvider);
-                  final specialsVM = ref.watch(specialsVMProvider);
-                  final storesVM = ref.watch(storesVMProvider);
-                  ref.watch(locationsVMProvider);
-
-                  authVM.context = context;
-                  specialsVM.context = context;
-                  storesVM.context = context;
-
-                  return !isInit
-                      ? Center(child: LoadWidget())
-                      : Builder(
-                          builder: (context) {
-                            if (storesVM.storesList.isEmpty) {
-                              return Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const Text(
-                                      "You dont have any restaurants attached to your account.",
-                                    ),
-                                    const SizedBox(height: 24.0),
-                                    _addStoreButton(),
-                                  ],
-                                ),
-                              );
-                            }
-                            return SingleChildScrollView(
-                              child: SingleChildScrollView(
-                                scrollDirection: Axis.horizontal,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(20.0),
-                                  child: Row(
-                                    // mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      if (_authViewModel
-                                          .currentUser.isSuperUser)
-                                        _locationSearchSection(),
-                                      if (_showStores)
-                                        const SizedBox(width: 20.0),
-                                      _storeSearchSection(),
-                                      if (_showActivity)
-                                        const SizedBox(width: 20.0),
-                                      if (_selectedStore != null)
-                                        _activitySection(),
-                                      const SizedBox(width: 20.0),
-                                      if (_selectedSpecial != null)
-                                        _selectedSpecialSection(),
-                                      const SizedBox(width: 20.0),
-                                      if (_selectedStore != null &&
-                                          _selectedSpecial != null)
-                                        SizedBox(
-                                          width: 300.0,
-                                          child: Column(
-                                            children: [
-                                              const SizedBox(height: 10.0),
-                                              const SizedBox(
-                                                height: 22.0,
-                                                width: double.infinity,
-                                                child: Center(
-                                                  child: Text(
-                                                    "Special Preview",
-                                                    textAlign: TextAlign.center,
-                                                  ),
-                                                ),
-                                              ),
-                                              const SizedBox(height: 16.0),
-                                              SpecialCard(
-                                                  special: _tempSpecial!),
-                                              const SizedBox(height: 16.0),
-                                              if (_tempSpecial!.uuid != "" &&
-                                                  _tempSpecial!.status !=
-                                                      SpecialStatus.pending)
-                                                SpecialStatsCard(
-                                                  special: _tempSpecial!,
-                                                ),
-                                            ],
-                                          ),
-                                        ),
-                                    ],
-                                  ),
-                                ),
+                            await Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (ctx) =>
+                                    UsersPage(store: _selectedStore!),
                               ),
                             );
                           },
+                          hoverColor: kColorAccent.withAlpha(60),
+                          child: const Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Text(
+                              "Users", // Navbar
+                              style: kTextStyleSmallSecondary,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12.0),
+                        InkWell(
+                          canRequestFocus: false,
+                          onTap: () async {
+                            if (!await _removeSpecialChanges()) return;
+
+                            await Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (ctx) =>
+                                    StoreStatsPage(store: _selectedStore!),
+                              ),
+                            );
+                          },
+                          hoverColor: kColorAccent.withAlpha(60),
+                          child: const Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Text(
+                              "Stats", // Navbar
+                              style: kTextStyleSmallSecondary,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12.0),
+                        InkWell(
+                          canRequestFocus: false,
+                          onTap: () async {
+                            if (!await _removeSpecialChanges()) return;
+
+                            await Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (ctx) =>
+                                    StorePage(store: _selectedStore),
+                              ),
+                            );
+                          },
+                          hoverColor: kColorAccent.withAlpha(60),
+                          child: const Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Text(
+                              "Edit", // Navbar
+                              style: kTextStyleSmallSecondary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
+                  : null,
+              actions: [
+                if (_authViewModel.currentUser.isSuperUser)
+                  ExcludeFocus(
+                    child: StatefulBuilder(
+                      builder: (context, setBroadCastState) {
+                        if (_isBroadcastingMessage) {
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 30.0),
+                            child: Center(
+                              child: SizedBox(
+                                height: 20.0,
+                                width: 20.0,
+                                child: LoadWidget(),
+                              ),
+                            ),
+                          );
+                        }
+                        return TextButton(
+                          onPressed: () async {
+                            final message = await showDialog(
+                              context: context,
+                              builder: (ctx) => const BroadcastMessageDialog(),
+                            ) as String?;
+
+                            if (message != null && message.isNotEmpty) {
+                              final confirmSend = await showDialog(
+                                context: context,
+                                builder: (ctx) => AlertDialog(
+                                  title: Row(
+                                    children: [
+                                      const Icon(Icons.error_outline),
+                                      const SizedBox(width: 16.0),
+                                      const Text("Confirm Broadcast"),
+                                    ],
+                                  ),
+                                  content: SizedBox(
+                                    width: 260.0,
+                                    child: Text(message),
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.of(ctx).pop(false),
+                                      child: const Text(
+                                        "Cancel",
+                                        style: TextStyle(
+                                          color: kColorSecondaryText,
+                                        ),
+                                      ),
+                                    ),
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.of(ctx).pop(true),
+                                      child: const Text(
+                                        "Send",
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ) as bool?;
+
+                              setBroadCastState(
+                                () => _isBroadcastingMessage = true,
+                              );
+                              if (confirmSend != null && confirmSend) {
+                                await _authViewModel.broadcastMessage(message);
+                              }
+                              setBroadCastState(
+                                () => _isBroadcastingMessage = false,
+                              );
+                            }
+                          },
+                          child: const Text(
+                            "Broadcast",
+                            style: TextStyle(color: Colors.white),
+                          ),
                         );
-                },
-              ),
-              Positioned(
-                right: 8.0,
-                bottom: 8.0,
-                child: SizedBox(
-                  width: 260.0,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const NotificationTimer(),
-                      const Text(kVersion, style: kTextStyleSmallSecondary),
-                    ],
+                      },
+                    ),
+                  ),
+                const SizedBox(
+                  width: 16.0,
+                ),
+                ExcludeFocus(
+                  child: TextButton(
+                    onPressed: () async {
+                      if (!await _removeSpecialChanges()) return;
+
+                      _authViewModel.logout();
+                    },
+                    child: const Text(
+                      "Logout",
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                 ),
+                const SizedBox(
+                  width: 16.0,
+                )
+              ],
+            ),
+            body: SizedBox(
+              height: MediaQuery.of(context).size.height,
+              width: MediaQuery.of(context).size.width,
+              child: Stack(
+                children: [
+                  Consumer(
+                    builder: (context, ref, _) {
+                      final specialsVM = ref.watch(specialsVMProvider);
+                      final storesVM = ref.watch(storesVMProvider);
+                      ref.watch(locationsVMProvider);
+
+                      specialsVM.context = context;
+                      storesVM.context = context;
+
+                      return !isInit
+                          ? Center(child: LoadWidget())
+                          : Builder(
+                              builder: (context) {
+                                if (storesVM.storesList.isEmpty) {
+                                  return Center(
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        const Text(
+                                          "You dont have any restaurants attached to your account.",
+                                        ),
+                                        const SizedBox(height: 24.0),
+                                        _addStoreButton(),
+                                      ],
+                                    ),
+                                  );
+                                }
+                                return SingleChildScrollView(
+                                  child: SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(20.0),
+                                      child: Row(
+                                        // mainAxisAlignment: MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          if (_authViewModel
+                                              .currentUser.isSuperUser)
+                                            _locationSearchSection(),
+                                          if (_showStores)
+                                            const SizedBox(width: 20.0),
+                                          _storeSearchSection(),
+                                          if (_showActivity)
+                                            const SizedBox(width: 20.0),
+                                          if (_selectedStore != null)
+                                            _activitySection(),
+                                          const SizedBox(width: 20.0),
+                                          if (_selectedSpecial != null)
+                                            _selectedSpecialSection(),
+                                          const SizedBox(width: 20.0),
+                                          if (_selectedStore != null &&
+                                              _selectedSpecial != null)
+                                            SizedBox(
+                                              width: 300.0,
+                                              child: Column(
+                                                children: [
+                                                  const SizedBox(height: 10.0),
+                                                  const SizedBox(
+                                                    height: 22.0,
+                                                    width: double.infinity,
+                                                    child: Center(
+                                                      child: Text(
+                                                        "Special Preview",
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  const SizedBox(height: 16.0),
+                                                  SpecialCard(
+                                                    special: _tempSpecial!,
+                                                  ),
+                                                  const SizedBox(height: 16.0),
+                                                  if (_tempSpecial!.uuid !=
+                                                          "" &&
+                                                      _tempSpecial!.status !=
+                                                          SpecialStatus.pending)
+                                                    SpecialStatsCard(
+                                                      special: _tempSpecial!,
+                                                    ),
+                                                ],
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            );
+                    },
+                  ),
+                  Positioned(
+                    right: 8.0,
+                    bottom: 8.0,
+                    child: SizedBox(
+                      width: 260.0,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const NotificationTimer(),
+                          const Text(kVersion, style: kTextStyleSmallSecondary),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }

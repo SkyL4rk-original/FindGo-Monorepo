@@ -33,7 +33,7 @@ class AuthViewModel extends ChangeNotifier {
   }
 
   void _handleFailure(Failure failure) {
-    log("Auth VM: $failure");
+    print("Auth VM: $failure");
     if (failure.toString() == "XMLHttpRequest error." ||
         failure.toString().contains("TimeoutException")) {
       InfoSnackBar.show(
