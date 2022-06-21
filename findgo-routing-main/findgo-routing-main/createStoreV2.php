@@ -152,8 +152,6 @@ if ($result->num_rows == 1) {
 http_response_code(201);
 echo  json_encode($store);
 
-return;
-
 // Fetch user info for email
 $result = $db->query("
 		SELECT email
