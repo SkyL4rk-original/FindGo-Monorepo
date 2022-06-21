@@ -695,7 +695,7 @@ class _StorePageState extends ConsumerState<StorePage> {
                                       ),
                                     ),
                                   if (_store.isUpdated(_tempStore) ||
-                                      widget.store == null)
+                                      _store.uuid.isEmpty)
                                     Expanded(
                                       child: Align(
                                         alignment: Alignment.centerRight,
@@ -795,15 +795,6 @@ class _StorePageState extends ConsumerState<StorePage> {
         width: 140.0,
         child: ElevatedButton.icon(
           onPressed: () async {
-            if (_tempStore.imageUrl == "" && _tempStore.image == null) {
-              InfoSnackBar.show(
-                context,
-                "Please add an image for current restaurant",
-                color: SnackBarColor.error,
-              );
-              return;
-            }
-
             if (_store.isUpdated(_tempStore)) {
               InfoSnackBar.show(
                 context,
@@ -815,7 +806,7 @@ class _StorePageState extends ConsumerState<StorePage> {
 
             _tempStore.status = StoreStatus.active;
             if (!await _storesViewModel.toggleStoreActivate(_tempStore)) {
-              _tempStore.status = StoreStatus.inactive;
+              // _tempStore.status = StoreStatus.inactive;
             }
 
             setState(() {});
@@ -845,7 +836,7 @@ class _StorePageState extends ConsumerState<StorePage> {
             _tempStore.status = StoreStatus.inactive;
 
             if (!await _storesViewModel.toggleStoreActivate(_tempStore)) {
-              _tempStore.status = StoreStatus.active;
+              // _tempStore.status = StoreStatus.active;
             }
 
             setState(() {});
@@ -887,58 +878,77 @@ class _StorePageState extends ConsumerState<StorePage> {
       // INFO: Create Button
     } else if (_store.uuid.isEmpty) {
       buttonContent = ElevatedButton.icon(
-        onPressed: () async {
-          if (_tempStore.categoryId == 0) {
-            InfoSnackBar.show(
-              context,
-              "Please choose a category",
-              color: SnackBarColor.error,
-            );
-            return;
-          }
-          if (_tempStore.locationId == 0) {
-            InfoSnackBar.show(
-              context,
-              "Please choose a location",
-              color: SnackBarColor.error,
-            );
-            return;
-          }
+        onPressed: _tempStore.categoryId == 0 ||
+                _tempStore.locationId == 0 ||
+                _tempStore.image == null
+            ? null
+            : () async {
+                if (_tempStore.categoryId == 0) {
+                  InfoSnackBar.show(
+                    context,
+                    "Please choose a category",
+                    color: SnackBarColor.error,
+                  );
+                  return;
+                }
+                if (_tempStore.locationId == 0) {
+                  InfoSnackBar.show(
+                    context,
+                    "Please choose a location",
+                    color: SnackBarColor.error,
+                  );
+                  return;
+                }
+                if (_tempStore.imageUrl == "" && _tempStore.image == null) {
+                  InfoSnackBar.show(
+                    context,
+                    "Please add an image",
+                    color: SnackBarColor.error,
+                  );
+                  return;
+                }
 
-          if (_formKey.currentState != null &&
-              _formKey.currentState!.validate()) {
-            final newStore = Store(
-              uuid: "",
-              imageUrl: _tempStore.imageUrl,
-              category: _tempStore.category,
-              categoryId: _tempStore.categoryId,
-              location: _tempStore.location,
-              locationId: _tempStore.locationId,
-              image: _tempStore.image,
-              name: _tempStore.name,
-              description: _tempStore.description,
-              phoneNumber: _tempStore.phoneNumber,
-              website: _tempStore.website,
-              streetAddress: _tempStore.streetAddress,
-              latLng: _tempStore.latLng,
-            );
+                if (_formKey.currentState != null &&
+                    _formKey.currentState!.validate()) {
+                  final newStore = Store(
+                    uuid: "",
+                    imageUrl: _tempStore.imageUrl,
+                    category: _tempStore.category,
+                    categoryId: _tempStore.categoryId,
+                    location: _tempStore.location,
+                    locationId: _tempStore.locationId,
+                    image: _tempStore.image,
+                    name: _tempStore.name,
+                    description: _tempStore.description,
+                    phoneNumber: _tempStore.phoneNumber,
+                    website: _tempStore.website,
+                    streetAddress: _tempStore.streetAddress,
+                    latLng: _tempStore.latLng,
+                    status: StoreStatus.active,
+                  );
 
-            final newStoreUuid = await _storesViewModel.createStore(newStore);
-            if (newStoreUuid != "") {
-              newStore.image = null;
-              _store = newStore.copyWith(uuid: newStoreUuid);
-              _tempStore = _store.copyWith();
+                  final createdStore =
+                      await _storesViewModel.createStore(newStore);
+                  if (createdStore != null) {
+                    createdStore.image = null;
+                    _store = createdStore.copyWith();
+                    _tempStore = createdStore.copyWith();
 
-              if (_store.latLng.isNil) {
-                _latTextController.text = "";
-                _lngTextController.text = "";
-              }
-              // await Future.delayed(const Duration(milliseconds: 300), () {});
-              // Navigator.of(context).pop(newStoreUuid);
-              setState(() {});
-            }
-          }
-        },
+                    print(_store.toJson());
+                    print(_tempStore.toJson());
+                    print(_store.isUpdated(_tempStore));
+
+                    if (_store.latLng.isNil) {
+                      _latTextController.text = "";
+                      _lngTextController.text = "";
+                    }
+                    // await Future.delayed(
+                    //     const Duration(milliseconds: 300), () {});
+                    // Navigator.of(context).pop(newStoreUuid);
+                    setState(() {});
+                  }
+                }
+              },
         style: _storeStatusInactiveTextButtonStyle(kColorAccent),
         icon: const Icon(
           Icons.check,

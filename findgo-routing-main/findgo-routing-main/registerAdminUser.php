@@ -192,108 +192,73 @@ echo json_encode($user);
 
 //SEND EMAIL
 $htmlContent = '
-		<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
-	<head>
+	<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+		<head>
 			<meta charset="utf-8">
 			<meta name="viewport" content="width=device-width">
 			<meta http-equiv="X-UA-Compatible" content="IE=edge">
 			<meta name="x-apple-disable-message-reformatting">
 			<title>FindGo</title>
-
 			<link href="https://fonts.googleapis.com/css?family=Nunito+Sans:200,300,400,600,700" rel="stylesheet">
+		</head>
 
-			<style>
-			</style>
-
-	</head>
-
-	<body width="100%" style="margin: 0; padding: 0 !important; mso-line-height-rule: exactly; background-color: #222222; font-family:Nunito Sans;">
-		<center style="width: 100%; background-color: #f1f1f1;">
-
-			<div style="max-width: 600px; margin: 0 auto;" class="email-container">
+		<body width="100%" style="margin: 0; padding: 0 !important; mso-line-height-rule: exactly; background-color: #222222; font-family:Nunito Sans;">
+			<div style="max-width: 600px; margin: 0 auto; background-color:white;" class="email-container">
 				<table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: auto;">
-					<tr>
-						<td style="padding: 1em 2.5em;">
-							<table role="presentation" border="0" cellpadding="1" cellspacing="0" width="100%">
-								<tr>
-									<td width="40%" style="text-align: center;">
-										<h2 ><a style="color:black; text-decoration:none" href="#">Find.Go.Enjoy</a></h2>
-									</td>
-									<td width="60%" style="text-align: right;">
-										<ul >
-											<li style="display:inline;float:right;"><a href="https://apps.apple.com/us/app/findgo/id1574321570">
-													<img alt="app store button" src="https://www.findgo.co.za/admin/assets/images/apple_store.png" height="30">
-											</a></li>
-											<li style="display:inline;float:right;"><a href="https://play.google.com/store/apps/details?id=app.specials.findgo">
-													<img alt="play store button" src="https://www.findgo.co.za/admin/assets/images/google_store.png" height="30">
-											</a></li>
-											<li style="display:inline;float:right;"><a href="https://appgallery.huawei.com/#/app/C104564149">
-													<img alt="huawei store button" src="https://www.findgo.co.za/admin/assets/images/huawei_store.png" height="30">
-											</a></li>
-										</ul>
-									</td>
-								</tr>
-							</table>
+					<tr align="center" style="background:white;">
+						<td><br><h2>Find.Go.Enjoy</h2></td>
+					</tr>
+					<tr style="background:black;">
+						<td>
+							<img alt="findgo logo" src="https://findgo.co.za/images/icon.png" alt="" style="width: 100%; max-width: 400px; height: auto; margin: auto; display: block;">
 						</td>
 					</tr>
-					<tr>
-						<td valign="middle" class="hero bg_white">
-							<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
-								<tr>
-									<td valign="middle" width="50%">
-										<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
-											<tr>
-												<td>
-													<img alt="findgo logo" src="https://findgo.co.za/images/icon.png" alt="" style="width: 100%; max-width: 600px; height: auto; margin: auto; display: block;">
-												</td>
-											</tr>
-										</table>
-									</td>
-									<td valign="middle" width="50%" class="primary">
-										<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
-											<tr>
-												<td class="text" style="text-align: center; padding: 20px 30px;">
-													<h2 style="color: black;">Welcome to FindGo Admin</h2>
-												</td>
-											</tr>
-										</table>
-									</td>
-								</tr>
-							</table>
+					<tr align="center">
+						<td>
+							<br>
+							<h2 style="color: black;">Congratulations on creating your account!</h2>
 						</td>
 					</tr>
-					<tr>
-						<td >
-							<table role="presentation" cellspacing="0" cellpadding="20" border="0" width="100%">
-								<tr>
-									<td>
-										<div style="text-align: center; padding: 0 30px;">
-											<p>Please click the button below to verify your admin account.</p>
-												<br>
-											<!-- <button onclick= class="button"> -->
-												<a style="background:black;color:white;padding:20px;font-size:40px;text-decoration:none;" href="https://findgo.co.za/admin/#/verify/' . $code . '">
-														Verify Me
-												</a>
-									</td>
-								</tr>
-								<tr>
-									<td valign="middle" class="counter">
-										<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
-											<tr>
-												<td valign="middle" style="padding: 3em 0; background-color: black;">
-
-													<p style="color: white; text-align: center;">You got this email as intended by the sender,<br>and is not part of a mailing list.</p>
-
-												</td>
-											</tr>
-										</table>
-									</td>
-							</tr>
+					<tr align="center">
+						<td>
+							<p>Please click the button below to verify your account.</p>
+							<br>
+							<a style="background:orange; display: block; height: 60px; line-height: 60px; width: 200px; font-weight:bold; text-decoration:none; color:white; border-radius: 8px; margin-bottom:50px; font-weight: bold; " href="https://findgo.co.za/admin/#/verify/' . $code . '">
+									VERIFY ACCOUNT
+							</a>
+						</td>
+					</tr>
+					<tr style="background: rgb(37, 37, 37)" align="center">
+						<td width="100%" style="text-align: center;padding-top: 20px;border-bottom: 1px solid rgba(179, 97, 5, 0.69);">
+							<ul>
+								<li style="display:inline-block;">
+									<a href="https://apps.apple.com/us/app/findgo/id1574321570">
+										<img alt="app store button" src="https://www.findgo.co.za/admin/assets/images/apple_store.png" height="30">
+									</a>
+								</li>
+								<li style="display:inline-block;">
+									<a href="https://play.google.com/store/apps/details?id=app.specials.findgo">
+										<img alt="play store button" src="https://www.findgo.co.za/admin/assets/images/google_store.png" height="30">
+									</a>
+								</li>
+								<li style="display:inline-block;">
+									<a href="https://appgallery.huawei.com/#/app/C104564149">
+										<img alt="huawei store button" src="https://www.findgo.co.za/admin/assets/images/huawei_store.png" height="30">
+									</a>
+								</li>
+							</ul>
+						</td>
+					</tr>
+					<tr style="background: black; height: 150px;">
+						<td valign="middle" class="counter">
+							<p style="color: white; text-align: center;">You got this email as intended by the sender,<br>and is not part of a mailing list.</p>
+						</td>
+					</tr>
 				</table>
 			</div>
-		</center>
-	</body>
-</html>	';
+		</body>
+	</html>
+';
 
 
 // Send Register Email
@@ -302,7 +267,7 @@ $to = $email;
 $from = 'support@findgo.co.za';
 
 $fromName = 'FindGo Support';
-$subject = "FindGo Admin  Sign Up";
+$subject = "FindGo User Sign Up";
 
 // Set content-type header for sending HTML email
 $headers = "MIME-Version: 1.0" . "\r\n";

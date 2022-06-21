@@ -53,7 +53,8 @@ class AuthViewModel extends ChangeNotifier {
     setState(AuthViewState.error);
   }
 
-  Future<bool> getCurrentUser() async {
+  Future<bool> getCurrentUser(BuildContext ctx) async {
+    context = ctx;
     bool foundUser = false;
     final failureOrUser = await authRepository.getCurrentUser();
     await failureOrUser.fold((failure) async {

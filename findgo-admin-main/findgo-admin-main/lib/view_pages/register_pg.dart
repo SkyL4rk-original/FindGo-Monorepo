@@ -50,7 +50,7 @@ class RegisterPage extends ConsumerWidget {
                         ),
                         const SizedBox(height: 8.0),
                         const Text(
-                          'FindGo Admin',
+                          'Create Your Account',
                           style: TextStyle(
                             fontSize: 16.0,
                             color: kColorSecondaryText,
@@ -118,7 +118,7 @@ class _RegisterFormControllerState extends State<RegisterFormController> {
           if (_showConfirmEmailMessage) {
             return const Center(
               child: Text(
-                "Please check your email to verify the new account.",
+                "Thank you for registering!  Please check your email to verify the new account.",
                 textAlign: TextAlign.center,
               ),
             );
@@ -126,6 +126,39 @@ class _RegisterFormControllerState extends State<RegisterFormController> {
 
           return Column(
             children: <Widget>[
+              TextFormField(
+                validator: (value) {
+                  return value == null || value.isEmpty
+                      ? kFieldNotEnteredMessage
+                      : null;
+                },
+                style: const TextStyle(fontSize: 18.0),
+                decoration: const InputDecoration(
+                  hintText: 'first name',
+                  prefixIcon: Icon(Icons.face),
+                ),
+                onFieldSubmitted: (_) => _focusNodeLastName.requestFocus(),
+                focusNode: _focusNodeFirstName,
+                autofocus: true,
+                controller: _firstNameController,
+              ),
+              const SizedBox(height: 10.0),
+              TextFormField(
+                validator: (value) {
+                  return value == null || value.isEmpty
+                      ? kFieldNotEnteredMessage
+                      : null;
+                },
+                style: const TextStyle(fontSize: 18.0),
+                decoration: const InputDecoration(
+                  hintText: 'last name',
+                  prefixIcon: Icon(Icons.face),
+                ),
+                // onFieldSubmitted: (_) => _focusNodeLastName.requestFocus(),
+                focusNode: _focusNodeLastName,
+                controller: _lastNameController,
+              ),
+              const SizedBox(height: 10.0),
               TextFormField(
                 validator: (value) {
                   if (authVM.isNotEmail(value)) {
@@ -140,22 +173,13 @@ class _RegisterFormControllerState extends State<RegisterFormController> {
                 style: const TextStyle(fontSize: 18.0),
                 decoration: const InputDecoration(
                   hintText: 'email',
-//                  hintStyle: TextStyle(fontSize: 18.0, color: TEXT_COLOR),
-//                  helperStyle: TextStyle(fontSize: 18.0, color: TEXT_COLOR),
                   prefixIcon: Icon(
                     Icons.mail_outline,
-//                    color: TEXT_COLOR,
                   ),
-//                  enabledBorder: UnderlineInputBorder(
-//                    borderSide: BorderSide(color: TEXT_CONTENT_COLOR),
-//                  ),
-//                  focusedBorder: UnderlineInputBorder(
-//                    borderSide: BorderSide(color: LIKE_COLOR),
-//                  ),
                 ),
                 onFieldSubmitted: (_) => _focusNodePassword.requestFocus(),
                 focusNode: _focusNodeEmail,
-                autofocus: true,
+                // autofocus: true,
                 // autofillHints: [AutofillHints.email],
                 controller: _emailController,
               ),
@@ -228,38 +252,6 @@ class _RegisterFormControllerState extends State<RegisterFormController> {
                 focusNode: _focusNodeConfirmPassword,
                 obscureText: _hideConfirmPassword,
                 controller: _confirmPasswordController,
-              ),
-              const SizedBox(height: 10.0),
-              TextFormField(
-                validator: (value) {
-                  return value == null || value.isEmpty
-                      ? kFieldNotEnteredMessage
-                      : null;
-                },
-                style: const TextStyle(fontSize: 18.0),
-                decoration: const InputDecoration(
-                  hintText: 'first name',
-                  prefixIcon: Icon(Icons.face),
-                ),
-                onFieldSubmitted: (_) => _focusNodeLastName.requestFocus(),
-                focusNode: _focusNodeFirstName,
-                controller: _firstNameController,
-              ),
-              const SizedBox(height: 10.0),
-              TextFormField(
-                validator: (value) {
-                  return value == null || value.isEmpty
-                      ? kFieldNotEnteredMessage
-                      : null;
-                },
-                style: const TextStyle(fontSize: 18.0),
-                decoration: const InputDecoration(
-                  hintText: 'last name',
-                  prefixIcon: Icon(Icons.face),
-                ),
-                // onFieldSubmitted: (_) => _focusNodeLastName.requestFocus(),
-                focusNode: _focusNodeLastName,
-                controller: _lastNameController,
               ),
               const SizedBox(height: 50.0),
               if (authVM.state == AuthViewState.busy)

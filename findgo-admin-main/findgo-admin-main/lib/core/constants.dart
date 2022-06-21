@@ -1,7 +1,7 @@
 import 'package:findgo_admin/data_models/user.dart';
 import 'package:flutter/material.dart';
 
-const kVersion = "v 0.2.1"; // 15:30 20 June 2022
+const kVersion = "v 0.2.2"; // 15:30 21 June 2022
 
 // NETWORKING
 const kTimeOutDuration = Duration(minutes: 1);

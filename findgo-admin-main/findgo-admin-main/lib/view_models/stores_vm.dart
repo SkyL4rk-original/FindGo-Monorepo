@@ -67,20 +67,20 @@ class StoresViewModel extends ChangeNotifier {
     setState(StoresViewState.error);
   }
 
-  Future<String> createStore(Store store) async {
+  Future<Store?> createStore(Store store) async {
     setState(StoresViewState.uploading);
-    String newStoreUuid = "";
+    Store? createdStore;
 
     final failureOrStoreUuid = await specialsRepository.createStore(store);
     failureOrStoreUuid.fold((failure) => _handleFailure(failure), (newStore) {
       _storesList.add(newStore as Store);
       _storesList.sort(_nameComparator);
-      newStoreUuid = newStore.uuid;
+      createdStore = newStore;
       InfoSnackBar.show(_context, "New Store Created");
       setState(StoresViewState.idle);
     });
 
-    return newStoreUuid;
+    return createdStore;
   }
 
   Future<void> getAllStores() async {

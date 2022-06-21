@@ -70,8 +70,9 @@ class _HomePageState extends ConsumerState<HomePage> {
     _specialsViewModel = ref.read(specialsVMProvider);
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      _authViewModel.context = context;
       // print("CHECKING CURRENT USER HOME PG");
-      if (await _authViewModel.getCurrentUser()) {
+      if (await _authViewModel.getCurrentUser(context)) {
         if (!_authViewModel.currentUser.isSuperUser) {
           _showStores = true;
         }

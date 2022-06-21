@@ -39,10 +39,6 @@ Future<void> main() async {
 class App extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final authVM = ref.read(authVMProvider);
-    authVM.context = context;
-    authVM.getCurrentUser();
-
     return VRouter(
       title: "FindGo",
       logs: VLogs.none,

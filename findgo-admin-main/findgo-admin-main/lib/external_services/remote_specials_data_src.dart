@@ -55,8 +55,15 @@ class RemoteSpecialsDataSource {
           .timeout(kTimeOutDuration);
 
       // MOCK RESPONSE
-      await Future.delayed(const Duration(seconds: 1));
-      // final response = Response('{"storeUuid" : "20", "imageUrl : """}', 201);
+      // await Future.delayed(const Duration(seconds: 1));
+      // final response = Response(
+      //   jsonEncode({
+      //     "storeUuid": "20",
+      //     "imageUrl":
+      //         "https://www.findgo.co.za/php/store-images/d20c2f74-f168-11ec-a65b-38eaa734eeaa.png"
+      //   }),
+      //   201,
+      // );
       // final response = Response('{"storeUuid" : "20", "imageUrl : """}', 500);
       // print(json.decode(response.body).toString());
 

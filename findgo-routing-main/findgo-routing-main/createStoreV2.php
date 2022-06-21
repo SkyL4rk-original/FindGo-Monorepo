@@ -35,11 +35,12 @@ $image = $data["image"];
 $phoneNumber = $data["phoneNumber"];
 $website = $data["website"];
 
-
 $imageUrl = "";
 $lat = $data["lat"] != null ? $data["lat"] : null;
 $lng = $data["lng"] != null ? $data["lng"] : null;
 $streetAddress = $data["streetAddress"] != null ? $data["streetAddress"] : "";
+
+$status = $data["status"];
 
 // TODO Check if user is super-user for creation
 //	$result = $db->query("SELECT email FROM user WHERE email = '$email'");
@@ -52,7 +53,7 @@ $streetAddress = $data["streetAddress"] != null ? $data["streetAddress"] : "";
 
 $stmt = $db->prepare("
 		INSERT INTO store (storeUuid, name, categoryID, locationID, description, phoneNumber, website, imageUrl, lat, lng, streetAddress, status)
-		VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 2)
+		VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	");
 //VALUES (UUID(), ?, ? ,? , ?, ?, ?)
 if ($stmt === false) {
@@ -61,7 +62,7 @@ if ($stmt === false) {
 	return;
 }
 
-$stmt->bind_param("siissssdds", $storeName, $categoryId, $locationId, $description, $phoneNumber, $website, $imageUrl, $lat, $lng, $streetAddress);
+$stmt->bind_param("siissssddsi", $storeName, $categoryId, $locationId, $description, $phoneNumber, $website, $imageUrl, $lat, $lng, $streetAddress, $status);
 $stmt->execute();
 $stmt->close();
 
@@ -151,6 +152,7 @@ if ($result->num_rows == 1) {
 http_response_code(201);
 echo  json_encode($store);
 
+return;
 
 // Fetch user info for email
 $result = $db->query("
