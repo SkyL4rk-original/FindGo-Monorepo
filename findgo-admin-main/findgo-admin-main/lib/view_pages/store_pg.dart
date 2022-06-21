@@ -878,7 +878,9 @@ class _StorePageState extends ConsumerState<StorePage> {
       // INFO: Create Button
     } else if (_store.uuid.isEmpty) {
       buttonContent = ElevatedButton.icon(
-        onPressed: _tempStore.categoryId == 0 ||
+        onPressed: _tempStore.name.isEmpty ||
+                _tempStore.description.isEmpty ||
+                _tempStore.categoryId == 0 ||
                 _tempStore.locationId == 0 ||
                 _tempStore.image == null
             ? null
