@@ -106,7 +106,7 @@ const kDrawerDivider = Divider(
 );
 
 /// SCREEN BREAK POINTS
-const kTabletBreakPoint = 768.0;
+const kTabletBreakPoint = 830.0;
 const kMobileBreakPoint = 530.0;
 
 /// MESSAGES

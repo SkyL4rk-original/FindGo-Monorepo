@@ -159,22 +159,25 @@ class _StorePageState extends ConsumerState<StorePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(
-              width: 360.0,
+              width: MediaQuery.of(context).size.width <= kMobileBreakPoint
+                  ? 300.0
+                  : 360.0,
               child: Column(
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        "Restaurant Profile",
-                        style: TextStyle(fontSize: 18.0),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(
-                        width: 40.0,
-                      )
-                    ],
+                  Align(
+                    alignment:
+                        MediaQuery.of(context).size.width <= kMobileBreakPoint
+                            ? Alignment.center
+                            : Alignment.centerLeft,
+                    child: const Text(
+                      "Restaurant Profile",
+                      style: TextStyle(fontSize: 18.0),
+                      textAlign: TextAlign.center,
+                    ),
                   ),
+                  if (MediaQuery.of(context).size.width <= kMobileBreakPoint &&
+                      _store.status == StoreStatus.inactive)
+                    _requirements(),
                   const SizedBox(height: 16.0),
                   Card(
                     color: kColorSelected,
@@ -718,52 +721,58 @@ class _StorePageState extends ConsumerState<StorePage> {
                 ],
               ),
             ),
-            if (_store.status == StoreStatus.inactive)
+            if (MediaQuery.of(context).size.width > kMobileBreakPoint &&
+                _store.status == StoreStatus.inactive) ...[
               const SizedBox(width: 20.0),
-            if (_store.status == StoreStatus.inactive)
-              Padding(
-                padding: const EdgeInsets.only(top: 36.0),
-                child: Card(
-                  color: kColorSelected,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          "Reqirements",
-                          style: TextStyle(fontSize: 16.0),
-                        ),
-                        const SizedBox(height: 16.0),
-                        const Text(
-                          "- Restaurant Name",
-                          style: TextStyle(color: kColorSecondaryText),
-                        ),
-                        const SizedBox(height: 8.0),
-                        const Text(
-                          "- Restaurant Location",
-                          style: TextStyle(color: kColorSecondaryText),
-                        ),
-                        const SizedBox(height: 8.0),
-                        const Text(
-                          "- Restaurant Image",
-                          style: TextStyle(color: kColorSecondaryText),
-                        ),
-                        const SizedBox(height: 8.0),
-                        const Text(
-                          "- Restaurant Description",
-                          style: TextStyle(color: kColorSecondaryText),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
+              _requirements(),
+            ],
           ],
         );
       },
     );
   }
+
+  Widget _requirements() => Padding(
+        padding: EdgeInsets.only(
+            top: MediaQuery.of(context).size.width <= kMobileBreakPoint
+                ? 16.0
+                : 36.0),
+        child: Card(
+          color: kColorSelected,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const [
+                Text(
+                  "Reqirements",
+                  style: TextStyle(fontSize: 16.0),
+                ),
+                SizedBox(height: 16.0),
+                Text(
+                  "- Restaurant Name",
+                  style: TextStyle(color: kColorSecondaryText),
+                ),
+                SizedBox(height: 8.0),
+                Text(
+                  "- Restaurant Location",
+                  style: TextStyle(color: kColorSecondaryText),
+                ),
+                SizedBox(height: 8.0),
+                Text(
+                  "- Restaurant Image",
+                  style: TextStyle(color: kColorSecondaryText),
+                ),
+                SizedBox(height: 8.0),
+                Text(
+                  "- Restaurant Description",
+                  style: TextStyle(color: kColorSecondaryText),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
 
   final _specialsStatusActivateButtonStyle = ElevatedButton.styleFrom(
     primary: kColorActive,

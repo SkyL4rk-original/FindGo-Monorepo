@@ -70,13 +70,19 @@ class _UsersPageState extends ConsumerState<UsersPage> {
                   child: Padding(
                     padding: const EdgeInsets.all(20.0),
                     child: Row(
-                      // mainAxisAlignment: MainAxisAlignment.start,
+                      mainAxisAlignment:
+                          MediaQuery.of(context).size.width > kTabletBreakPoint
+                              ? MainAxisAlignment.start
+                              : MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         _userListSection(),
-                        const SizedBox(width: 60.0),
-                        if (_selectedUser != null)
-                          _updateUserSection(_tempUser!),
+                        if (_selectedUser != null &&
+                            MediaQuery.of(context).size.width >
+                                kTabletBreakPoint) ...[
+                          const SizedBox(width: 60.0),
+                          _updateUserSection(_tempUser!)
+                        ],
                       ],
                     ),
                   ),
@@ -120,7 +126,8 @@ class _UsersPageState extends ConsumerState<UsersPage> {
         ? Colors.white
         : kColorSecondaryText;
     return SizedBox(
-      width: 400.0,
+      width:
+          MediaQuery.of(context).size.width <= kMobileBreakPoint ? 300 : 400.0,
       child: Column(
         children: [
           Row(
@@ -131,6 +138,12 @@ class _UsersPageState extends ConsumerState<UsersPage> {
             ],
           ),
           const SizedBox(height: 16.0),
+
+          if (_selectedUser != null &&
+              MediaQuery.of(context).size.width <= kTabletBreakPoint) ...[
+            _updateUserSection(_tempUser!),
+            const SizedBox(height: 16.0),
+          ],
           // if (_addingUser)
           Row(
             children: [
