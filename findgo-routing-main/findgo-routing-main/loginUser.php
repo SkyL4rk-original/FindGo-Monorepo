@@ -112,7 +112,7 @@ $user["refreshToken"] = "";
 unset($user["refreshToken"]);
 
 header("jwt: " . $token);
-header("refresh-token: " . $refreshtoken);
+header("refresh-token: " . $refreshToken);
 //setcookie("token", $token, 20000);
 //$user["token"] = $token;
 echo json_encode($user);
