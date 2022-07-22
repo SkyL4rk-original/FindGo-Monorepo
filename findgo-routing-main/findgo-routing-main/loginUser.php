@@ -108,8 +108,7 @@ if ($refreshToken == "") {
 
 
 $user["firebaseToken"] = $firebaseToken;
-$user["refreshToken"] = "";
-unset($user["refreshToken"]);
+$user["refreshToken"] = $refreshToken;
 
 header("jwt: " . $token);
 header("refresh-token: " . $refreshToken);

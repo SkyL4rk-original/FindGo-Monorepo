@@ -12,7 +12,7 @@ function createToken($uuid)
 		"uuid" => $uuid,
 		"iat" => $time,
 		"nbf" => $time - 10,
-		// "exp" => $time + (1 * 1 * 1 * 15) // 15 sec
+		//"exp" => $time + (1 * 1 * 1 * 5) // 15 sec
 		"exp" => $time + (1 * 1 * 15 * 60) // 15 min
 		// days; hours; mins; secs;
 	);

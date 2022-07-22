@@ -230,7 +230,7 @@ class RemoteAuthSource {
     }
   }
 
-  Future<ServerSuccess<User>> register(User user) async {
+  Future<User> register(User user) async {
     final uri = Uri.parse("$serverUrl/registerAdminUser.php");
     print(uri.toString());
 
@@ -263,15 +263,9 @@ class RemoteAuthSource {
         final jsonResp = json.decode(response.body);
         final user = User.fromJson(jsonResp as Map<String, dynamic>);
 
-        final jwt = response.headers['jwt'] ?? "";
-        final refreshToken = response.headers['refresh-token'] ?? "";
         // print("jwt: $jwt");
         // print("refresh-token: $refreshToken");
-        return ServerSuccess(
-          jwt: jwt,
-          refreshToken: refreshToken,
-          object: user,
-        );
+        return user;
 
         // TODO SET RESPONSE ON SERVER
       } else if (response.statusCode == 200 || response.statusCode == 409) {

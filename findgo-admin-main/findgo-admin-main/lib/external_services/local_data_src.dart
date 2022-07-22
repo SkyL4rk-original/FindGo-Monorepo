@@ -34,7 +34,7 @@ class LocalDataSource {
       if (jwt[0] == "'") jwt = jwt.substring(1, jwt.length);
       if (jwt[jwt.length - 1] == "'") jwt = jwt.substring(0, jwt.length - 1);
 
-      // log("[FETCHED JWT] : $jwt");
+      // print("[FETCHED JWT] : $jwt");
       return jwt;
     } catch (e) {
       throw CacheException("Cache Jwt $e");
@@ -61,7 +61,7 @@ class LocalDataSource {
         refreshToken = refreshToken.substring(0, refreshToken.length - 1);
       }
 
-      //print("[FETCHED REFRESH TOKEN] : $refreshToken");
+      // print("[FETCHED REFRESH TOKEN] : $refreshToken");
       return refreshToken;
     } catch (e) {
       throw CacheException("Cache refreshToken $e");
@@ -94,7 +94,7 @@ class LocalDataSource {
 
   // Setters
   Future<Success> storeJwt(String jwt) async {
-    //print("[STORING JWT] : $jwt");
+    // print("[STORING JWT] : $jwt");
     try {
       html.window.localStorage[jwtKey] = jwt; // Web
       // prefs.setString(jwtKey, jwt); // Web - Shared Prefs

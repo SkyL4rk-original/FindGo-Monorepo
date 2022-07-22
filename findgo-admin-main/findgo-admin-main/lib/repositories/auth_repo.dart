@@ -128,17 +128,14 @@ class AuthRepository {
         return left(OfflineFailure());
       }
 
-      final success = await remoteAuthSource.register(user);
-      if (success.object == null) {
-        return left(ExternalServiceFailure("No user returned with login"));
-      }
+      final usr = await remoteAuthSource.register(user);
 
       // Store jwt & user
-      await localDataSource.storeJwt(success.jwt);
-      await localDataSource.storeRefreshToken(success.refreshToken);
+      // await localDataSource.storeJwt(success.jwt);
+      // await localDataSource.storeRefreshToken(success.refreshToken);
       // await localDataSource.storeCurrentUser(success.object!);
 
-      return right(success.object!);
+      return right(usr);
     } on Exception catch (e) {
       log('auth repo: register: ${e.toString()}');
       return left(ExternalServiceFailure(e.toString()));

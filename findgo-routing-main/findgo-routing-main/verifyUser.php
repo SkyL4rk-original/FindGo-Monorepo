@@ -41,7 +41,7 @@ $userTemp = $result->fetch_assoc();
 $userUuid = $userTemp["userUuid"];
 
 // get user from datatbase
-$result = $db->query("SELECT * FROM userAdmin WHERE userUuid='$userUuid'");
+$result = $db->query("SELECT * FROM userAdmin WHERE userUuid='$userUuid' LIMIT 1");
 if ($result->num_rows == 0) {
 	http_response_code(401);
 	//echo mysqli_error($db);
@@ -73,13 +73,11 @@ $result = $db->query("
 // Remove variables
 $user["ID"] = "";
 $user["password"] = "";
-$user["refreshToken"] = "";
 unset($user["ID"]);
 unset($user["password"]);
-unset($user["refreshToken"]);
 
 // Return json user object
 http_response_code(200);
 header("jwt: " . $token);
-header("refresh-token: " . $refreshtoken);
+header("refresh-token: " . $refreshToken);
 echo json_encode($user);

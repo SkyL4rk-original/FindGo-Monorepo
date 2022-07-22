@@ -246,10 +246,8 @@ $user = $result->fetch_assoc();
 // Remove ID & password
 $user["ID"] = "";
 $user["password"] = "";
-$user["refreshToken"] = "";
 unset($user["ID"]);
 unset($user["password"]);
-unset($user["refreshToken"]);
 
 // Create jwt from clientUuid & add as header
 $token = createToken($user["userUuid"]);
